@@ -1,18 +1,17 @@
 openapi: 3.1.0
 info:
   title: Api
-  version: 0.1.0
+  version: 0.2.0
   description: Compétences CI API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
-    description: Health operations
   - name: schools
-    description: School operations
   - name: competitions
-    description: Competition operations
+  - name: auth
+  - name: messages
 paths:
   /healthz:
     get:
@@ -31,7 +30,6 @@ paths:
     get:
       operationId: listSchools
       tags: [schools]
-      summary: List all schools with optional filters
       parameters:
         - name: city
           in: query
@@ -60,7 +58,6 @@ paths:
     get:
       operationId: getSchool
       tags: [schools]
-      summary: Get a school by ID
       parameters:
         - name: id
           in: path
@@ -85,7 +82,6 @@ paths:
     get:
       operationId: listCompetitions
       tags: [competitions]
-      summary: List all competitions with optional filters
       parameters:
         - name: city
           in: query
@@ -114,7 +110,6 @@ paths:
     get:
       operationId: getCompetition
       tags: [competitions]
-      summary: Get a competition by ID
       parameters:
         - name: id
           in: path
@@ -139,7 +134,6 @@ paths:
     get:
       operationId: listCities
       tags: [schools]
-      summary: List all cities
       responses:
         "200":
           description: List of cities
@@ -154,7 +148,6 @@ paths:
     get:
       operationId: listDiplomas
       tags: [schools]
-      summary: List all diploma levels
       responses:
         "200":
           description: List of diplomas
@@ -165,6 +158,87 @@ paths:
                 items:
                   type: string
 
+  /auth/register:
+    post:
+      operationId: register
+      tags: [auth]
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterRequest"
+      responses:
+        "201":
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "409":
+          description: Email already exists
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: Logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "401":
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /messages:
+    post:
+      operationId: sendMessage
+      tags: [messages]
+      summary: Send a message to the platform
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SendMessageRequest"
+      responses:
+        "201":
+          description: Message sent
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
 components:
   schemas:
     HealthStatus:
@@ -172,8 +246,7 @@ components:
       properties:
         status:
           type: string
-      required:
-        - status
+      required: [status]
 
     School:
       type: object
@@ -205,15 +278,7 @@ components:
           nullable: true
         description:
           type: string
-      required:
-        - id
-        - name
-        - type
-        - city
-        - address
-        - diplomas
-        - domains
-        - description
+      required: [id, name, type, city, address, diplomas, domains, description]
 
     SchoolDetail:
       allOf:
@@ -258,15 +323,7 @@ components:
           type: integer
         description:
           type: string
-      required:
-        - id
-        - title
-        - ministry
-        - city
-        - diploma
-        - status
-        - positions
-        - description
+      required: [id, title, ministry, city, diploma, status, positions, description]
 
     CompetitionDetail:
       allOf:
@@ -288,10 +345,73 @@ components:
               type: string
               nullable: true
 
+    RegisterRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 6
+      required: [name, email, password]
+
+    LoginRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+      required: [email, password]
+
+    AuthResponse:
+      type: object
+      properties:
+        user:
+          $ref: "#/components/schemas/UserProfile"
+      required: [user]
+
+    UserProfile:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+      required: [id, name, email]
+
+    SendMessageRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        subject:
+          type: string
+        message:
+          type: string
+      required: [name, email, subject, message]
+
+    MessageResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        message:
+          type: string
+      required: [id, message]
+
     ErrorResponse:
       type: object
       properties:
         message:
           type: string
-      required:
-        - message
+      required: [message]

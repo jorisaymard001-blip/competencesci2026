@@ -3,7 +3,7 @@
  * Do not edit manually.
  * Api
  * Compétences CI API
- * OpenAPI spec version: 0.1.0
+ * OpenAPI spec version: 0.2.0
  */
 export interface HealthStatus {
   status: string;
@@ -63,6 +63,40 @@ export type CompetitionDetail = Competition & {
   contact?: string | null;
   website?: string | null;
 };
+
+export interface RegisterRequest {
+  name: string;
+  email: string;
+  /** @minLength 6 */
+  password: string;
+}
+
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
+
+export interface UserProfile {
+  id: number;
+  name: string;
+  email: string;
+}
+
+export interface AuthResponse {
+  user: UserProfile;
+}
+
+export interface SendMessageRequest {
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+}
+
+export interface MessageResponse {
+  id: number;
+  message: string;
+}
 
 export interface ErrorResponse {
   message: string;

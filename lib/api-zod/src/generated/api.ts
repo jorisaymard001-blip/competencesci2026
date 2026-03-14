@@ -3,7 +3,7 @@
  * Do not edit manually.
  * Api
  * Compétences CI API
- * OpenAPI spec version: 0.1.0
+ * OpenAPI spec version: 0.2.0
  */
 import * as zod from "zod";
 
@@ -14,9 +14,6 @@ export const HealthCheckResponse = zod.object({
   status: zod.string(),
 });
 
-/**
- * @summary List all schools with optional filters
- */
 export const ListSchoolsQueryParams = zod.object({
   city: zod.coerce.string().optional(),
   type: zod.enum(["public", "private"]).optional(),
@@ -37,9 +34,6 @@ export const ListSchoolsResponseItem = zod.object({
 });
 export const ListSchoolsResponse = zod.array(ListSchoolsResponseItem);
 
-/**
- * @summary Get a school by ID
- */
 export const GetSchoolParams = zod.object({
   id: zod.coerce.number(),
 });
@@ -65,9 +59,6 @@ export const GetSchoolResponse = zod
     }),
   );
 
-/**
- * @summary List all competitions with optional filters
- */
 export const ListCompetitionsQueryParams = zod.object({
   city: zod.coerce.string().optional(),
   diploma: zod.coerce.string().optional(),
@@ -88,9 +79,6 @@ export const ListCompetitionsResponseItem = zod.object({
 });
 export const ListCompetitionsResponse = zod.array(ListCompetitionsResponseItem);
 
-/**
- * @summary Get a competition by ID
- */
 export const GetCompetitionParams = zod.object({
   id: zod.coerce.number(),
 });
@@ -117,14 +105,45 @@ export const GetCompetitionResponse = zod
     }),
   );
 
-/**
- * @summary List all cities
- */
 export const ListCitiesResponseItem = zod.string();
 export const ListCitiesResponse = zod.array(ListCitiesResponseItem);
 
-/**
- * @summary List all diploma levels
- */
 export const ListDiplomasResponseItem = zod.string();
 export const ListDiplomasResponse = zod.array(ListDiplomasResponseItem);
+
+/**
+ * @summary Register a new user
+ */
+export const registerBodyPasswordMin = 6;
+
+export const RegisterBody = zod.object({
+  name: zod.string(),
+  email: zod.string().email(),
+  password: zod.string().min(registerBodyPasswordMin),
+});
+
+/**
+ * @summary Login
+ */
+export const LoginBody = zod.object({
+  email: zod.string().email(),
+  password: zod.string(),
+});
+
+export const LoginResponse = zod.object({
+  user: zod.object({
+    id: zod.number(),
+    name: zod.string(),
+    email: zod.string(),
+  }),
+});
+
+/**
+ * @summary Send a message to the platform
+ */
+export const SendMessageBody = zod.object({
+  name: zod.string(),
+  email: zod.string().email(),
+  subject: zod.string(),
+  message: zod.string(),
+});

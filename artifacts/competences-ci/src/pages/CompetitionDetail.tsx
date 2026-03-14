@@ -1,17 +1,22 @@
 import { useRoute } from "wouter";
 import { Layout } from "@/components/Layout";
 import { useGetCompetition } from "@workspace/api-client-react";
-import { Loader2, Calendar, MapPin, Briefcase, GraduationCap, FileText, CheckCircle2, Globe, Phone } from "lucide-react";
+import { Loader2, Calendar, MapPin, Briefcase, GraduationCap, FileText, CheckCircle2, Globe, Phone, Heart } from "lucide-react";
 import { motion } from "framer-motion";
 import { formatDate } from "@/lib/utils";
+import { useFavorites } from "@/contexts/FavoritesContext";
+import { cn } from "@/lib/utils";
 
 export default function CompetitionDetail() {
   const [, params] = useRoute("/competitions/:id");
   const id = params?.id ? parseInt(params.id, 10) : 0;
-  
+
   const { data: comp, isLoading, error } = useGetCompetition(id, {
     query: { enabled: !!id }
   });
+
+  const { isCompetitionFav, toggleCompetition } = useFavorites();
+  const isFav = comp ? isCompetitionFav(comp.id) : false;
 
   if (isLoading) {
     return (
@@ -28,30 +33,45 @@ export default function CompetitionDetail() {
   }
 
   const statusConfig = {
-    open: { label: "Ouvert", color: "text-status-open", bg: "bg-status-open-bg", border: "border-status-open/20" },
-    closed: { label: "Fermé", color: "text-status-closed", bg: "bg-status-closed-bg", border: "border-status-closed/20" },
-    upcoming: { label: "À venir", color: "text-status-upcoming", bg: "bg-status-upcoming-bg", border: "border-status-upcoming/20" }
+    open: { label: "Ouvert", color: "text-green-700", bg: "bg-green-100", border: "border-green-200" },
+    closed: { label: "Fermé", color: "text-red-700", bg: "bg-red-100", border: "border-red-200" },
+    upcoming: { label: "À venir", color: "text-blue-700", bg: "bg-blue-100", border: "border-blue-200" },
   };
-  
+
   const status = statusConfig[comp.status as keyof typeof statusConfig] || statusConfig.closed;
 
   return (
     <Layout showBack noBottomNav>
       <div className="bg-background min-h-screen">
-        
+
         {/* Header Block */}
         <div className="bg-foreground text-white px-6 pt-8 pb-12 rounded-b-[40px] relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-secondary/30 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4" />
-          
+
           <div className="relative z-10">
-            <div className={`inline-flex px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-6 border ${status.bg} ${status.color} ${status.border}`}>
-              {status.label}
+            <div className="flex items-center justify-between mb-4">
+              <div className={`inline-flex px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border ${status.bg} ${status.color} ${status.border}`}>
+                {status.label}
+              </div>
+              {/* Favorite button */}
+              <button
+                onClick={() => toggleCompetition(comp.id)}
+                className={cn(
+                  "w-9 h-9 rounded-full flex items-center justify-center border transition-all active:scale-90",
+                  isFav
+                    ? "bg-red-500/20 border-red-400/30 text-red-300"
+                    : "bg-white/10 border-white/20 text-white/60 hover:text-red-300"
+                )}
+                aria-label={isFav ? "Retirer des favoris" : "Ajouter aux favoris"}
+              >
+                <Heart className={cn("w-4 h-4 transition-all", isFav && "fill-red-400 text-red-400")} />
+              </button>
             </div>
-            
+
             <h1 className="font-display text-2xl sm:text-3xl font-bold leading-tight mb-4 text-balance">
               {comp.title}
             </h1>
-            
+
             <div className="text-white/80 text-sm font-medium mb-6">
               Ministère : <span className="text-white">{comp.ministry}</span>
             </div>
@@ -95,7 +115,7 @@ export default function CompetitionDetail() {
         </div>
 
         <div className="px-6 py-8 space-y-8">
-          
+
           <section>
             <h2 className="font-display text-lg font-bold mb-3">Description</h2>
             <p className="text-sm text-muted-foreground leading-relaxed">
@@ -144,28 +164,39 @@ export default function CompetitionDetail() {
                   </a>
                 )}
                 {comp.contact && (
-                  <a href={`tel:${comp.contact}`} className="flex items-center text-sm font-medium text-green-800 hover:text-green-600">
+                  <a href={`mailto:${comp.contact}`} className="flex items-center text-sm font-medium text-green-800 hover:text-green-600">
                     <Phone className="w-4 h-4 mr-3" /> Contact: {comp.contact}
                   </a>
                 )}
               </div>
             </section>
           )}
-          
+
+          {/* Favorite toggle CTA */}
+          <button
+            onClick={() => toggleCompetition(comp.id)}
+            className={cn(
+              "w-full py-4 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 border-2 transition-all active:scale-[0.98]",
+              isFav
+                ? "border-red-200 bg-red-50 text-red-500"
+                : "border-border bg-card text-muted-foreground hover:border-red-200 hover:text-red-400"
+            )}
+          >
+            <Heart className={cn("w-5 h-5", isFav && "fill-red-500 text-red-500")} />
+            {isFav ? "Retirer des favoris" : "Ajouter aux favoris"}
+          </button>
+
         </div>
-        
+
         {/* Fixed Apply Button */}
         {comp.status === 'open' && (
-          <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/90 backdrop-blur-xl border-t border-border/50 pb-safe z-40 flex justify-center pointer-events-none">
-            <div className="w-full max-w-md pointer-events-auto">
-              <button className="w-full py-4 rounded-2xl bg-secondary text-white font-bold shadow-lg shadow-secondary/30 active:scale-[0.98] transition-all">
-                S'inscrire au concours
-              </button>
-            </div>
+          <div className="px-6 pb-8">
+            <button className="w-full py-4 rounded-2xl bg-secondary text-white font-bold shadow-lg shadow-secondary/30 active:scale-[0.98] transition-all">
+              S'inscrire au concours
+            </button>
           </div>
         )}
-        {comp.status === 'open' && <div className="h-24" />} {/* Spacer for sticky button */}
-        
+
       </div>
     </Layout>
   );

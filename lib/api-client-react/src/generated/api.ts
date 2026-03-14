@@ -3,29 +3,37 @@
  * Do not edit manually.
  * Api
  * Compétences CI API
- * OpenAPI spec version: 0.1.0
+ * OpenAPI spec version: 0.2.0
  */
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import type {
+  MutationFunction,
   QueryFunction,
   QueryKey,
+  UseMutationOptions,
+  UseMutationResult,
   UseQueryOptions,
   UseQueryResult,
 } from "@tanstack/react-query";
 
 import type {
+  AuthResponse,
   Competition,
   CompetitionDetail,
   ErrorResponse,
   HealthStatus,
   ListCompetitionsParams,
   ListSchoolsParams,
+  LoginRequest,
+  MessageResponse,
+  RegisterRequest,
   School,
   SchoolDetail,
+  SendMessageRequest,
 } from "./api.schemas";
 
 import { customFetch } from "../custom-fetch";
-import type { ErrorType } from "../custom-fetch";
+import type { ErrorType, BodyType } from "../custom-fetch";
 
 type AwaitedInput<T> = PromiseLike<T> | T;
 
@@ -108,9 +116,6 @@ export function useHealthCheck<
   return { ...query, queryKey: queryOptions.queryKey };
 }
 
-/**
- * @summary List all schools with optional filters
- */
 export const getListSchoolsUrl = (params?: ListSchoolsParams) => {
   const normalizedParams = new URLSearchParams();
 
@@ -175,10 +180,6 @@ export type ListSchoolsQueryResult = NonNullable<
 >;
 export type ListSchoolsQueryError = ErrorType<unknown>;
 
-/**
- * @summary List all schools with optional filters
- */
-
 export function useListSchools<
   TData = Awaited<ReturnType<typeof listSchools>>,
   TError = ErrorType<unknown>,
@@ -202,9 +203,6 @@ export function useListSchools<
   return { ...query, queryKey: queryOptions.queryKey };
 }
 
-/**
- * @summary Get a school by ID
- */
 export const getGetSchoolUrl = (id: number) => {
   return `/api/schools/${id}`;
 };
@@ -260,10 +258,6 @@ export type GetSchoolQueryResult = NonNullable<
 >;
 export type GetSchoolQueryError = ErrorType<ErrorResponse>;
 
-/**
- * @summary Get a school by ID
- */
-
 export function useGetSchool<
   TData = Awaited<ReturnType<typeof getSchool>>,
   TError = ErrorType<ErrorResponse>,
@@ -287,9 +281,6 @@ export function useGetSchool<
   return { ...query, queryKey: queryOptions.queryKey };
 }
 
-/**
- * @summary List all competitions with optional filters
- */
 export const getListCompetitionsUrl = (params?: ListCompetitionsParams) => {
   const normalizedParams = new URLSearchParams();
 
@@ -357,10 +348,6 @@ export type ListCompetitionsQueryResult = NonNullable<
 >;
 export type ListCompetitionsQueryError = ErrorType<unknown>;
 
-/**
- * @summary List all competitions with optional filters
- */
-
 export function useListCompetitions<
   TData = Awaited<ReturnType<typeof listCompetitions>>,
   TError = ErrorType<unknown>,
@@ -384,9 +371,6 @@ export function useListCompetitions<
   return { ...query, queryKey: queryOptions.queryKey };
 }
 
-/**
- * @summary Get a competition by ID
- */
 export const getGetCompetitionUrl = (id: number) => {
   return `/api/competitions/${id}`;
 };
@@ -444,10 +428,6 @@ export type GetCompetitionQueryResult = NonNullable<
 >;
 export type GetCompetitionQueryError = ErrorType<ErrorResponse>;
 
-/**
- * @summary Get a competition by ID
- */
-
 export function useGetCompetition<
   TData = Awaited<ReturnType<typeof getCompetition>>,
   TError = ErrorType<ErrorResponse>,
@@ -471,9 +451,6 @@ export function useGetCompetition<
   return { ...query, queryKey: queryOptions.queryKey };
 }
 
-/**
- * @summary List all cities
- */
 export const getListCitiesUrl = () => {
   return `/api/cities`;
 };
@@ -520,10 +497,6 @@ export type ListCitiesQueryResult = NonNullable<
 >;
 export type ListCitiesQueryError = ErrorType<unknown>;
 
-/**
- * @summary List all cities
- */
-
 export function useListCities<
   TData = Awaited<ReturnType<typeof listCities>>,
   TError = ErrorType<unknown>,
@@ -544,9 +517,6 @@ export function useListCities<
   return { ...query, queryKey: queryOptions.queryKey };
 }
 
-/**
- * @summary List all diploma levels
- */
 export const getListDiplomasUrl = () => {
   return `/api/diplomas`;
 };
@@ -595,10 +565,6 @@ export type ListDiplomasQueryResult = NonNullable<
 >;
 export type ListDiplomasQueryError = ErrorType<unknown>;
 
-/**
- * @summary List all diploma levels
- */
-
 export function useListDiplomas<
   TData = Awaited<ReturnType<typeof listDiplomas>>,
   TError = ErrorType<unknown>,
@@ -618,3 +584,261 @@ export function useListDiplomas<
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+/**
+ * @summary Register a new user
+ */
+export const getRegisterUrl = () => {
+  return `/api/auth/register`;
+};
+
+export const register = async (
+  registerRequest: RegisterRequest,
+  options?: RequestInit,
+): Promise<AuthResponse> => {
+  return customFetch<AuthResponse>(getRegisterUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(registerRequest),
+  });
+};
+
+export const getRegisterMutationOptions = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof register>>,
+    TError,
+    { data: BodyType<RegisterRequest> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof register>>,
+  TError,
+  { data: BodyType<RegisterRequest> },
+  TContext
+> => {
+  const mutationKey = ["register"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof register>>,
+    { data: BodyType<RegisterRequest> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return register(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type RegisterMutationResult = NonNullable<
+  Awaited<ReturnType<typeof register>>
+>;
+export type RegisterMutationBody = BodyType<RegisterRequest>;
+export type RegisterMutationError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Register a new user
+ */
+export const useRegister = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof register>>,
+    TError,
+    { data: BodyType<RegisterRequest> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof register>>,
+  TError,
+  { data: BodyType<RegisterRequest> },
+  TContext
+> => {
+  return useMutation(getRegisterMutationOptions(options));
+};
+
+/**
+ * @summary Login
+ */
+export const getLoginUrl = () => {
+  return `/api/auth/login`;
+};
+
+export const login = async (
+  loginRequest: LoginRequest,
+  options?: RequestInit,
+): Promise<AuthResponse> => {
+  return customFetch<AuthResponse>(getLoginUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(loginRequest),
+  });
+};
+
+export const getLoginMutationOptions = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof login>>,
+    TError,
+    { data: BodyType<LoginRequest> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof login>>,
+  TError,
+  { data: BodyType<LoginRequest> },
+  TContext
+> => {
+  const mutationKey = ["login"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof login>>,
+    { data: BodyType<LoginRequest> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return login(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type LoginMutationResult = NonNullable<
+  Awaited<ReturnType<typeof login>>
+>;
+export type LoginMutationBody = BodyType<LoginRequest>;
+export type LoginMutationError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Login
+ */
+export const useLogin = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof login>>,
+    TError,
+    { data: BodyType<LoginRequest> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof login>>,
+  TError,
+  { data: BodyType<LoginRequest> },
+  TContext
+> => {
+  return useMutation(getLoginMutationOptions(options));
+};
+
+/**
+ * @summary Send a message to the platform
+ */
+export const getSendMessageUrl = () => {
+  return `/api/messages`;
+};
+
+export const sendMessage = async (
+  sendMessageRequest: SendMessageRequest,
+  options?: RequestInit,
+): Promise<MessageResponse> => {
+  return customFetch<MessageResponse>(getSendMessageUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(sendMessageRequest),
+  });
+};
+
+export const getSendMessageMutationOptions = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof sendMessage>>,
+    TError,
+    { data: BodyType<SendMessageRequest> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof sendMessage>>,
+  TError,
+  { data: BodyType<SendMessageRequest> },
+  TContext
+> => {
+  const mutationKey = ["sendMessage"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof sendMessage>>,
+    { data: BodyType<SendMessageRequest> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return sendMessage(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type SendMessageMutationResult = NonNullable<
+  Awaited<ReturnType<typeof sendMessage>>
+>;
+export type SendMessageMutationBody = BodyType<SendMessageRequest>;
+export type SendMessageMutationError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Send a message to the platform
+ */
+export const useSendMessage = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof sendMessage>>,
+    TError,
+    { data: BodyType<SendMessageRequest> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof sendMessage>>,
+  TError,
+  { data: BodyType<SendMessageRequest> },
+  TContext
+> => {
+  return useMutation(getSendMessageMutationOptions(options));
+};
