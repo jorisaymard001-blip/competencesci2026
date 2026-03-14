@@ -4,6 +4,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { FavoritesProvider } from "@/contexts/FavoritesContext";
+import { NotificationsProvider } from "@/contexts/NotificationsContext";
 
 // Pages
 import Home from "@/pages/Home";
@@ -13,6 +14,8 @@ import Competitions from "@/pages/Competitions";
 import CompetitionDetail from "@/pages/CompetitionDetail";
 import Favorites from "@/pages/Favorites";
 import Messages from "@/pages/Messages";
+import Notifications from "@/pages/Notifications";
+import Tips from "@/pages/Tips";
 import Login from "@/pages/Login";
 import Register from "@/pages/Register";
 import NotFound from "@/pages/not-found";
@@ -41,7 +44,7 @@ function PublicOnlyRoute({ component: Component }: { component: React.ComponentT
 function Router() {
   return (
     <Switch>
-      {/* Public-only routes (redirect if logged in) */}
+      {/* Public-only routes */}
       <Route path="/login">
         <PublicOnlyRoute component={Login} />
       </Route>
@@ -71,6 +74,12 @@ function Router() {
       <Route path="/messages">
         <ProtectedRoute component={Messages} />
       </Route>
+      <Route path="/notifications">
+        <ProtectedRoute component={Notifications} />
+      </Route>
+      <Route path="/tips">
+        <ProtectedRoute component={Tips} />
+      </Route>
 
       {/* 404 */}
       <Route component={NotFound} />
@@ -84,10 +93,12 @@ function App() {
       <TooltipProvider>
         <AuthProvider>
           <FavoritesProvider>
-            <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-              <Router />
-            </WouterRouter>
-            <Toaster />
+            <NotificationsProvider>
+              <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+                <Router />
+              </WouterRouter>
+              <Toaster />
+            </NotificationsProvider>
           </FavoritesProvider>
         </AuthProvider>
       </TooltipProvider>

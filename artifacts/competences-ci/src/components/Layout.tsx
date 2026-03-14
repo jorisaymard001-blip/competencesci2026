@@ -1,10 +1,11 @@
 import { ReactNode } from "react";
 import { Link, useRoute, useLocation } from "wouter";
-import { Home, GraduationCap, Briefcase, ChevronLeft, Heart, MessageCircle, LogOut, User } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { Home, GraduationCap, Briefcase, ChevronLeft, Heart, MessageCircle, LogOut, User, Bell } from "lucide-react";
+import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useFavorites } from "@/contexts/FavoritesContext";
+import { useNotifications } from "@/contexts/NotificationsContext";
 
 interface LayoutProps {
   children: ReactNode;
@@ -25,6 +26,7 @@ export function Layout({
 }: LayoutProps) {
   const { user, logout } = useAuth();
   const [, navigate] = useLocation();
+  const { unreadCount } = useNotifications();
 
   const handleLogout = () => {
     logout();
@@ -35,7 +37,7 @@ export function Layout({
     <div className="min-h-[100dvh] flex flex-col bg-background relative w-full max-w-md mx-auto shadow-2xl overflow-hidden sm:border-x sm:border-border/50">
 
       {/* Header */}
-      {(title || showBack) && (
+      {(title || showBack || (!showBack && user)) && (
         <header
           className={cn(
             "sticky top-0 z-40 w-full transition-all duration-300",
@@ -69,6 +71,20 @@ export function Layout({
 
             {!showBack && user && (
               <div className="ml-auto flex items-center gap-1">
+                {/* Notification bell */}
+                <button
+                  onClick={() => navigate("/notifications")}
+                  className="relative p-2 rounded-full hover:bg-muted transition-colors active:scale-95"
+                  aria-label="Notifications"
+                >
+                  <Bell className="w-5 h-5 text-muted-foreground" />
+                  {unreadCount > 0 && (
+                    <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white text-[9px] font-bold flex items-center justify-center rounded-full leading-none">
+                      {unreadCount > 9 ? "9+" : unreadCount}
+                    </span>
+                  )}
+                </button>
+
                 <div className="flex items-center gap-1.5 bg-muted/60 rounded-full px-3 py-1.5">
                   <User className="w-3.5 h-3.5 text-muted-foreground" />
                   <span className="text-xs font-medium text-foreground max-w-[80px] truncate">{user.name.split(" ")[0]}</span>

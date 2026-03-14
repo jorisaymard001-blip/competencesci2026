@@ -1,10 +1,11 @@
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { Layout } from "@/components/Layout";
 import { Search, GraduationCap, Briefcase, ArrowRight, BookOpen, Users, ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { useListSchools, useListCompetitions } from "@workspace/api-client-react";
 
 export default function Home() {
+  const [, navigate] = useLocation();
   const { data: schools } = useListSchools();
   const { data: competitions } = useListCompetitions();
   
@@ -132,7 +133,10 @@ export default function Home() {
             <p className="text-sm text-muted-foreground/80 mb-4 line-clamp-2">
               Assurez-vous d'avoir tous vos documents certifiés avant l'ouverture des concours.
             </p>
-            <button className="text-sm font-semibold text-primary flex items-center">
+            <button
+              onClick={() => navigate("/tips")}
+              className="text-sm font-semibold text-primary flex items-center active:opacity-70 transition-opacity"
+            >
               Voir les conseils <ArrowRight className="w-4 h-4 ml-1" />
             </button>
           </div>

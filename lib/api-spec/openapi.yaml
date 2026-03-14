@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: Api
-  version: 0.2.0
+  version: 0.3.0
   description: Compétences CI API
 servers:
   - url: /api
@@ -12,12 +12,12 @@ tags:
   - name: competitions
   - name: auth
   - name: messages
+  - name: notifications
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
-      summary: Health check
       responses:
         "200":
           description: Healthy
@@ -33,17 +33,13 @@ paths:
       parameters:
         - name: city
           in: query
-          schema:
-            type: string
+          schema: { type: string }
         - name: type
           in: query
-          schema:
-            type: string
-            enum: [public, private]
+          schema: { type: string, enum: [public, private] }
         - name: diploma
           in: query
-          schema:
-            type: string
+          schema: { type: string }
       responses:
         "200":
           description: List of schools
@@ -62,8 +58,7 @@ paths:
         - name: id
           in: path
           required: true
-          schema:
-            type: integer
+          schema: { type: integer }
       responses:
         "200":
           description: School detail
@@ -85,17 +80,13 @@ paths:
       parameters:
         - name: city
           in: query
-          schema:
-            type: string
+          schema: { type: string }
         - name: diploma
           in: query
-          schema:
-            type: string
+          schema: { type: string }
         - name: status
           in: query
-          schema:
-            type: string
-            enum: [open, closed, upcoming]
+          schema: { type: string, enum: [open, closed, upcoming] }
       responses:
         "200":
           description: List of competitions
@@ -114,8 +105,7 @@ paths:
         - name: id
           in: path
           required: true
-          schema:
-            type: integer
+          schema: { type: integer }
       responses:
         "200":
           description: Competition detail
@@ -141,8 +131,7 @@ paths:
             application/json:
               schema:
                 type: array
-                items:
-                  type: string
+                items: { type: string }
 
   /diplomas:
     get:
@@ -155,14 +144,12 @@ paths:
             application/json:
               schema:
                 type: array
-                items:
-                  type: string
+                items: { type: string }
 
   /auth/register:
     post:
       operationId: register
       tags: [auth]
-      summary: Register a new user
       requestBody:
         required: true
         content:
@@ -193,7 +180,6 @@ paths:
     post:
       operationId: login
       tags: [auth]
-      summary: Login
       requestBody:
         required: true
         content:
@@ -218,7 +204,6 @@ paths:
     post:
       operationId: sendMessage
       tags: [messages]
-      summary: Send a message to the platform
       requestBody:
         required: true
         content:
@@ -239,45 +224,65 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
+  /notifications:
+    get:
+      operationId: listNotifications
+      tags: [notifications]
+      summary: List all platform notifications
+      responses:
+        "200":
+          description: List of notifications
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Notification"
+    post:
+      operationId: createNotification
+      tags: [notifications]
+      summary: Create a new notification (admin/internal)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateNotificationRequest"
+      responses:
+        "201":
+          description: Notification created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Notification"
+
 components:
   schemas:
     HealthStatus:
       type: object
       properties:
-        status:
-          type: string
+        status: { type: string }
       required: [status]
 
     School:
       type: object
       properties:
-        id:
-          type: integer
-        name:
-          type: string
+        id: { type: integer }
+        name: { type: string }
         type:
           type: string
           enum: [public, private]
-        city:
-          type: string
-        address:
-          type: string
+        city: { type: string }
+        address: { type: string }
         diplomas:
           type: array
-          items:
-            type: string
+          items: { type: string }
         domains:
           type: array
-          items:
-            type: string
-        phone:
-          type: string
-          nullable: true
-        website:
-          type: string
-          nullable: true
-        description:
-          type: string
+          items: { type: string }
+        phone: { type: string, nullable: true }
+        website: { type: string, nullable: true }
+        description: { type: string }
       required: [id, name, type, city, address, diplomas, domains, description]
 
     SchoolDetail:
@@ -285,44 +290,25 @@ components:
         - $ref: "#/components/schemas/School"
         - type: object
           properties:
-            email:
-              type: string
-              nullable: true
-            founded:
-              type: integer
-              nullable: true
-            accreditation:
-              type: string
-              nullable: true
+            email: { type: string, nullable: true }
+            founded: { type: integer, nullable: true }
+            accreditation: { type: string, nullable: true }
 
     Competition:
       type: object
       properties:
-        id:
-          type: integer
-        title:
-          type: string
-        ministry:
-          type: string
-        city:
-          type: string
-        diploma:
-          type: string
+        id: { type: integer }
+        title: { type: string }
+        ministry: { type: string }
+        city: { type: string }
+        diploma: { type: string }
         status:
           type: string
           enum: [open, closed, upcoming]
-        openDate:
-          type: string
-          format: date
-          nullable: true
-        closeDate:
-          type: string
-          format: date
-          nullable: true
-        positions:
-          type: integer
-        description:
-          type: string
+        openDate: { type: string, format: date, nullable: true }
+        closeDate: { type: string, format: date, nullable: true }
+        positions: { type: integer }
+        description: { type: string }
       required: [id, title, ministry, city, diploma, status, positions, description]
 
     CompetitionDetail:
@@ -332,40 +318,26 @@ components:
           properties:
             requirements:
               type: array
-              items:
-                type: string
+              items: { type: string }
             process:
               type: array
-              items:
-                type: string
-            contact:
-              type: string
-              nullable: true
-            website:
-              type: string
-              nullable: true
+              items: { type: string }
+            contact: { type: string, nullable: true }
+            website: { type: string, nullable: true }
 
     RegisterRequest:
       type: object
       properties:
-        name:
-          type: string
-        email:
-          type: string
-          format: email
-        password:
-          type: string
-          minLength: 6
+        name: { type: string }
+        email: { type: string, format: email }
+        password: { type: string, minLength: 6 }
       required: [name, email, password]
 
     LoginRequest:
       type: object
       properties:
-        email:
-          type: string
-          format: email
-        password:
-          type: string
+        email: { type: string, format: email }
+        password: { type: string }
       required: [email, password]
 
     AuthResponse:
@@ -378,40 +350,51 @@ components:
     UserProfile:
       type: object
       properties:
-        id:
-          type: integer
-        name:
-          type: string
-        email:
-          type: string
+        id: { type: integer }
+        name: { type: string }
+        email: { type: string }
       required: [id, name, email]
 
     SendMessageRequest:
       type: object
       properties:
-        name:
-          type: string
-        email:
-          type: string
-          format: email
-        subject:
-          type: string
-        message:
-          type: string
+        name: { type: string }
+        email: { type: string, format: email }
+        subject: { type: string }
+        message: { type: string }
       required: [name, email, subject, message]
 
     MessageResponse:
       type: object
       properties:
-        id:
-          type: integer
-        message:
-          type: string
+        id: { type: integer }
+        message: { type: string }
       required: [id, message]
+
+    Notification:
+      type: object
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        body: { type: string }
+        type: { type: string }
+        referenceId: { type: integer, nullable: true }
+        referenceType: { type: string, nullable: true }
+        createdAt: { type: string }
+      required: [id, title, body, type, createdAt]
+
+    CreateNotificationRequest:
+      type: object
+      properties:
+        title: { type: string }
+        body: { type: string }
+        type: { type: string }
+        referenceId: { type: integer, nullable: true }
+        referenceType: { type: string, nullable: true }
+      required: [title, body, type]
 
     ErrorResponse:
       type: object
       properties:
-        message:
-          type: string
+        message: { type: string }
       required: [message]

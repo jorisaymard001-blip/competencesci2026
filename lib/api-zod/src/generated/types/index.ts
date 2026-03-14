@@ -3,13 +3,14 @@
  * Do not edit manually.
  * Api
  * Compétences CI API
- * OpenAPI spec version: 0.2.0
+ * OpenAPI spec version: 0.3.0
  */
 
 export * from "./authResponse";
 export * from "./competition";
 export * from "./competitionDetail";
 export * from "./competitionStatus";
+export * from "./createNotificationRequest";
 export * from "./errorResponse";
 export * from "./healthStatus";
 export * from "./listCompetitionsParams";
@@ -18,6 +19,7 @@ export * from "./listSchoolsParams";
 export * from "./listSchoolsType";
 export * from "./loginRequest";
 export * from "./messageResponse";
+export * from "./notification";
 export * from "./registerRequest";
 export * from "./school";
 export * from "./schoolDetail";

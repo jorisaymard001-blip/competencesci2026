@@ -191,9 +191,25 @@ export default function CompetitionDetail() {
         {/* Fixed Apply Button */}
         {comp.status === 'open' && (
           <div className="px-6 pb-8">
-            <button className="w-full py-4 rounded-2xl bg-secondary text-white font-bold shadow-lg shadow-secondary/30 active:scale-[0.98] transition-all">
-              S'inscrire au concours
-            </button>
+            {comp.website ? (
+              <a
+                href={comp.website}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block w-full py-4 rounded-2xl bg-secondary text-white font-bold text-center shadow-lg shadow-secondary/30 active:scale-[0.98] transition-all"
+              >
+                S'inscrire au concours →
+              </a>
+            ) : (
+              <a
+                href="https://www.fonctionpublique.gouv.ci"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block w-full py-4 rounded-2xl bg-secondary text-white font-bold text-center shadow-lg shadow-secondary/30 active:scale-[0.98] transition-all"
+              >
+                S'inscrire sur le site officiel →
+              </a>
+            )}
           </div>
         )}
 

@@ -3,13 +3,10 @@
  * Do not edit manually.
  * Api
  * Compétences CI API
- * OpenAPI spec version: 0.2.0
+ * OpenAPI spec version: 0.3.0
  */
 import * as zod from "zod";
 
-/**
- * @summary Health check
- */
 export const HealthCheckResponse = zod.object({
   status: zod.string(),
 });
@@ -111,9 +108,6 @@ export const ListCitiesResponse = zod.array(ListCitiesResponseItem);
 export const ListDiplomasResponseItem = zod.string();
 export const ListDiplomasResponse = zod.array(ListDiplomasResponseItem);
 
-/**
- * @summary Register a new user
- */
 export const registerBodyPasswordMin = 6;
 
 export const RegisterBody = zod.object({
@@ -122,9 +116,6 @@ export const RegisterBody = zod.object({
   password: zod.string().min(registerBodyPasswordMin),
 });
 
-/**
- * @summary Login
- */
 export const LoginBody = zod.object({
   email: zod.string().email(),
   password: zod.string(),
@@ -138,12 +129,36 @@ export const LoginResponse = zod.object({
   }),
 });
 
-/**
- * @summary Send a message to the platform
- */
 export const SendMessageBody = zod.object({
   name: zod.string(),
   email: zod.string().email(),
   subject: zod.string(),
   message: zod.string(),
+});
+
+/**
+ * @summary List all platform notifications
+ */
+export const ListNotificationsResponseItem = zod.object({
+  id: zod.number(),
+  title: zod.string(),
+  body: zod.string(),
+  type: zod.string(),
+  referenceId: zod.number().nullish(),
+  referenceType: zod.string().nullish(),
+  createdAt: zod.string(),
+});
+export const ListNotificationsResponse = zod.array(
+  ListNotificationsResponseItem,
+);
+
+/**
+ * @summary Create a new notification (admin/internal)
+ */
+export const CreateNotificationBody = zod.object({
+  title: zod.string(),
+  body: zod.string(),
+  type: zod.string(),
+  referenceId: zod.number().nullish(),
+  referenceType: zod.string().nullish(),
 });

@@ -4,6 +4,7 @@ import schoolsRouter from "./schools";
 import competitionsRouter from "./competitions";
 import authRouter from "./auth";
 import messagesRouter from "./messages";
+import notificationsRouter from "./notifications";
 
 const router: IRouter = Router();
 
@@ -12,5 +13,6 @@ router.use(schoolsRouter);
 router.use(competitionsRouter);
 router.use(authRouter);
 router.use(messagesRouter);
+router.use("/notifications", notificationsRouter);
 
 export default router;

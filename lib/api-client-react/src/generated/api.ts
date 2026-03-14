@@ -3,7 +3,7 @@
  * Do not edit manually.
  * Api
  * Compétences CI API
- * OpenAPI spec version: 0.2.0
+ * OpenAPI spec version: 0.3.0
  */
 import { useMutation, useQuery } from "@tanstack/react-query";
 import type {
@@ -20,12 +20,14 @@ import type {
   AuthResponse,
   Competition,
   CompetitionDetail,
+  CreateNotificationRequest,
   ErrorResponse,
   HealthStatus,
   ListCompetitionsParams,
   ListSchoolsParams,
   LoginRequest,
   MessageResponse,
+  Notification,
   RegisterRequest,
   School,
   SchoolDetail,
@@ -41,9 +43,6 @@ type Awaited<O> = O extends AwaitedInput<infer T> ? T : never;
 
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
-/**
- * @summary Health check
- */
 export const getHealthCheckUrl = () => {
   return `/api/healthz`;
 };
@@ -91,10 +90,6 @@ export type HealthCheckQueryResult = NonNullable<
   Awaited<ReturnType<typeof healthCheck>>
 >;
 export type HealthCheckQueryError = ErrorType<unknown>;
-
-/**
- * @summary Health check
- */
 
 export function useHealthCheck<
   TData = Awaited<ReturnType<typeof healthCheck>>,
@@ -585,9 +580,6 @@ export function useListDiplomas<
   return { ...query, queryKey: queryOptions.queryKey };
 }
 
-/**
- * @summary Register a new user
- */
 export const getRegisterUrl = () => {
   return `/api/auth/register`;
 };
@@ -648,9 +640,6 @@ export type RegisterMutationResult = NonNullable<
 export type RegisterMutationBody = BodyType<RegisterRequest>;
 export type RegisterMutationError = ErrorType<ErrorResponse>;
 
-/**
- * @summary Register a new user
- */
 export const useRegister = <
   TError = ErrorType<ErrorResponse>,
   TContext = unknown,
@@ -671,9 +660,6 @@ export const useRegister = <
   return useMutation(getRegisterMutationOptions(options));
 };
 
-/**
- * @summary Login
- */
 export const getLoginUrl = () => {
   return `/api/auth/login`;
 };
@@ -734,9 +720,6 @@ export type LoginMutationResult = NonNullable<
 export type LoginMutationBody = BodyType<LoginRequest>;
 export type LoginMutationError = ErrorType<ErrorResponse>;
 
-/**
- * @summary Login
- */
 export const useLogin = <
   TError = ErrorType<ErrorResponse>,
   TContext = unknown,
@@ -757,9 +740,6 @@ export const useLogin = <
   return useMutation(getLoginMutationOptions(options));
 };
 
-/**
- * @summary Send a message to the platform
- */
 export const getSendMessageUrl = () => {
   return `/api/messages`;
 };
@@ -820,9 +800,6 @@ export type SendMessageMutationResult = NonNullable<
 export type SendMessageMutationBody = BodyType<SendMessageRequest>;
 export type SendMessageMutationError = ErrorType<ErrorResponse>;
 
-/**
- * @summary Send a message to the platform
- */
 export const useSendMessage = <
   TError = ErrorType<ErrorResponse>,
   TContext = unknown,
@@ -841,4 +818,166 @@ export const useSendMessage = <
   TContext
 > => {
   return useMutation(getSendMessageMutationOptions(options));
+};
+
+/**
+ * @summary List all platform notifications
+ */
+export const getListNotificationsUrl = () => {
+  return `/api/notifications`;
+};
+
+export const listNotifications = async (
+  options?: RequestInit,
+): Promise<Notification[]> => {
+  return customFetch<Notification[]>(getListNotificationsUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getListNotificationsQueryKey = () => {
+  return [`/api/notifications`] as const;
+};
+
+export const getListNotificationsQueryOptions = <
+  TData = Awaited<ReturnType<typeof listNotifications>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listNotifications>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getListNotificationsQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof listNotifications>>
+  > = ({ signal }) => listNotifications({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listNotifications>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListNotificationsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listNotifications>>
+>;
+export type ListNotificationsQueryError = ErrorType<unknown>;
+
+/**
+ * @summary List all platform notifications
+ */
+
+export function useListNotifications<
+  TData = Awaited<ReturnType<typeof listNotifications>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listNotifications>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListNotificationsQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Create a new notification (admin/internal)
+ */
+export const getCreateNotificationUrl = () => {
+  return `/api/notifications`;
+};
+
+export const createNotification = async (
+  createNotificationRequest: CreateNotificationRequest,
+  options?: RequestInit,
+): Promise<Notification> => {
+  return customFetch<Notification>(getCreateNotificationUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(createNotificationRequest),
+  });
+};
+
+export const getCreateNotificationMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createNotification>>,
+    TError,
+    { data: BodyType<CreateNotificationRequest> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof createNotification>>,
+  TError,
+  { data: BodyType<CreateNotificationRequest> },
+  TContext
+> => {
+  const mutationKey = ["createNotification"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof createNotification>>,
+    { data: BodyType<CreateNotificationRequest> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return createNotification(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type CreateNotificationMutationResult = NonNullable<
+  Awaited<ReturnType<typeof createNotification>>
+>;
+export type CreateNotificationMutationBody =
+  BodyType<CreateNotificationRequest>;
+export type CreateNotificationMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Create a new notification (admin/internal)
+ */
+export const useCreateNotification = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createNotification>>,
+    TError,
+    { data: BodyType<CreateNotificationRequest> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof createNotification>>,
+  TError,
+  { data: BodyType<CreateNotificationRequest> },
+  TContext
+> => {
+  return useMutation(getCreateNotificationMutationOptions(options));
 };

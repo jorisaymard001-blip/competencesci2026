@@ -3,7 +3,7 @@
  * Do not edit manually.
  * Api
  * Compétences CI API
- * OpenAPI spec version: 0.2.0
+ * OpenAPI spec version: 0.3.0
  */
 export interface HealthStatus {
   status: string;
@@ -96,6 +96,24 @@ export interface SendMessageRequest {
 export interface MessageResponse {
   id: number;
   message: string;
+}
+
+export interface Notification {
+  id: number;
+  title: string;
+  body: string;
+  type: string;
+  referenceId?: number | null;
+  referenceType?: string | null;
+  createdAt: string;
+}
+
+export interface CreateNotificationRequest {
+  title: string;
+  body: string;
+  type: string;
+  referenceId?: number | null;
+  referenceType?: string | null;
 }
 
 export interface ErrorResponse {
