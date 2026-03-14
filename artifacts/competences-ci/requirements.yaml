@@ -1,0 +1,18 @@
+packages:
+  "framer-motion": "For fluid mobile-like page transitions and interactive element animations"
+  "clsx": "Utility for conditionally joining classNames"
+  "tailwind-merge": "Utility to merge tailwind classes safely"
+  "lucide-react": "Beautiful consistent icon set"
+
+images:
+  - path: "artifacts/competences-ci/public/images/hero-pattern.png"
+    description: "Abstract geometric pattern using soft orange, green, and cream colors, inspired by West African textiles but very modern, minimal, and subtle. Suitable for a header background."
+    aspect_ratio: "16:9"
+  - path: "artifacts/competences-ci/public/images/home-illustration.png"
+    description: "Modern 3D flat illustration of diverse young African students and professionals looking upward towards a bright future, using orange and green accent colors, clean white background."
+    aspect_ratio: "1:1"
+
+notes:
+  - Using generated hooks from @workspace/api-client-react for all data fetching.
+  - French language used for all UI text.
+  - Mobile-first design paradigm with bottom navigation.
