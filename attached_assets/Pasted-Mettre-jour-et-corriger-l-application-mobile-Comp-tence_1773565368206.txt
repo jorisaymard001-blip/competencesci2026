@@ -1,0 +1,86 @@
+Mettre à jour et corriger l’application mobile « Compétences CI ».
+
+L’application fonctionne déjà mais plusieurs bugs et améliorations doivent être corrigés afin d’améliorer l’expérience utilisateur.
+
+Merci d’apporter les modifications suivantes :
+
+1. Correction du changement de langue
+
+Actuellement, lorsque l’utilisateur appuie sur le bouton pour changer la langue (Français / Anglais), rien ne se passe.
+
+Corriger ce problème afin que :
+
+- lorsque l’utilisateur sélectionne « Français », toute l’application s’affiche en français
+- lorsque l’utilisateur sélectionne « English », toute l’application s’affiche en anglais
+
+Le changement de langue doit être appliqué immédiatement dans toute l’application et la préférence doit être enregistrée pour les prochaines utilisations.
+
+2. Correction du mode clair et mode sombre
+
+Actuellement, lorsque l’utilisateur sélectionne « Mode clair » ou « Mode sombre », aucun changement ne se produit.
+
+Merci de corriger cela afin que :
+
+- le mode sombre applique un thème sombre à toute l’application
+- le mode clair applique un thème clair
+- le changement soit instantané
+- la préférence soit enregistrée pour l’utilisateur.
+
+3. Amélioration du système de notifications (icône cloche)
+
+Sur la page d’accueil, il y a une icône de notification en forme de cloche.
+
+Merci d’améliorer cette fonctionnalité :
+
+Messages
+
+Les messages affichés dans les notifications doivent pouvoir être :
+
+- marqués comme « lus »
+- supprimés
+- sauvegardés
+
+Gestes utilisateur :
+
+- si l’utilisateur glisse un message vers la gauche → le message est supprimé
+- si l’utilisateur glisse un message vers la droite → le message est sauvegardé
+
+Badge de notification
+
+Lorsque l’utilisateur reçoit un nouveau message :
+
+- une notification push doit apparaître
+- le nombre de messages non lus doit apparaître sur l’icône de la cloche (badge de notification).
+
+4. Notifications push
+
+Mettre en place un système de notifications push.
+
+Lorsqu’un nouveau message ou une nouvelle information importante est envoyée, l’utilisateur doit recevoir une notification sur son téléphone même si l’application n’est pas ouverte.
+
+5. Réception des messages envoyés par les utilisateurs
+
+Dans la section « Contact » où l’utilisateur peut envoyer un message ou un retour sur l’application :
+
+Tous les messages envoyés doivent être transmis automatiquement à l’adresse email suivante :
+
+competencesci2004@gmail.com
+
+Chaque email reçu doit contenir :
+
+- le nom de l’utilisateur
+- son email
+- le sujet du message
+- le contenu du message
+- la date d’envoi
+
+Assurez-vous que les messages envoyés par les utilisateurs arrivent correctement sur cette adresse email.
+
+6. Vérification générale
+
+Merci de vérifier que :
+
+- toutes les nouvelles fonctionnalités fonctionnent correctement
+- les boutons et gestes tactiles fonctionnent bien
+- l’application reste fluide et optimisée pour mobile
+- aucune fonctionnalité existante ne soit cassée par ces modifications.

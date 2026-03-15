@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { useT } from "@/lib/useT";
 
 const AVATARS = [
   { id: "boy", label: "Garçon", emoji: "👦" },
@@ -87,9 +88,10 @@ export default function Profile() {
 
   const todaySecs = getTodaySeconds();
   const yearSecs = getThisYearSeconds();
+  const { t } = useT();
 
   return (
-    <Layout title="Mon Profil" noBottomNav showBack onBack={() => navigate("/")}>
+    <Layout title={t("profile_title")} noBottomNav showBack onBack={() => navigate("/")}>
       <div className="pb-12 bg-background min-h-screen">
 
         {/* Profile header */}
@@ -108,11 +110,11 @@ export default function Profile() {
           <div className="flex gap-4 mt-4 text-center">
             <div className="bg-white/60 dark:bg-white/10 rounded-xl px-4 py-2 min-w-[70px]">
               <div className="text-lg font-bold text-primary">{favoriteSchools.length}</div>
-              <div className="text-[10px] text-muted-foreground">Écoles</div>
+              <div className="text-[10px] text-muted-foreground">{t("nav_schools")}</div>
             </div>
             <div className="bg-white/60 dark:bg-white/10 rounded-xl px-4 py-2 min-w-[70px]">
               <div className="text-lg font-bold text-secondary">{favoriteCompetitions.length}</div>
-              <div className="text-[10px] text-muted-foreground">Concours</div>
+              <div className="text-[10px] text-muted-foreground">{t("nav_competitions")}</div>
             </div>
           </div>
         </div>
@@ -166,18 +168,18 @@ export default function Profile() {
         <div className="px-4 py-5 space-y-4">
 
           {/* Mes favoris */}
-          <Section title="Mes favoris">
+          <Section title={t("profile_favorites")}>
             <MenuItem
               icon={<GraduationCap className="w-5 h-5 text-primary" />}
               iconBg="bg-primary/10"
-              label="Écoles sauvegardées"
+              label={t("profile_saved_schools")}
               badge={favoriteSchools.length > 0 ? String(favoriteSchools.length) : undefined}
               onPress={() => navigate("/favorites")}
             />
             <MenuItem
               icon={<Briefcase className="w-5 h-5 text-secondary" />}
               iconBg="bg-secondary/10"
-              label="Concours sauvegardés"
+              label={t("profile_saved_competitions")}
               badge={favoriteCompetitions.length > 0 ? String(favoriteCompetitions.length) : undefined}
               onPress={() => navigate("/favorites")}
               last
@@ -185,19 +187,19 @@ export default function Profile() {
           </Section>
 
           {/* Contact */}
-          <Section title="Contact">
+          <Section title={t("profile_contact")}>
             <MenuItem
               icon={<MessageCircle className="w-5 h-5 text-blue-600" />}
               iconBg="bg-blue-50"
-              label="Envoyer un message"
-              subtitle="Retour d'expérience, suggestions…"
+              label={t("profile_send_message")}
+              subtitle={t("profile_send_sub")}
               onPress={() => navigate("/messages")}
               last
             />
           </Section>
 
           {/* Paramètres */}
-          <Section title="Paramètres">
+          <Section title={t("profile_settings")}>
             {/* Langue */}
             <div className="flex items-center justify-between px-4 py-3.5 border-b border-border/40">
               <div className="flex items-center gap-3">
@@ -205,7 +207,7 @@ export default function Profile() {
                   <Globe className="w-5 h-5 text-green-600" />
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-foreground">Langue</p>
+                  <p className="text-sm font-semibold text-foreground">{t("profile_language")}</p>
                 </div>
               </div>
               <div className="flex bg-muted rounded-xl overflow-hidden border border-border/50">
@@ -230,7 +232,7 @@ export default function Profile() {
                 <div className={cn("w-9 h-9 rounded-xl flex items-center justify-center", theme === "dark" ? "bg-slate-800" : "bg-yellow-50")}>
                   {theme === "dark" ? <Moon className="w-5 h-5 text-slate-300" /> : <Sun className="w-5 h-5 text-yellow-500" />}
                 </div>
-                <p className="text-sm font-semibold text-foreground">Mode d'affichage</p>
+                <p className="text-sm font-semibold text-foreground">{t("profile_display")}</p>
               </div>
               <button
                 onClick={toggleTheme}
@@ -257,8 +259,8 @@ export default function Profile() {
                     <Search className="w-5 h-5 text-purple-600" />
                   </div>
                   <div className="text-left">
-                    <p className="text-sm font-semibold text-foreground">Historique de recherche</p>
-                    <p className="text-xs text-muted-foreground">{searchHistory.length} recherche{searchHistory.length !== 1 ? "s" : ""}</p>
+                    <p className="text-sm font-semibold text-foreground">{t("profile_history")}</p>
+                    <p className="text-xs text-muted-foreground">{searchHistory.length} {searchHistory.length > 1 ? t("profile_searches_plural") : t("profile_searches")}</p>
                   </div>
                 </div>
                 <ChevronRight className={cn("w-4 h-4 text-muted-foreground transition-transform", showHistory && "rotate-90")} />
@@ -273,7 +275,7 @@ export default function Profile() {
                   >
                     <div className="px-4 pb-3">
                       {searchHistory.length === 0 ? (
-                        <p className="text-xs text-muted-foreground py-2 text-center">Aucune recherche récente</p>
+                        <p className="text-xs text-muted-foreground py-2 text-center">{t("profile_no_history")}</p>
                       ) : (
                         <>
                           {searchHistory.slice(0, 8).map((entry, i) => (
@@ -282,14 +284,14 @@ export default function Profile() {
                               <span className="text-sm text-foreground flex-1 truncate">{entry.query}</span>
                               <span className={cn("text-[10px] font-medium px-1.5 py-0.5 rounded-md",
                                 entry.type === "school" ? "bg-primary/10 text-primary" : "bg-secondary/10 text-secondary"
-                              )}>{entry.type === "school" ? "École" : "Concours"}</span>
+                              )}>{entry.type === "school" ? t("nav_schools") : t("nav_competitions")}</span>
                             </div>
                           ))}
                           <button
                             onClick={clearSearchHistory}
                             className="mt-2 w-full flex items-center justify-center gap-1.5 text-xs text-red-500 font-medium py-2 rounded-xl hover:bg-red-50 transition-colors active:scale-95"
                           >
-                            <Trash2 className="w-3.5 h-3.5" /> Effacer l'historique
+                            <Trash2 className="w-3.5 h-3.5" /> {t("profile_clear_history")}
                           </button>
                         </>
                       )}
@@ -305,41 +307,41 @@ export default function Profile() {
                 <div className="w-9 h-9 rounded-xl bg-orange-50 flex items-center justify-center">
                   <Timer className="w-5 h-5 text-orange-500" />
                 </div>
-                <p className="text-sm font-semibold text-foreground">Temps d'utilisation</p>
+                <p className="text-sm font-semibold text-foreground">{t("profile_usage")}</p>
               </div>
               <div className="grid grid-cols-3 gap-2">
                 <div className="bg-muted/50 rounded-xl p-2.5 text-center">
                   <Clock className="w-4 h-4 text-muted-foreground mx-auto mb-1" />
                   <div className="text-xs font-bold text-foreground">{formatDuration(todaySecs)}</div>
-                  <div className="text-[10px] text-muted-foreground">Aujourd'hui</div>
+                  <div className="text-[10px] text-muted-foreground">{t("profile_today")}</div>
                 </div>
                 <div className="bg-muted/50 rounded-xl p-2.5 text-center">
                   <Calendar className="w-4 h-4 text-muted-foreground mx-auto mb-1" />
                   <div className="text-xs font-bold text-foreground">{formatDuration(Math.floor(yearSecs / 30))}</div>
-                  <div className="text-[10px] text-muted-foreground">Par jour (moy.)</div>
+                  <div className="text-[10px] text-muted-foreground">{t("profile_daily_avg")}</div>
                 </div>
                 <div className="bg-muted/50 rounded-xl p-2.5 text-center">
                   <BarChart3 className="w-4 h-4 text-muted-foreground mx-auto mb-1" />
                   <div className="text-xs font-bold text-foreground">{formatDuration(yearSecs)}</div>
-                  <div className="text-[10px] text-muted-foreground">Cette année</div>
+                  <div className="text-[10px] text-muted-foreground">{t("profile_year")}</div>
                 </div>
               </div>
             </div>
           </Section>
 
           {/* Autres */}
-          <Section title="Application">
+          <Section title={t("profile_app")}>
             <MenuItem
               icon={<Share2 className="w-5 h-5 text-teal-600" />}
               iconBg="bg-teal-50"
-              label="Partager l'application"
-              subtitle="Recommander à un ami"
+              label={t("profile_share")}
+              subtitle={t("profile_share_sub")}
               onPress={handleShare}
             />
             <MenuItem
               icon={<Info className="w-5 h-5 text-blue-600" />}
               iconBg="bg-blue-50"
-              label="À propos de l'application"
+              label={t("profile_about")}
               onPress={() => navigate("/about")}
               last
             />
@@ -350,10 +352,10 @@ export default function Profile() {
             onClick={handleLogout}
             className="w-full py-4 rounded-2xl border-2 border-red-100 bg-red-50 text-red-600 font-bold text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition-all"
           >
-            <LogOut className="w-5 h-5" /> Se déconnecter
+            <LogOut className="w-5 h-5" /> {t("profile_logout")}
           </button>
 
-          <p className="text-center text-xs text-muted-foreground pb-4">Version de l'application : V1.0</p>
+          <p className="text-center text-xs text-muted-foreground pb-4">{t("profile_version")}</p>
         </div>
       </div>
     </Layout>

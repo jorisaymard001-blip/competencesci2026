@@ -2,12 +2,14 @@ import { Layout } from "@/components/Layout";
 import { useLocation } from "wouter";
 import { GraduationCap, MessageCircle, Heart } from "lucide-react";
 import { motion } from "framer-motion";
+import { useT } from "@/lib/useT";
 
 export default function About() {
   const [, navigate] = useLocation();
+  const { t } = useT();
 
   return (
-    <Layout title="À propos" showBack noBottomNav>
+    <Layout title={t("about_title")} showBack noBottomNav>
       <div className="pb-12 min-h-screen bg-background">
 
         {/* Hero */}
@@ -20,13 +22,13 @@ export default function About() {
             <GraduationCap className="w-8 h-8 text-primary" />
           </div>
           <h1 className="font-display text-2xl font-bold text-foreground mb-3 leading-tight">
-            Compétences CI
+            {t("about_app_title")}
           </h1>
           <p className="text-sm text-muted-foreground leading-relaxed text-balance">
-            Compétences CI est une application d'orientation destinée aux élèves, étudiants et jeunes diplômés en Côte d'Ivoire.
+            {t("about_desc_1")}
           </p>
           <p className="text-sm text-muted-foreground leading-relaxed mt-3 text-balance">
-            Elle permet de découvrir des établissements de formation, des concours et des opportunités académiques afin d'aider chacun à mieux préparer son avenir.
+            {t("about_desc_2")}
           </p>
         </motion.div>
 
@@ -38,7 +40,7 @@ export default function About() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
           >
-            <h2 className="font-display text-base font-bold text-foreground mb-3">Ce que propose l'application</h2>
+            <h2 className="font-display text-base font-bold text-foreground mb-3">{t("about_features")}</h2>
             <div className="bg-card border border-border/50 rounded-2xl overflow-hidden shadow-sm">
               {[
                 { emoji: "🏫", text: "40 établissements référencés (publics et privés)" },
@@ -65,11 +67,9 @@ export default function About() {
           >
             <div className="flex items-center gap-3 mb-2">
               <Heart className="w-5 h-5 text-primary" />
-              <h2 className="font-display text-base font-bold text-foreground">Créateur</h2>
+              <h2 className="font-display text-base font-bold text-foreground">{t("about_creator_label")}</h2>
             </div>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              Application créée par <span className="font-semibold text-foreground">Joris Aymard</span>.
-            </p>
+            <p className="text-sm text-muted-foreground leading-relaxed">{t("about_creator")}</p>
           </motion.section>
 
           {/* Contact reference */}
@@ -81,22 +81,20 @@ export default function About() {
           >
             <div className="flex items-center gap-3 mb-2">
               <MessageCircle className="w-5 h-5 text-secondary" />
-              <h2 className="font-display text-base font-bold text-foreground">Nous contacter</h2>
+              <h2 className="font-display text-base font-bold text-foreground">{t("about_contact_label")}</h2>
             </div>
-            <p className="text-sm text-muted-foreground leading-relaxed mb-4">
-              Pour toute suggestion ou amélioration de l'application, vous pouvez nous contacter via la section Contact de l'application.
-            </p>
+            <p className="text-sm text-muted-foreground leading-relaxed mb-4">{t("about_contact_text")}</p>
             <button
               onClick={() => navigate("/messages")}
               className="w-full py-3 rounded-xl bg-secondary text-white font-semibold text-sm active:scale-[0.98] transition-all"
             >
-              Envoyer un message →
+              {t("about_contact_btn")}
             </button>
           </motion.section>
 
           {/* Copyright */}
           <div className="text-center pt-4 pb-2">
-            <p className="text-xs text-muted-foreground">🇨🇮 © 2026 Compétences CI. Tous droits réservés.</p>
+            <p className="text-xs text-muted-foreground">{t("about_copyright")}</p>
           </div>
         </div>
       </div>

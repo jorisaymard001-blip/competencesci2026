@@ -1,0 +1,281 @@
+export type Lang = "fr" | "en";
+
+const translations = {
+  fr: {
+    // Navigation
+    nav_home: "Accueil",
+    nav_schools: "Écoles",
+    nav_competitions: "Concours",
+    nav_profile: "Profil",
+
+    // Home
+    home_badge: "🇨🇮 Pour l'avenir de la Côte d'Ivoire",
+    home_title_1: "Trouvez votre",
+    home_title_2: "voie idéale.",
+    home_subtitle: "Explorez les meilleures écoles et découvrez les concours de la fonction publique ivoirienne.",
+    home_search_placeholder: "Rechercher une école, un diplôme...",
+    home_stat_schools: "Écoles Référencées",
+    home_stat_competitions: "Concours Ouverts",
+    home_section_title: "Explorer par section",
+    home_schools_card: "Annuaire des Écoles",
+    home_schools_sub: "Public & Privé en CI",
+    home_competitions_card: "Concours Publics",
+    home_competitions_sub: "Fonction publique & État",
+    home_promo_title: "Préparez votre dossier",
+    home_promo_sub: "Assurez-vous d'avoir tous vos documents certifiés avant l'ouverture des concours.",
+    home_promo_btn: "Voir les conseils",
+
+    // Schools
+    schools_title: "Annuaire des Écoles",
+    schools_search: "Rechercher une école...",
+    schools_filter_city: "Ville",
+    schools_filter_type: "Type",
+    schools_filter_diploma: "Diplôme",
+    schools_public: "Public",
+    schools_private: "Privé",
+    schools_all: "Toutes les villes",
+    schools_all_types: "Tous types",
+    schools_all_diplomas: "Tous diplômes",
+    schools_no_results: "Aucune école trouvée",
+    schools_no_results_sub: "Essayez de modifier vos filtres.",
+
+    // Competitions
+    competitions_title: "Concours Publics",
+    competitions_search: "Rechercher un concours...",
+    competitions_open: "Ouvert",
+    competitions_closed: "Fermé",
+    competitions_upcoming: "À venir",
+    competitions_positions: "postes",
+    competitions_no_results: "Aucun concours trouvé",
+
+    // Auth
+    login_welcome: "Bienvenue",
+    login_subtitle: "Connectez-vous à Compétences CI",
+    login_email: "Email",
+    login_password: "Mot de passe",
+    login_btn: "Se connecter",
+    login_no_account: "Pas encore de compte ?",
+    login_register: "S'inscrire",
+    register_title: "Créer un compte",
+    register_name: "Nom complet",
+    register_btn: "Créer mon compte",
+    register_has_account: "Déjà un compte ?",
+    register_login: "Se connecter",
+
+    // Profile
+    profile_title: "Mon Profil",
+    profile_favorites: "Mes favoris",
+    profile_saved_schools: "Écoles sauvegardées",
+    profile_saved_competitions: "Concours sauvegardés",
+    profile_contact: "Contact",
+    profile_send_message: "Envoyer un message",
+    profile_send_sub: "Retour d'expérience, suggestions…",
+    profile_settings: "Paramètres",
+    profile_language: "Langue",
+    profile_display: "Mode d'affichage",
+    profile_history: "Historique de recherche",
+    profile_searches: "recherche",
+    profile_searches_plural: "recherches",
+    profile_no_history: "Aucune recherche récente",
+    profile_clear_history: "Effacer l'historique",
+    profile_usage: "Temps d'utilisation",
+    profile_today: "Aujourd'hui",
+    profile_daily_avg: "Par jour (moy.)",
+    profile_year: "Cette année",
+    profile_app: "Application",
+    profile_share: "Partager l'application",
+    profile_share_sub: "Recommander à un ami",
+    profile_about: "À propos de l'application",
+    profile_logout: "Se déconnecter",
+    profile_version: "Version de l'application : V1.0",
+
+    // Notifications
+    notif_title: "Notifications",
+    notif_mark_read: "Tout marquer comme lu",
+    notif_empty: "Aucune notification",
+    notif_empty_sub: "Vous recevrez ici les alertes sur les nouveaux concours et écoles ajoutés.",
+    notif_swipe_hint: "Glissez ← pour supprimer · → pour sauvegarder",
+    notif_saved: "Sauvegardé",
+    notif_tab_all: "Toutes",
+    notif_tab_saved: "Sauvegardées",
+
+    // Messages
+    messages_title: "Nous contacter",
+    messages_name: "Votre nom",
+    messages_email: "Email de réponse",
+    messages_subject: "Sujet",
+    messages_message: "Votre message",
+    messages_send: "Envoyer le message",
+    messages_success_title: "Message envoyé !",
+    messages_success_sub: "Merci pour votre message. Nous vous répondrons dans les plus brefs délais à",
+    messages_send_another: "Envoyer un autre message",
+
+    // About
+    about_title: "À propos",
+    about_app_title: "Compétences CI",
+    about_desc_1: "Compétences CI est une application d'orientation destinée aux élèves, étudiants et jeunes diplômés en Côte d'Ivoire.",
+    about_desc_2: "Elle permet de découvrir des établissements de formation, des concours et des opportunités académiques afin d'aider chacun à mieux préparer son avenir.",
+    about_features: "Ce que propose l'application",
+    about_creator_label: "Créateur",
+    about_creator: "Application créée par Joris Aymard.",
+    about_contact_label: "Nous contacter",
+    about_contact_text: "Pour toute suggestion ou amélioration de l'application, vous pouvez nous contacter via la section Contact de l'application.",
+    about_contact_btn: "Envoyer un message →",
+    about_copyright: "🇨🇮 © 2026 Compétences CI. Tous droits réservés.",
+
+    // Misc
+    back: "Retour",
+    add_favorite: "Ajouter aux favoris",
+    remove_favorite: "Retirer des favoris",
+    school_public: "Établissement Public",
+    school_private: "Établissement Privé",
+    register_btn_label: "S'inscrire au concours →",
+    register_official: "S'inscrire sur le site officiel →",
+  },
+  en: {
+    // Navigation
+    nav_home: "Home",
+    nav_schools: "Schools",
+    nav_competitions: "Contests",
+    nav_profile: "Profile",
+
+    // Home
+    home_badge: "🇨🇮 For the future of Côte d'Ivoire",
+    home_title_1: "Find your",
+    home_title_2: "ideal path.",
+    home_subtitle: "Explore the best schools and discover public service competitions in Côte d'Ivoire.",
+    home_search_placeholder: "Search a school, diploma...",
+    home_stat_schools: "Listed Schools",
+    home_stat_competitions: "Open Competitions",
+    home_section_title: "Browse by section",
+    home_schools_card: "School Directory",
+    home_schools_sub: "Public & Private in CI",
+    home_competitions_card: "Public Competitions",
+    home_competitions_sub: "Civil service & Government",
+    home_promo_title: "Prepare your file",
+    home_promo_sub: "Make sure you have all certified documents before competitions open.",
+    home_promo_btn: "View tips",
+
+    // Schools
+    schools_title: "School Directory",
+    schools_search: "Search a school...",
+    schools_filter_city: "City",
+    schools_filter_type: "Type",
+    schools_filter_diploma: "Diploma",
+    schools_public: "Public",
+    schools_private: "Private",
+    schools_all: "All cities",
+    schools_all_types: "All types",
+    schools_all_diplomas: "All diplomas",
+    schools_no_results: "No schools found",
+    schools_no_results_sub: "Try changing your filters.",
+
+    // Competitions
+    competitions_title: "Public Competitions",
+    competitions_search: "Search a competition...",
+    competitions_open: "Open",
+    competitions_closed: "Closed",
+    competitions_upcoming: "Upcoming",
+    competitions_positions: "positions",
+    competitions_no_results: "No competitions found",
+
+    // Auth
+    login_welcome: "Welcome",
+    login_subtitle: "Sign in to Compétences CI",
+    login_email: "Email",
+    login_password: "Password",
+    login_btn: "Sign in",
+    login_no_account: "No account yet?",
+    login_register: "Register",
+    register_title: "Create an account",
+    register_name: "Full name",
+    register_btn: "Create my account",
+    register_has_account: "Already have an account?",
+    register_login: "Sign in",
+
+    // Profile
+    profile_title: "My Profile",
+    profile_favorites: "My favorites",
+    profile_saved_schools: "Saved schools",
+    profile_saved_competitions: "Saved competitions",
+    profile_contact: "Contact",
+    profile_send_message: "Send a message",
+    profile_send_sub: "Feedback, suggestions…",
+    profile_settings: "Settings",
+    profile_language: "Language",
+    profile_display: "Display mode",
+    profile_history: "Search history",
+    profile_searches: "search",
+    profile_searches_plural: "searches",
+    profile_no_history: "No recent searches",
+    profile_clear_history: "Clear history",
+    profile_usage: "Usage time",
+    profile_today: "Today",
+    profile_daily_avg: "Daily avg.",
+    profile_year: "This year",
+    profile_app: "Application",
+    profile_share: "Share the app",
+    profile_share_sub: "Recommend to a friend",
+    profile_about: "About the application",
+    profile_logout: "Sign out",
+    profile_version: "App version: V1.0",
+
+    // Notifications
+    notif_title: "Notifications",
+    notif_mark_read: "Mark all as read",
+    notif_empty: "No notifications",
+    notif_empty_sub: "You will receive alerts about new competitions and schools here.",
+    notif_swipe_hint: "Swipe ← to delete · → to save",
+    notif_saved: "Saved",
+    notif_tab_all: "All",
+    notif_tab_saved: "Saved",
+
+    // Messages
+    messages_title: "Contact us",
+    messages_name: "Your name",
+    messages_email: "Reply email",
+    messages_subject: "Subject",
+    messages_message: "Your message",
+    messages_send: "Send message",
+    messages_success_title: "Message sent!",
+    messages_success_sub: "Thank you for your message. We will reply as soon as possible to",
+    messages_send_another: "Send another message",
+
+    // About
+    about_title: "About",
+    about_app_title: "Compétences CI",
+    about_desc_1: "Compétences CI is an orientation app for students and young graduates in Côte d'Ivoire.",
+    about_desc_2: "It helps discover schools, competitions and academic opportunities to better prepare for the future.",
+    about_features: "What the app offers",
+    about_creator_label: "Creator",
+    about_creator: "Application created by Joris Aymard.",
+    about_contact_label: "Contact us",
+    about_contact_text: "For any suggestion or improvement, you can contact us via the Contact section of the app.",
+    about_contact_btn: "Send a message →",
+    about_copyright: "🇨🇮 © 2026 Compétences CI. All rights reserved.",
+
+    // Misc
+    back: "Back",
+    add_favorite: "Add to favorites",
+    remove_favorite: "Remove from favorites",
+    school_public: "Public Institution",
+    school_private: "Private Institution",
+    register_btn_label: "Register for competition →",
+    register_official: "Register on official site →",
+  },
+} as const;
+
+export type TranslationKey = keyof typeof translations.fr;
+
+let currentLang: Lang = "fr";
+
+export function setActiveLang(lang: Lang) {
+  currentLang = lang;
+}
+
+export function t(key: TranslationKey, lang?: Lang): string {
+  const l = lang ?? currentLang;
+  return (translations[l] as Record<string, string>)[key] ?? (translations.fr as Record<string, string>)[key] ?? key;
+}
+
+export { translations };

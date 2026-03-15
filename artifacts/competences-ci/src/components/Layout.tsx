@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNotifications } from "@/contexts/NotificationsContext";
+import { useT } from "@/lib/useT";
 
 function getStoredAvatar(): { type: "emoji" | "photo"; value: string } {
   try {
@@ -134,12 +135,13 @@ function BottomNav() {
   const [isSchools] = useRoute("/schools/*?");
   const [isCompetitions] = useRoute("/competitions/*?");
   const [isProfile] = useRoute("/profile");
+  const { t } = useT();
 
   const navItems = [
-    { href: "/", icon: Home, label: "Accueil", active: isHome },
-    { href: "/schools", icon: GraduationCap, label: "Écoles", active: isSchools },
-    { href: "/competitions", icon: Briefcase, label: "Concours", active: isCompetitions },
-    { href: "/profile", icon: User, label: "Profil", active: isProfile },
+    { href: "/", icon: Home, label: t("nav_home"), active: isHome },
+    { href: "/schools", icon: GraduationCap, label: t("nav_schools"), active: isSchools },
+    { href: "/competitions", icon: Briefcase, label: t("nav_competitions"), active: isCompetitions },
+    { href: "/profile", icon: User, label: t("nav_profile"), active: isProfile },
   ];
 
   return (
