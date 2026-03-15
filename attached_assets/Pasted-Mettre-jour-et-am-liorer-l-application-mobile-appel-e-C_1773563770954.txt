@@ -1,0 +1,193 @@
+Mettre à jour et améliorer l’application mobile appelée « Compétences CI ».
+
+Compétences CI est une application d’orientation destinée aux élèves, étudiants et jeunes diplômés en Côte d’Ivoire.  
+Elle permet de découvrir des établissements de formation et des concours afin d’aider les utilisateurs à mieux préparer leur avenir académique et professionnel.
+
+La première version de l’application fonctionne déjà, mais plusieurs améliorations et corrections doivent être apportées.
+
+Merci d’appliquer les modifications suivantes :
+
+1. Diplômes préparés (champ interactif)
+
+Dans la fiche de chaque établissement, le champ « Diplômes préparés » doit être interactif.
+
+Lorsque l’utilisateur appuie sur un diplôme (exemple : BTS, Licence, Master, Ingénieur), une page détaillée doit s’ouvrir contenant :
+
+- le nom du diplôme
+- la durée de la formation
+- le coût de la formation dans cet établissement (ou un intervalle de prix si le prix exact n’est pas connu)
+- une courte description du diplôme
+- les débouchés professionnels possibles
+
+Cette fonctionnalité doit fonctionner pour tous les diplômes affichés dans chaque établissement.
+
+2. Correction des liens d’inscription
+
+Certains liens d’inscription aux concours et certains liens vers les établissements ne fonctionnent pas correctement.
+
+Merci de :
+
+- vérifier tous les liens d’inscription aux concours
+- vérifier les liens des sites des établissements
+- remplacer les liens incorrects par les liens officiels
+- s’assurer que chaque lien s’ouvre correctement lorsqu’on appuie dessus.
+
+3. Simplification de l’en-tête de l’application
+
+Simplifier l’en-tête de l’application.
+
+En haut de l’application, afficher uniquement :
+
+- l’icône du profil
+- le nom de l’utilisateur
+
+Position : en haut à droite.
+
+Lorsque l’utilisateur appuie sur cette icône, il doit accéder à la page de son profil.
+
+4. Création d’un profil utilisateur complet
+
+Créer une page profil contenant :
+
+- nom de l’utilisateur
+- adresse email
+- photo de profil
+
+L’utilisateur doit pouvoir :
+
+- ajouter une photo depuis la galerie de son téléphone
+ou
+- choisir un avatar proposé par l’application.
+
+Les avatars proposés peuvent être par exemple :
+
+- enfant garçon
+- enfant fille
+- homme
+- femme
+
+Toutes les informations du profil doivent être sauvegardées.
+
+5. Modification de la navigation en bas
+
+Modifier la barre de navigation située en bas de l’application.
+
+Supprimer les éléments :
+
+- Favoris
+- Contact
+
+Les remplacer par une icône « Profil ».
+
+Lorsque l’utilisateur appuie sur cette icône, il doit accéder à sa page profil.
+
+6. Contenu de la page profil
+
+Dans la page profil, ajouter les sections suivantes :
+
+Favoris  
+Afficher toutes les écoles et tous les concours enregistrés par l’utilisateur (fonctionnalité existante à conserver).
+
+Contact  
+Créer une page permettant à l’utilisateur d’envoyer un message ou un retour sur l’application avec :
+
+- un champ « sujet »
+- un champ « message »
+- un bouton « envoyer ».
+
+Paramètres
+
+Créer une section paramètres contenant :
+
+Langue  
+L’utilisateur doit pouvoir choisir la langue de l’application :
+
+- Français
+- Anglais
+
+Le changement de langue doit s’appliquer à toute l’application.
+
+Mode d’affichage  
+Permettre à l’utilisateur de choisir :
+
+- mode clair
+- mode sombre
+
+Le changement doit fonctionner immédiatement.
+
+Historique de recherche  
+Afficher les dernières recherches effectuées par l’utilisateur.
+
+Temps d’utilisation  
+Afficher le temps passé dans l’application :
+
+- par heure
+- par jour
+- par année.
+
+7. Fonction de partage de l’application
+
+Ajouter un bouton « Partager l’application ».
+
+Lorsque l’utilisateur appuie dessus, il doit pouvoir partager l’application via :
+
+- WhatsApp
+- SMS
+- réseaux sociaux
+- lien de partage
+
+Le message proposé peut être :
+
+« Découvrez Compétences CI, l’application qui aide à trouver des écoles, concours et formations en Côte d’Ivoire. »
+
+8. Déconnexion
+
+Au bas de la page profil, ajouter un bouton « Déconnexion » permettant à l’utilisateur de se déconnecter de son compte.
+
+9. Version de l’application
+
+Tout en bas de la page profil afficher :
+
+Version de l’application : V1.0
+
+10. Ajout d’une section « À propos de l’application »
+
+Créer une page appelée « À propos de l’application ».
+
+Cette page doit expliquer brièvement l’objectif de l’application.
+
+Texte :
+
+« Compétences CI est une application d’orientation destinée aux élèves, étudiants et jeunes diplômés en Côte d’Ivoire.  
+Elle permet de découvrir des établissements de formation, des concours et des opportunités académiques afin d’aider chacun à mieux préparer son avenir. »
+
+Dans cette page ajouter également la mention :
+
+« Application créée par Joris Aymard. »
+
+Cette mention doit rester simple et professionnelle.
+
+11. Section contact dans « À propos »
+
+Ajouter le texte suivant :
+
+« Pour toute suggestion ou amélioration de l’application, vous pouvez nous contacter via la section Contact de l’application. »
+
+12. Copyright
+
+Ajouter en bas de cette page :
+
+« © 2026 Compétences CI. Tous droits réservés. »
+
+13. Accès à la page « À propos »
+
+Ajouter un bouton « À propos de l’application » dans la section Profil ou Paramètres afin que l’utilisateur puisse accéder facilement à cette page.
+
+14. Vérification générale
+
+Merci de vérifier que :
+
+- tous les boutons fonctionnent correctement
+- toutes les pages s’ouvrent correctement
+- la navigation est fluide
+- l’interface reste propre et optimisée pour mobile.

@@ -1,7 +1,8 @@
-import { useRoute } from "wouter";
+import { useRoute, useLocation } from "wouter";
 import { Layout } from "@/components/Layout";
 import { useGetSchool } from "@workspace/api-client-react";
-import { Loader2, MapPin, Globe, Phone, Mail, Award, BookOpen, GraduationCap, Building2, ChevronRight, Heart } from "lucide-react";
+import { Loader2, MapPin, Globe, Phone, Mail, Award, BookOpen, GraduationCap, Building2, ChevronRight, Heart, Info } from "lucide-react";
+import { getDiplomaInfo } from "@/lib/diploma-data";
 import { motion } from "framer-motion";
 import { useFavorites } from "@/contexts/FavoritesContext";
 import { cn } from "@/lib/utils";
@@ -14,6 +15,7 @@ export default function SchoolDetail() {
     query: { enabled: !!id }
   });
 
+  const [, navigate] = useLocation();
   const { isSchoolFav, toggleSchool } = useFavorites();
   const isFav = school ? isSchoolFav(school.id) : false;
 
@@ -162,16 +164,29 @@ export default function SchoolDetail() {
 
           {/* Diplomas Section */}
           <section>
-            <h2 className="font-display text-lg font-bold mb-3 flex items-center">
+            <h2 className="font-display text-lg font-bold mb-1 flex items-center">
               <GraduationCap className="w-5 h-5 mr-2 text-primary" /> Diplômes préparés
             </h2>
+            <p className="text-xs text-muted-foreground mb-3">Appuyez sur un diplôme pour voir les détails</p>
             <div className="bg-card rounded-2xl border border-border/50 shadow-sm overflow-hidden">
-              {school.diplomas.map((diploma, i) => (
-                <div key={i} className={`p-4 flex items-center justify-between ${i !== school.diplomas.length - 1 ? 'border-b border-border/50' : ''}`}>
-                  <span className="font-medium text-sm text-foreground">{diploma}</span>
-                  <ChevronRight className="w-4 h-4 text-muted-foreground/50" />
-                </div>
-              ))}
+              {school.diplomas.map((diploma, i) => {
+                const hasInfo = !!getDiplomaInfo(diploma);
+                return (
+                  <button
+                    key={i}
+                    onClick={() => navigate(`/diplomas/${encodeURIComponent(diploma)}`)}
+                    className={`w-full p-4 flex items-center justify-between active:bg-muted/50 transition-colors text-left ${i !== school.diplomas.length - 1 ? 'border-b border-border/50' : ''}`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium text-sm text-foreground">{diploma}</span>
+                      {hasInfo && (
+                        <span className="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded-md font-semibold">Détails</span>
+                      )}
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-primary/60" />
+                  </button>
+                );
+              })}
             </div>
           </section>
 

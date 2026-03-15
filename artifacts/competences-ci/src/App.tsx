@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { FavoritesProvider } from "@/contexts/FavoritesContext";
 import { NotificationsProvider } from "@/contexts/NotificationsContext";
+import { SettingsProvider } from "@/contexts/SettingsContext";
 
 // Pages
 import Home from "@/pages/Home";
@@ -16,6 +17,9 @@ import Favorites from "@/pages/Favorites";
 import Messages from "@/pages/Messages";
 import Notifications from "@/pages/Notifications";
 import Tips from "@/pages/Tips";
+import Profile from "@/pages/Profile";
+import About from "@/pages/About";
+import DiplomaDetail from "@/pages/DiplomaDetail";
 import Login from "@/pages/Login";
 import Register from "@/pages/Register";
 import NotFound from "@/pages/not-found";
@@ -44,44 +48,22 @@ function PublicOnlyRoute({ component: Component }: { component: React.ComponentT
 function Router() {
   return (
     <Switch>
-      {/* Public-only routes */}
-      <Route path="/login">
-        <PublicOnlyRoute component={Login} />
-      </Route>
-      <Route path="/register">
-        <PublicOnlyRoute component={Register} />
-      </Route>
+      <Route path="/login"><PublicOnlyRoute component={Login} /></Route>
+      <Route path="/register"><PublicOnlyRoute component={Register} /></Route>
 
-      {/* Protected routes */}
-      <Route path="/">
-        <ProtectedRoute component={Home} />
-      </Route>
-      <Route path="/schools">
-        <ProtectedRoute component={Schools} />
-      </Route>
-      <Route path="/schools/:id">
-        <ProtectedRoute component={SchoolDetail} />
-      </Route>
-      <Route path="/competitions">
-        <ProtectedRoute component={Competitions} />
-      </Route>
-      <Route path="/competitions/:id">
-        <ProtectedRoute component={CompetitionDetail} />
-      </Route>
-      <Route path="/favorites">
-        <ProtectedRoute component={Favorites} />
-      </Route>
-      <Route path="/messages">
-        <ProtectedRoute component={Messages} />
-      </Route>
-      <Route path="/notifications">
-        <ProtectedRoute component={Notifications} />
-      </Route>
-      <Route path="/tips">
-        <ProtectedRoute component={Tips} />
-      </Route>
+      <Route path="/"><ProtectedRoute component={Home} /></Route>
+      <Route path="/schools"><ProtectedRoute component={Schools} /></Route>
+      <Route path="/schools/:id"><ProtectedRoute component={SchoolDetail} /></Route>
+      <Route path="/competitions"><ProtectedRoute component={Competitions} /></Route>
+      <Route path="/competitions/:id"><ProtectedRoute component={CompetitionDetail} /></Route>
+      <Route path="/favorites"><ProtectedRoute component={Favorites} /></Route>
+      <Route path="/messages"><ProtectedRoute component={Messages} /></Route>
+      <Route path="/notifications"><ProtectedRoute component={Notifications} /></Route>
+      <Route path="/tips"><ProtectedRoute component={Tips} /></Route>
+      <Route path="/profile"><ProtectedRoute component={Profile} /></Route>
+      <Route path="/about"><ProtectedRoute component={About} /></Route>
+      <Route path="/diplomas/:name"><ProtectedRoute component={DiplomaDetail} /></Route>
 
-      {/* 404 */}
       <Route component={NotFound} />
     </Switch>
   );
@@ -91,16 +73,18 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <AuthProvider>
-          <FavoritesProvider>
-            <NotificationsProvider>
-              <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-                <Router />
-              </WouterRouter>
-              <Toaster />
-            </NotificationsProvider>
-          </FavoritesProvider>
-        </AuthProvider>
+        <SettingsProvider>
+          <AuthProvider>
+            <FavoritesProvider>
+              <NotificationsProvider>
+                <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+                  <Router />
+                </WouterRouter>
+                <Toaster />
+              </NotificationsProvider>
+            </FavoritesProvider>
+          </AuthProvider>
+        </SettingsProvider>
       </TooltipProvider>
     </QueryClientProvider>
   );
