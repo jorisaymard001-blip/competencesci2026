@@ -36,9 +36,10 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-[100dvh] flex flex-col bg-background w-full max-w-md mx-auto shadow-2xl overflow-hidden sm:border-x sm:border-border/50">
+    <div className="min-h-[100dvh] flex items-start sm:items-center justify-center bg-background sm:bg-muted/30 px-0 sm:px-4 py-0 sm:py-8">
+      <div className="w-full max-w-md sm:rounded-3xl sm:shadow-2xl sm:border sm:border-border/50 bg-background sm:bg-card overflow-hidden">
       {/* Header */}
-      <div className="relative bg-foreground text-white px-6 pt-16 pb-12 rounded-b-[40px] overflow-hidden">
+      <div className="relative bg-foreground text-white px-6 pt-16 pb-12 sm:rounded-t-3xl overflow-hidden">
         <div className="absolute top-0 right-0 w-64 h-64 bg-primary/30 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4" />
         <div className="absolute bottom-0 left-0 w-48 h-48 bg-secondary/20 rounded-full blur-3xl translate-y-1/2 -translate-x-1/4" />
         <div className="relative z-10">
@@ -128,6 +129,7 @@ export default function Login() {
             🇨🇮 Compétences CI — L'orientation en Côte d'Ivoire
           </p>
         </div>
+      </div>
       </div>
     </div>
   );

@@ -46,10 +46,10 @@ export default function CompetitionDetail() {
 
   return (
     <Layout showBack noBottomNav>
-      <div className="bg-background min-h-screen">
+      <div className="bg-background min-h-screen max-w-4xl mx-auto w-full">
 
         {/* Header Block */}
-        <div className="bg-foreground text-white px-6 pt-8 pb-12 rounded-b-[40px] relative overflow-hidden">
+        <div className="bg-foreground text-white px-5 md:px-8 pt-8 pb-12 rounded-b-[40px] relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-secondary/30 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4" />
 
           <div className="relative z-10">

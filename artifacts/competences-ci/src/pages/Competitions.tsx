@@ -40,8 +40,8 @@ export default function Competitions() {
     <Layout title="Concours Publics">
       
       {/* Status Tabs Header */}
-      <div className="sticky top-16 z-30 bg-background/95 backdrop-blur-md border-b border-border/50 pt-2 pb-3">
-        <div className="px-4 flex gap-2 overflow-x-auto hide-scrollbar pb-1">
+      <div className="sticky top-14 md:top-16 z-30 bg-background/95 backdrop-blur-md border-b border-border/50 pt-2 pb-3">
+        <div className="px-4 md:px-6 max-w-6xl mx-auto flex gap-2 overflow-x-auto hide-scrollbar pb-1">
           {tabs.map(tab => {
             const isActive = filters.status === tab.id;
             return (
@@ -61,7 +61,7 @@ export default function Competitions() {
           })}
         </div>
         
-        <div className="px-4 mt-3 flex justify-between items-center">
+        <div className="px-4 md:px-6 max-w-6xl mx-auto mt-3 flex justify-between items-center">
           <div className="text-sm font-medium text-muted-foreground">
             {competitions?.length || 0} résultat{competitions?.length !== 1 ? 's' : ''}
           </div>
@@ -76,7 +76,7 @@ export default function Competitions() {
       </div>
 
       {/* Content */}
-      <div className="px-4 py-6">
+      <div className="px-4 md:px-6 py-6 max-w-6xl mx-auto w-full">
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-20">
             <Loader2 className="w-8 h-8 animate-spin text-secondary mb-4" />
@@ -101,7 +101,7 @@ export default function Competitions() {
             )}
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
             {competitions?.map((comp, i) => (
               <CompetitionCard key={comp.id} competition={comp} index={i} />
             ))}

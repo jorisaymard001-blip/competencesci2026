@@ -51,8 +51,8 @@ export default function Schools() {
     <Layout title="Écoles & Instituts">
       
       {/* Sticky Header with Search & Filter Trigger */}
-      <div className="sticky top-16 z-30 bg-background/95 backdrop-blur-md px-4 py-3 border-b border-border/50">
-        <div className="flex gap-2">
+      <div className="sticky top-14 md:top-16 z-30 bg-background/95 backdrop-blur-md border-b border-border/50">
+        <div className="px-4 md:px-6 py-3 max-w-6xl mx-auto flex gap-2">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <input 
@@ -78,7 +78,7 @@ export default function Schools() {
       </div>
 
       {/* Content */}
-      <div className="px-4 py-6">
+      <div className="px-4 md:px-6 py-6 max-w-6xl mx-auto w-full">
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-20">
             <Loader2 className="w-8 h-8 animate-spin text-primary mb-4" />
@@ -101,20 +101,22 @@ export default function Schools() {
             {activeFiltersCount > 0 && (
               <button 
                 onClick={clearFilters}
-                className="mt-6 px-6 py-2 bg-primary/10 text-primary font-semibold rounded-full active:scale-95"
+                className="mt-6 px-6 py-2.5 bg-primary/10 text-primary font-semibold rounded-full active:scale-95 min-h-[44px]"
               >
                 Effacer les filtres
               </button>
             )}
           </div>
         ) : (
-          <div className="space-y-4">
-            <div className="text-sm font-medium text-muted-foreground px-1">
+          <div>
+            <div className="text-sm font-medium text-muted-foreground px-1 mb-4">
               {filteredSchools?.length} établissement{filteredSchools?.length !== 1 ? 's' : ''} trouvé{filteredSchools?.length !== 1 ? 's' : ''}
             </div>
-            {filteredSchools?.map((school, i) => (
-              <SchoolCard key={school.id} school={school} index={i} />
-            ))}
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+              {filteredSchools?.map((school, i) => (
+                <SchoolCard key={school.id} school={school} index={i} />
+              ))}
+            </div>
           </div>
         )}
       </div>

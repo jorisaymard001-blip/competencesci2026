@@ -97,7 +97,7 @@ export default function SchoolDetail() {
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
       </div>
 
-      <div className="relative z-10 pt-20 px-4 pb-12">
+      <div className="relative z-10 pt-20 pb-12 px-4 md:px-6 max-w-4xl mx-auto w-full">
         {/* Main Info Card */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
