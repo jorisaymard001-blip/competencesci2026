@@ -36,14 +36,23 @@ artifacts-monorepo/
 
 ## App Features
 
-- **Authentication**: Sign up, log in, log out (stored in localStorage, users in DB)
-- **40 schools**: 20 public + 20 private, from Abidjan, Bouaké, Daloa, Gagnoa, Korhogo, Man, San-Pédro, Yamoussoukro
-- **15 competitions**: Concours de la fonction publique ivoirienne
-- **Filters**: By city and diploma level
-- **Detail pages**: Full info for each school and competition
+- **Authentication**: Sign up, log in, log out (SHA256+salt, localStorage, users in DB)
+- **40 schools**: 20 public + 20 private across Abidjan, Bouaké, Daloa, Korhogo, Yamoussoukro, etc.
+- **15 competitions**: Concours de la fonction publique ivoirienne with statuses (open/closed/upcoming)
+- **Filters**: By city, diploma level, school type
+- **Detail pages**: Full school info + costs + star ratings + reviews; full competition info + practical docs/steps/conditions
 - **Favorites**: Save schools/competitions per user (localStorage)
-- **Messaging**: Contact form (stored in DB)
-- **Mobile-first**: Optimized for mobile with bottom nav, French language
+- **Mes candidatures**: Track application status (en cours/inscrit/admis/refusé) per user (localStorage)
+- **Trouver ma voie**: 5-step orientation quiz recommending schools + competitions
+- **Conseils & Orientation**: 4 articles (choisir filière, après bac, réussir concours, filières demandées)
+- **Notifications**: Bell icon with unread badge, swipe left=delete / swipe right=save, saved tab, mark-all-read
+- **Messaging**: Contact form → sends email to competencesci2004@gmail.com via nodemailer
+- **i18n**: Full FR/EN language switching via useT() hook + translations object
+- **Dark mode**: Toggle with CSS variables on .dark class on <html>
+- **Mode hors ligne**: Service worker caches API responses (schools/competitions)
+- **Profile**: Avatar picker, search history, usage stats, all tools accessible
+- **Push notifications**: Service worker registered, browser Notification API permission requested
+- **Mobile-first**: Optimized for mobile with bottom nav (4 tabs), max-w-md layout
 
 ## Database Schema
 

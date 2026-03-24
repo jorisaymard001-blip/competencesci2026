@@ -20,6 +20,9 @@ import Tips from "@/pages/Tips";
 import Profile from "@/pages/Profile";
 import About from "@/pages/About";
 import DiplomaDetail from "@/pages/DiplomaDetail";
+import Orientation from "@/pages/Orientation";
+import Candidatures from "@/pages/Candidatures";
+import Conseils from "@/pages/Conseils";
 import Login from "@/pages/Login";
 import Register from "@/pages/Register";
 import NotFound from "@/pages/not-found";
@@ -63,6 +66,9 @@ function Router() {
       <Route path="/profile"><ProtectedRoute component={Profile} /></Route>
       <Route path="/about"><ProtectedRoute component={About} /></Route>
       <Route path="/diplomas/:name"><ProtectedRoute component={DiplomaDetail} /></Route>
+      <Route path="/orientation"><ProtectedRoute component={Orientation} /></Route>
+      <Route path="/candidatures"><ProtectedRoute component={Candidatures} /></Route>
+      <Route path="/conseils"><ProtectedRoute component={Conseils} /></Route>
 
       <Route component={NotFound} />
     </Switch>

@@ -1,10 +1,12 @@
 import { useRoute } from "wouter";
+import { useState } from "react";
 import { Layout } from "@/components/Layout";
 import { useGetCompetition } from "@workspace/api-client-react";
-import { Loader2, Calendar, MapPin, Briefcase, GraduationCap, FileText, CheckCircle2, Globe, Phone, Heart } from "lucide-react";
-import { motion } from "framer-motion";
+import { Loader2, Calendar, MapPin, Briefcase, GraduationCap, FileText, CheckCircle2, Globe, Phone, Heart, ClipboardList, ListChecks, UserCheck, ChevronDown } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { formatDate } from "@/lib/utils";
 import { useFavorites } from "@/contexts/FavoritesContext";
+import { getCompetitionInfo } from "@/lib/competition-info";
 import { cn } from "@/lib/utils";
 
 export default function CompetitionDetail() {
@@ -17,6 +19,8 @@ export default function CompetitionDetail() {
 
   const { isCompetitionFav, toggleCompetition } = useFavorites();
   const isFav = comp ? isCompetitionFav(comp.id) : false;
+  const [expandedSection, setExpandedSection] = useState<string | null>(null);
+  const toggleSection = (s: string) => setExpandedSection(v => v === s ? null : s);
 
   if (isLoading) {
     return (
@@ -171,6 +175,56 @@ export default function CompetitionDetail() {
               </div>
             </section>
           )}
+
+          {/* Practical Info */}
+          {(() => {
+            const info = getCompetitionInfo(comp.title);
+            const sections = [
+              { id: "docs", label: "Documents requis", icon: ClipboardList, color: "text-primary", data: info.documents },
+              { id: "steps", label: "Étapes d'inscription", icon: ListChecks, color: "text-secondary", data: info.steps },
+              { id: "conditions", label: "Conditions d'accès", icon: UserCheck, color: "text-blue-600", data: info.conditions },
+            ];
+            return (
+              <section>
+                <h2 className="font-display text-lg font-bold mb-3">Informations pratiques</h2>
+                <div className="space-y-2">
+                  {sections.map(sec => {
+                    const Icon = sec.icon;
+                    const isOpen = expandedSection === sec.id;
+                    return (
+                      <div key={sec.id} className="bg-card border border-border/50 rounded-2xl overflow-hidden shadow-sm">
+                        <button
+                          onClick={() => toggleSection(sec.id)}
+                          className="w-full flex items-center justify-between px-4 py-3.5 active:bg-muted/50 transition-colors"
+                        >
+                          <div className="flex items-center gap-3">
+                            <Icon className={`w-5 h-5 ${sec.color}`} />
+                            <span className="font-semibold text-sm text-foreground">{sec.label}</span>
+                            <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">{sec.data.length}</span>
+                          </div>
+                          <ChevronDown className={cn("w-4 h-4 text-muted-foreground transition-transform", isOpen && "rotate-180")} />
+                        </button>
+                        <AnimatePresence>
+                          {isOpen && (
+                            <motion.div initial={{ height: 0 }} animate={{ height: "auto" }} exit={{ height: 0 }} className="overflow-hidden">
+                              <ul className="px-4 pb-4 space-y-2">
+                                {sec.data.map((item, i) => (
+                                  <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
+                                    <CheckCircle2 className="w-4 h-4 text-secondary shrink-0 mt-0.5" />
+                                    <span className="leading-relaxed">{item}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                    );
+                  })}
+                </div>
+              </section>
+            );
+          })()}
 
           {/* Favorite toggle CTA */}
           <button

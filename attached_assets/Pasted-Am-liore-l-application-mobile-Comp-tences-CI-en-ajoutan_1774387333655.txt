@@ -1,0 +1,145 @@
+Améliore l’application mobile “Compétences CI” en ajoutant des fonctionnalités utiles, simples et adaptées au contexte de la Côte d’Ivoire.
+
+Objectif : rendre l’application plus intelligente, pratique et professionnelle tout en restant fluide et facile à utiliser.
+
+Merci d’ajouter les fonctionnalités suivantes :
+
+--------------------------------------------------
+
+1. Fonction “Trouver ma voie” (orientation intelligente)
+
+Créer une nouvelle section appelée “Trouver ma voie”.
+
+L’utilisateur doit répondre à quelques questions simples :
+
+- série du bac (A, C, D, etc.)
+- matières préférées
+- budget (faible, moyen, élevé)
+- ville souhaitée
+- objectif (travailler rapidement / longues études)
+
+À la fin, l’application doit proposer :
+
+- des établissements adaptés
+- des filières recommandées
+- des concours correspondants
+
+Les résultats doivent être affichés sous forme de liste claire avec possibilité d’ouvrir chaque fiche.
+
+--------------------------------------------------
+
+2. Affichage des coûts des formations
+
+Dans chaque établissement, ajouter une section “Coût de la formation”.
+
+Afficher :
+
+- frais de scolarité (ou intervalle)
+- frais d’inscription
+- estimation globale si possible
+
+Si les données exactes ne sont pas disponibles, afficher une estimation.
+
+--------------------------------------------------
+
+3. Notifications et alertes concours
+
+Améliorer le système de notifications :
+
+- notifier l’utilisateur pour les nouveaux concours
+- notifier les dates limites d’inscription
+- notifier les résultats disponibles
+
+Ajouter un badge avec le nombre de notifications sur l’icône cloche.
+
+--------------------------------------------------
+
+4. Amélioration des favoris
+
+Ajouter une nouvelle section appelée “Mes candidatures”.
+
+L’utilisateur doit pouvoir :
+
+- ajouter un concours ou une école
+- définir un statut :
+  - en cours
+  - inscrit
+  - admis
+  - refusé
+
+Afficher ces informations dans une liste claire.
+
+--------------------------------------------------
+
+5. Section “Conseils & Orientation”
+
+Créer une section contenant des articles simples :
+
+- Comment choisir sa filière
+- Que faire après le BAC
+- Comment réussir un concours
+- Les filières les plus demandées
+
+Les articles doivent être courts, lisibles et bien structurés.
+
+--------------------------------------------------
+
+6. Système d’avis utilisateurs
+
+Permettre aux utilisateurs de laisser un avis sur les établissements :
+
+- note sur 5 étoiles
+- commentaire
+
+Afficher :
+
+- la note moyenne
+- les avis récents
+
+--------------------------------------------------
+
+7. Mode hors ligne (cache)
+
+Permettre à l’utilisateur de consulter :
+
+- les établissements déjà chargés
+- les concours déjà ouverts
+
+Même sans connexion internet.
+
+--------------------------------------------------
+
+8. Informations pratiques pour les concours
+
+Dans chaque concours, ajouter :
+
+- liste des documents à fournir
+- étapes pour s’inscrire
+- conditions d’accès
+
+--------------------------------------------------
+
+9. Amélioration UX générale
+
+- rendre l’application plus fluide
+- améliorer les temps de chargement
+- corriger tous les boutons non fonctionnels
+- uniformiser le design
+
+--------------------------------------------------
+
+10. Optimisation mobile
+
+- vérifier que toutes les pages s’affichent correctement sur mobile
+- éviter les débordements ou bugs d’affichage
+
+--------------------------------------------------
+
+IMPORTANT
+
+- Ne pas alourdir l’application
+- Garder une interface simple et claire
+- S’assurer que toutes les nouvelles fonctionnalités fonctionnent correctement
+- Ne pas supprimer les fonctionnalités existantes
+
+L’application doit rester rapide, stable et professionnelle.
