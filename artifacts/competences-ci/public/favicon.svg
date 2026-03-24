@@ -1,3 +1,17 @@
 <svg width="180" height="180" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
-<rect width="180" height="180" rx="36" fill="#FF3C00"/>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="180" y2="180">
+      <stop offset="0%" stop-color="#FF9A3C"/>
+      <stop offset="100%" stop-color="#E06500"/>
+    </linearGradient>
+  </defs>
+  <rect width="180" height="180" rx="40" fill="url(#bg)"/>
+  <!-- Graduation cap -->
+  <path d="M90 52 L132 72 L90 92 L48 72 Z" fill="white" opacity="0.95"/>
+  <path d="M60 80 L60 108 Q60 126 90 126 Q120 126 120 108 L120 80" stroke="white" stroke-width="8" stroke-linecap="round" fill="none"/>
+  <line x1="132" y1="72" x2="132" y2="102" stroke="white" stroke-width="5" stroke-linecap="round" opacity="0.85"/>
+  <circle cx="132" cy="108" r="6" fill="white" opacity="0.85"/>
+  <!-- CI badge -->
+  <rect x="70" y="138" width="40" height="16" rx="8" fill="white" opacity="0.25"/>
+  <text x="90" y="151" font-family="Arial" font-size="9" font-weight="700" fill="white" text-anchor="middle">CI</text>
 </svg>

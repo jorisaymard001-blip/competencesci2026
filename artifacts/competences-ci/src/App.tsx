@@ -6,6 +6,7 @@ import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { FavoritesProvider } from "@/contexts/FavoritesContext";
 import { NotificationsProvider } from "@/contexts/NotificationsContext";
 import { SettingsProvider } from "@/contexts/SettingsContext";
+import { InstallPrompt } from "@/components/InstallPrompt";
 
 // Pages
 import Home from "@/pages/Home";
@@ -85,6 +86,7 @@ function App() {
               <NotificationsProvider>
                 <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
                   <Router />
+                  <InstallPrompt />
                 </WouterRouter>
                 <Toaster />
               </NotificationsProvider>

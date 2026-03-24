@@ -2,10 +2,32 @@ import { createRoot } from "react-dom/client";
 import App from "./App";
 import "./index.css";
 
+// ── Service Worker registration ───────────────────────────────────────────────
 if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
+  window.addEventListener("load", async () => {
     const base = import.meta.env.BASE_URL ?? "/";
-    navigator.serviceWorker.register(`${base}sw.js`).catch(() => {});
+    try {
+      const registration = await navigator.serviceWorker.register(`${base}sw.js`, {
+        scope: base,
+      });
+
+      // Check for updates every 60 seconds
+      setInterval(() => registration.update().catch(() => {}), 60_000);
+
+      // When a new SW is waiting, show a simple update notification
+      registration.addEventListener("updatefound", () => {
+        const newWorker = registration.installing;
+        if (!newWorker) return;
+        newWorker.addEventListener("statechange", () => {
+          if (newWorker.state === "installed" && navigator.serviceWorker.controller) {
+            // New version available — could dispatch a custom event here
+            console.info("[SW] Nouvelle version disponible. Rechargez la page.");
+          }
+        });
+      });
+    } catch (err) {
+      console.warn("[SW] Enregistrement échoué :", err);
+    }
   });
 }
 

@@ -1,0 +1,63 @@
+{
+  "name": "Compétences CI",
+  "short_name": "CompCI",
+  "description": "Découvrez les écoles et concours publics en Côte d'Ivoire",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#F77F00",
+  "background_color": "#FAFAFA",
+  "lang": "fr",
+  "categories": ["education", "lifestyle"],
+  "icons": [
+    {
+      "src": "/favicon-32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Écoles",
+      "short_name": "Écoles",
+      "description": "Voir toutes les écoles",
+      "url": "/schools",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Concours",
+      "short_name": "Concours",
+      "description": "Voir les concours publics",
+      "url": "/competitions",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Orientation",
+      "short_name": "Orientation",
+      "description": "Quiz d'orientation",
+      "url": "/orientation",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    }
+  ],
+  "prefer_related_applications": false
+}

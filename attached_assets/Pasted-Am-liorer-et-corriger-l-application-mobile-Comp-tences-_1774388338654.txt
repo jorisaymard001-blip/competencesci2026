@@ -1,0 +1,124 @@
+Améliorer et corriger l’application mobile “Compétences CI”.
+
+Objectif : corriger les bugs existants, améliorer l’expérience utilisateur et rendre l’application plus professionnelle.
+
+--------------------------------------------------
+
+1. Réception des messages utilisateurs (Contact / Retour)
+
+Configurer l’envoi automatique des messages vers l’adresse :
+
+competencesci2004@gmail.com
+
+Utiliser SMTP Gmail avec les informations suivantes :
+
+- Email : competencesci2004@gmail.com
+- Mot de passe d’application : fnez urmi ydka sqmi
+
+Chaque message envoyé depuis l’application doit contenir :
+
+- nom de l’utilisateur
+- email
+- sujet
+- message
+- date
+
+Assurer que chaque message est bien reçu sur Gmail sans erreur.
+
+--------------------------------------------------
+
+2. Correction du bug des notifications
+
+Problème actuel :
+À chaque connexion, les mêmes notifications réapparaissent.
+
+Corrections à faire :
+
+- une notification déjà vue ne doit plus apparaître comme nouvelle
+- stocker l’état “lu” / “non lu” en base de données
+- ne pas réafficher les anciennes notifications à chaque connexion
+- afficher uniquement les nouvelles notifications
+
+--------------------------------------------------
+
+3. Amélioration du système de notifications
+
+- permettre de marquer une notification comme lue
+- glisser à gauche → supprimer
+- glisser à droite → sauvegarder
+- afficher le nombre de notifications non lues sur l’icône cloche
+
+--------------------------------------------------
+
+4. Correction et amélioration de la barre de recherche
+
+Problème actuel :
+- la recherche ne fonctionne que pour les établissements
+- redirection automatique vers “Écoles et instituts”
+
+Corrections à faire :
+
+- permettre de rechercher :
+  • établissements
+  • concours
+  • diplômes
+
+- afficher des résultats dynamiques en temps réel
+- afficher des résultats mixtes (écoles, concours, diplômes)
+- ne pas rediriger automatiquement
+- laisser l’utilisateur cliquer sur le résultat de son choix
+
+--------------------------------------------------
+
+5. Correction du bug des recherches précédentes
+
+Problème actuel :
+Lorsque l’utilisateur clique sur “recherches précédentes”, rien ne s’affiche.
+
+Corrections à faire :
+
+- enregistrer automatiquement chaque recherche effectuée
+- stocker les recherches dans la base de données ou localement
+- afficher les dernières recherches dans une section dédiée
+- permettre de cliquer sur une recherche précédente pour relancer la recherche
+- ajouter une option pour supprimer l’historique
+
+--------------------------------------------------
+
+6. Correction et amélioration du temps passé sur l’application
+
+Corrections :
+
+- calcul correct du temps passé par session
+- cumul par jour, semaine et année
+
+Améliorations :
+
+- interface moderne
+- ajouter des graphiques simples (barres ou courbes)
+- rendre les statistiques lisibles et visuelles
+
+--------------------------------------------------
+
+7. Section “À propos de l’application”
+
+Modifier le nom du créateur :
+
+Remplacer par :
+
+“Application créée par Yao Brou Joris Aymard”
+
+--------------------------------------------------
+
+8. Vérification générale
+
+- corriger tous les bugs restants
+- vérifier que tous les boutons fonctionnent
+- améliorer la fluidité de navigation
+- optimiser pour mobile
+
+IMPORTANT :
+
+- ne rien casser dans les fonctionnalités existantes
+- garder un design propre et professionnel
+- tester toutes les fonctionnalités avant validation
