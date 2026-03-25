@@ -13,9 +13,11 @@ export interface AppNotification {
 
 interface NotificationsContextType {
   notifications: AppNotification[];
+  trashedNotifications: AppNotification[];
   savedIds: Set<number>;
   unreadCount: number;
   deleteNotification: (id: number) => void;
+  restoreNotification: (id: number) => void;
   saveNotification: (id: number) => void;
   unsaveNotification: (id: number) => void;
   markAllRead: () => void;
@@ -24,24 +26,42 @@ interface NotificationsContextType {
 
 const NotificationsContext = createContext<NotificationsContextType | null>(null);
 
-const DELETED_KEY = (uid: number) => `notif_deleted_${uid}`;
+const DELETED_KEY = (uid: number) => `notif_deleted_v2_${uid}`;
 const SAVED_KEY = (uid: number) => `notif_saved_${uid}`;
 const READ_KEY = (uid: number) => `notif_read_ts_${uid}`;
+
+const FIFTEEN_DAYS_MS = 15 * 24 * 60 * 60 * 1000;
 
 export function NotificationsProvider({ children }: { children: ReactNode }) {
   const { user, isAuthenticated } = useAuth();
   const [allNotifications, setAllNotifications] = useState<AppNotification[]>([]);
-  const [deletedIds, setDeletedIds] = useState<Set<number>>(new Set());
+  // deletedMap: id → timestamp when deleted
+  const [deletedMap, setDeletedMap] = useState<Record<number, number>>({});
   const [savedIds, setSavedIds] = useState<Set<number>>(new Set());
   const [lastReadAt, setLastReadAt] = useState<number>(0);
   const [isLoading, setIsLoading] = useState(false);
-  const prevIdsRef = useRef<Set<number>>(new Set());
+  // track whether first fetch is done so we don't spam push notifs on login
+  const firstFetchDone = useRef(false);
 
   useEffect(() => {
-    if (!user) return;
+    if (!user) {
+      firstFetchDone.current = false;
+      return;
+    }
     try {
       const del = localStorage.getItem(DELETED_KEY(user.id));
-      if (del) setDeletedIds(new Set(JSON.parse(del)));
+      if (del) {
+        const parsed = JSON.parse(del);
+        // Clean entries older than 15 days
+        const now = Date.now();
+        const cleaned: Record<number, number> = {};
+        for (const [id, ts] of Object.entries(parsed)) {
+          if (now - (ts as number) < FIFTEEN_DAYS_MS) {
+            cleaned[Number(id)] = ts as number;
+          }
+        }
+        setDeletedMap(cleaned);
+      }
       const sav = localStorage.getItem(SAVED_KEY(user.id));
       if (sav) setSavedIds(new Set(JSON.parse(sav)));
       const ts = localStorage.getItem(READ_KEY(user.id));
@@ -58,22 +78,26 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
       const data: AppNotification[] = await res.json();
 
       setAllNotifications((prev) => {
-        const newOnes = data.filter(
-          (n) => !prevIdsRef.current.has(n.id) &&
-          new Date(n.createdAt).getTime() > lastReadAt
-        );
-        if (newOnes.length > 0 && "Notification" in window && Notification.permission === "granted") {
-          newOnes.forEach((n) => {
-            try {
-              new Notification(n.title, {
-                body: n.body,
-                icon: "/favicon.ico",
-                tag: `notif-${n.id}`,
-              });
-            } catch {}
-          });
+        const prevIds = new Set(prev.map(n => n.id));
+        // Only trigger push notifications after the first fetch
+        if (firstFetchDone.current) {
+          const newOnes = data.filter(
+            (n) => !prevIds.has(n.id) &&
+            new Date(n.createdAt).getTime() > lastReadAt
+          );
+          if (newOnes.length > 0 && "Notification" in window && Notification.permission === "granted") {
+            newOnes.forEach((n) => {
+              try {
+                new Notification(n.title, {
+                  body: n.body,
+                  icon: "/icon-192.png",
+                  tag: `notif-${n.id}`,
+                });
+              } catch {}
+            });
+          }
         }
-        prevIdsRef.current = new Set(data.map(n => n.id));
+        firstFetchDone.current = true;
         return data;
       });
     } catch {} finally {
@@ -96,22 +120,44 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
     }
   }, [isAuthenticated]);
 
-  const visible = allNotifications.filter((n) => !deletedIds.has(n.id));
+  const saveDeletedMap = (map: Record<number, number>, uid: number) => {
+    localStorage.setItem(DELETED_KEY(uid), JSON.stringify(map));
+  };
+
+  // Notifications visible (not deleted)
+  const visible = allNotifications.filter((n) => !(n.id in deletedMap));
+  // Notifications in trash (deleted within 15 days)
+  const trashedNotifications = allNotifications.filter((n) => {
+    if (!(n.id in deletedMap)) return false;
+    return Date.now() - deletedMap[n.id] < FIFTEEN_DAYS_MS;
+  });
+
   const unreadCount = visible.filter(
     (n) => new Date(n.createdAt).getTime() > lastReadAt
   ).length;
 
   const deleteNotification = (id: number) => {
-    setDeletedIds((prev) => {
-      const next = new Set(prev);
-      next.add(id);
-      if (user) localStorage.setItem(DELETED_KEY(user.id), JSON.stringify([...next]));
+    const now = Date.now();
+    setDeletedMap((prev) => {
+      const next = { ...prev, [id]: now };
+      if (user) saveDeletedMap(next, user.id);
       return next;
     });
+    // Remove from saved too
     setSavedIds((prev) => {
+      if (!prev.has(id)) return prev;
       const next = new Set(prev);
       next.delete(id);
       if (user) localStorage.setItem(SAVED_KEY(user.id), JSON.stringify([...next]));
+      return next;
+    });
+  };
+
+  const restoreNotification = (id: number) => {
+    setDeletedMap((prev) => {
+      const next = { ...prev };
+      delete next[id];
+      if (user) saveDeletedMap(next, user.id);
       return next;
     });
   };
@@ -143,9 +189,11 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
   return (
     <NotificationsContext.Provider value={{
       notifications: visible,
+      trashedNotifications,
       savedIds,
       unreadCount,
       deleteNotification,
+      restoreNotification,
       saveNotification,
       unsaveNotification,
       markAllRead,

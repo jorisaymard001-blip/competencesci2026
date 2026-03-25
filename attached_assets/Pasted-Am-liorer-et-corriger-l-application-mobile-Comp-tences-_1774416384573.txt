@@ -1,0 +1,254 @@
+Améliorer et corriger l’application mobile “Compétences CI”.
+
+Objectif : corriger tous les bugs existants et rendre l’application entièrement fonctionnelle.
+
+---
+
+1. Réception des messages utilisateurs
+
+Configurer l’envoi automatique des messages vers :
+
+competencesci2004@gmail.com
+
+Utiliser SMTP Gmail.
+
+ Mot de passe d’application : fnez urmi ydka sqmi
+
+Chaque message doit contenir :
+
+- nom utilisateur
+- email
+- sujet
+- message
+- date
+
+S’assurer que tous les messages arrivent correctement sans erreur.
+
+---
+
+2. Correction du bug des notifications
+
+- ne plus afficher les mêmes notifications à chaque connexion
+- stocker l’état “lu / non lu”
+- afficher uniquement les nouvelles notifications
+
+---
+
+3. Amélioration notifications
+
+- marquer comme lu
+- swipe gauche → supprimer
+- swipe droite → sauvegarder
+- afficher badge sur cloche
+- crée une corbeille fonctionnel ou l’utilisateur peut aller récupérées messages supprimé ( avant une durées de 15 jours )
+
+---
+
+4. Corriger entièrement le système de connexion (authentification) dans l’application “Compétences CI”.
+
+   Objectif : rendre la connexion simple, fonctionnelle et sans erreur.
+
+   --------------------------------------------------
+
+   1. Problèmes actuels
+
+   - erreur HTTP 404 lors de la connexion
+
+   - champ email affiche “votre@email.ci” (non adapté)
+
+   - impossibilité de se connecter avec certains comptes (ex : iCloud)
+
+   - système de connexion instable
+
+   --------------------------------------------------
+
+   2. Correction du bug 404
+
+   - identifier la route ou API qui cause l’erreur
+
+   - corriger ou recréer cette route
+
+   - s’assurer que la connexion fonctionne sans redirection cassée
+
+   --------------------------------------------------
+
+   3. Simplification du système de connexion
+
+   Mettre en place un système simple et fiable :
+
+   - connexion avec email + mot de passe
+
+   - inscription avec email + mot de passe
+
+   Champs à afficher :
+
+   - email (placeholder : “Entrez votre email”)
+
+   - mot de passe
+
+   - bouton “Se connecter”
+
+   - bouton “Créer un compte”
+
+   --------------------------------------------------
+
+   4. Gestion des erreurs
+
+   - afficher un message clair si :
+
+     • email incorrect
+
+     • mot de passe incorrect
+
+     • problème serveur
+
+   Exemple :
+
+   “Email ou mot de passe incorrect”
+
+   --------------------------------------------------
+
+   5. Option future (facultatif)
+
+   Prévoir la possibilité d’ajouter plus tard :
+
+   - connexion avec Google
+
+   - connexion avec Apple
+
+   Mais ne pas activer si ce n’est pas correctement configuré.
+
+   --------------------------------------------------
+
+   6. Expérience utilisateur
+
+   - rendre la page de connexion simple et claire
+
+   - éviter toute complexité inutile
+
+   - s’assurer que la connexion fonctionne sur mobile
+
+   --------------------------------------------------
+
+   IMPORTANT
+
+   - corriger les erreurs sans casser le reste de l’application
+
+   - tester la connexion (inscription + login)
+
+   - garantir qu’aucune erreur 404 n’apparaîtCorrection barre de recherche (BUG MAJEUR)
+
+Problème actuel :
+
+- recherche uniquement les écoles ❌
+
+Corrections :
+
+- permettre recherche globale :
+  • écoles
+  • concours
+  • diplômes
+
+- afficher résultats en temps réel
+
+- afficher résultats mixtes
+
+- ne pas rediriger automatiquement
+
+- laisser l’utilisateur choisir
+
+---
+
+5. Correction recherches précédentes
+
+- enregistrer automatiquement les recherches
+- afficher les recherches récentes
+- permettre de cliquer pour relancer
+- ajouter bouton “effacer historique”
+
+---
+
+6. Correction temps d’utilisation
+
+- corriger le calcul du temps
+
+- afficher :
+  • par jour
+  • par semaine
+  • par année
+
+- ajouter graphiques simples
+
+---
+
+7. Correction “Trouver ma voie”
+
+- afficher correctement le formulaire
+
+- champs :
+
+  • série bac
+  • matières
+  • budget
+  • ville
+  • objectif
+
+- bouton “Voir mes résultats”
+
+- afficher recommandations :
+
+  • écoles
+  • filières
+  • concours
+
+- éviter page vide
+
+---
+
+8. Correction système de connexion
+
+Problèmes :
+
+- erreur HTTP 404
+- champ email incorrect
+
+Corrections :
+
+- corriger route API
+
+- supprimer erreur 404
+
+- système simple :
+
+  • email
+  • mot de passe
+
+- messages d’erreur clairs
+
+---
+
+9. Correction langue (BUG IMPORTANT)
+
+Problème :
+
+- certaines parties restent en français même en anglais
+
+Corrections :
+
+- traduire TOUTES les nouvelles fonctionnalités
+- centraliser les textes (i18n)
+- appliquer traduction en temps réel
+- vérifier toute l’application
+
+---
+
+10. Vérification générale
+
+- corriger tous les boutons non fonctionnels
+- tester toutes les pages
+- assurer fluidité mobile
+
+IMPORTANT :
+
+- ne rien casser
+- tester toutes les fonctionnalités avant validation

@@ -92,7 +92,7 @@ export default function Register() {
                 type="email"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
-                placeholder="votre@email.ci"
+                placeholder="Entrez votre email"
                 className="w-full pl-11 pr-4 py-3.5 rounded-2xl bg-muted/50 border border-border/80 text-sm outline-none focus:ring-2 focus:ring-secondary/20 focus:border-secondary/50 transition-all"
                 autoComplete="email"
               />

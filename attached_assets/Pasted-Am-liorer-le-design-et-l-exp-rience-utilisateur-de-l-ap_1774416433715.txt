@@ -1,0 +1,120 @@
+Améliorer le design et l’expérience utilisateur de l’application “Compétences CI”.
+
+Objectif : rendre l’application moderne, claire et professionnelle.
+
+--------------------------------------------------
+
+1. Correction de la navigation (TRÈS IMPORTANT)
+
+Problème actuel :
+
+- présence d’un menu hamburger inutile (3 traits)
+- header trop chargé
+
+Corrections :
+
+- supprimer le menu hamburger
+- le remplacer par :
+
+  → une flèche retour (←)
+
+- centrer le titre de la page en haut
+- afficher uniquement :
+
+  • titre centré
+  • cloche notifications
+  • profil utilisateur
+
+- sur la page d’accueil :
+  afficher seulement les éléments principaux (pas de bouton retour)
+
+--------------------------------------------------
+
+2. Amélioration de la barre de recherche
+
+- placeholder :
+
+  “Rechercher une école, un concours ou un diplôme”
+
+- corriger le bug actuel
+- rendre la recherche fluide
+- ajouter suggestions automatiques
+
+--------------------------------------------------
+
+3. Amélioration page d’accueil
+
+- remplacer texte actuel par :
+
+  “Ne ratez aucun concours”
+  “Trouvez votre voie en Côte d’Ivoire”
+
+- ajouter message dynamique :
+
+  “Bonjour / Bonsoir [Nom] 👋”
+
+--------------------------------------------------
+
+4. UI moderne
+
+- utiliser cartes (cards)
+- ajouter icônes :
+
+  • 📍 localisation
+  • 📅 dates
+  • 🎓 diplômes
+
+- améliorer lisibilité
+
+--------------------------------------------------
+
+5. Profil utilisateur
+
+- design propre
+- photo bien affichée
+- sections claires :
+
+  • Favoris
+  • Paramètres
+  • Contact
+
+--------------------------------------------------
+
+6. Mode sombre / clair
+
+- corriger bug actuel
+- appliquer changement immédiatement
+
+--------------------------------------------------
+
+7. Animations
+
+- transitions entre pages
+- effet clic boutons
+- loader moderne
+
+--------------------------------------------------
+
+8. Performance
+
+- optimiser vitesse
+- éviter bugs d’affichage
+- rendre navigation fluide
+
+--------------------------------------------------
+
+9. Responsive design
+
+- adapter :
+
+  • mobile
+  • tablette
+  • PC
+
+--------------------------------------------------
+
+IMPORTANT
+
+- garder design simple
+- cohérence visuelle
+- expérience fluide

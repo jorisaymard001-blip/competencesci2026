@@ -1,5 +1,7 @@
+import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { Layout } from "@/components/Layout";
+import { GlobalSearch } from "@/components/GlobalSearch";
 import { Search, GraduationCap, Briefcase, ArrowRight, BookOpen, ChevronRight, Compass, ClipboardList } from "lucide-react";
 import { motion } from "framer-motion";
 import { useListSchools, useListCompetitions } from "@workspace/api-client-react";
@@ -7,6 +9,7 @@ import { useT } from "@/lib/useT";
 
 export default function Home() {
   const [, navigate] = useLocation();
+  const [showSearch, setShowSearch] = useState(false);
   const { data: schools } = useListSchools();
   const { data: competitions } = useListCompetitions();
   const { t } = useT();
@@ -14,8 +17,8 @@ export default function Home() {
   const stats = [
     { label: t("home_stat_schools"), value: schools?.length || "40+", icon: GraduationCap, color: "text-primary", bg: "bg-primary/10" },
     { label: t("home_stat_competitions"), value: competitions?.filter(c => c.status === "open").length || "12", icon: Briefcase, color: "text-secondary", bg: "bg-secondary/10" },
-    { label: "Villes couvertes", value: "8", icon: BookOpen, color: "text-blue-600", bg: "bg-blue-50 dark:bg-blue-900/20" },
-    { label: "Filières disponibles", value: "25+", icon: Compass, color: "text-violet-600", bg: "bg-violet-50 dark:bg-violet-900/20" },
+    { label: t("home_stat_cities"), value: "8", icon: BookOpen, color: "text-blue-600", bg: "bg-blue-50 dark:bg-blue-900/20" },
+    { label: t("home_stat_programs"), value: "25+", icon: Compass, color: "text-violet-600", bg: "bg-violet-50 dark:bg-violet-900/20" },
   ];
 
   const categories = [
@@ -44,8 +47,8 @@ export default function Home() {
     {
       href: "/orientation",
       icon: Compass,
-      title: "Trouver ma voie",
-      subtitle: "Quiz d'orientation personnalisé",
+      title: t("home_orientation_card"),
+      subtitle: t("home_orientation_sub"),
       gradient: "from-violet-50 to-white dark:from-violet-900/20 dark:to-card",
       border: "border-violet-100 dark:border-violet-900/30",
       iconBg: "bg-violet-100 dark:bg-violet-900/30",
@@ -55,8 +58,8 @@ export default function Home() {
     {
       href: "/conseils",
       icon: BookOpen,
-      title: "Conseils & Articles",
-      subtitle: "Guides pour réussir",
+      title: t("home_conseils_card"),
+      subtitle: t("home_conseils_sub"),
       gradient: "from-blue-50 to-white dark:from-blue-900/20 dark:to-card",
       border: "border-blue-100 dark:border-blue-900/30",
       iconBg: "bg-blue-100 dark:bg-blue-900/30",
@@ -67,6 +70,8 @@ export default function Home() {
 
   return (
     <Layout>
+      <GlobalSearch open={showSearch} onClose={() => setShowSearch(false)} />
+
       <div className="max-w-5xl mx-auto w-full">
         {/* Hero */}
         <div className="relative pt-10 pb-8 px-5 md:px-8 lg:px-10 overflow-hidden bg-background">
@@ -95,17 +100,19 @@ export default function Home() {
                   {t("home_subtitle")}
                 </p>
 
-                <Link href="/schools">
-                  <div className="flex items-center w-full max-w-md bg-card rounded-2xl shadow-lg shadow-black/5 border border-border/50 p-2 mb-2 hover:shadow-xl transition-shadow duration-300">
-                    <div className="flex-1 flex items-center px-4">
-                      <Search className="w-5 h-5 text-muted-foreground mr-3 shrink-0" />
-                      <span className="text-muted-foreground text-sm">{t("home_search_placeholder")}</span>
-                    </div>
-                    <div className="bg-primary text-white p-3 rounded-xl shadow-md shrink-0">
-                      <ArrowRight className="w-5 h-5" />
-                    </div>
+                {/* Search bar → opens GlobalSearch */}
+                <button
+                  onClick={() => setShowSearch(true)}
+                  className="flex items-center w-full max-w-md bg-card rounded-2xl shadow-lg shadow-black/5 border border-border/50 p-2 mb-2 hover:shadow-xl transition-shadow duration-300 active:scale-[0.99]"
+                >
+                  <div className="flex-1 flex items-center px-4">
+                    <Search className="w-5 h-5 text-muted-foreground mr-3 shrink-0" />
+                    <span className="text-muted-foreground text-sm">{t("home_search_placeholder")}</span>
                   </div>
-                </Link>
+                  <div className="bg-primary text-white p-3 rounded-xl shadow-md shrink-0">
+                    <ArrowRight className="w-5 h-5" />
+                  </div>
+                </button>
               </div>
 
               {/* Stats grid — shows inline on desktop */}
