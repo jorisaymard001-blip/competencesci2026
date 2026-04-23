@@ -1,0 +1,240 @@
+Améliorer et corriger entièrement l’application mobile “Compétences CI”.
+
+Objectif : corriger tous les bugs existants, améliorer l’expérience utilisateur et rendre l’application stable, fluide, moderne et prête à être présentée.
+
+IMPORTANT :
+- Ne rien casser dans les fonctionnalités existantes
+- Tester chaque fonctionnalité après correction
+- Priorité : corriger les bugs critiques
+
+--------------------------------------------------
+
+1. SYSTÈME DE NOTIFICATIONS + BADGE (CRITIQUE)
+
+Corriger complètement le système :
+
+- stocker l’état “lu / non lu” en base de données
+- ne plus afficher les anciennes notifications comme nouvelles
+- charger uniquement les nouvelles notifications
+
+Interactions :
+
+- glisser à gauche → supprimer
+- glisser à droite → sauvegarder
+- clic → marquer comme lu
+
+Badge :
+
+- afficher un badge rouge avec le nombre de notifications non lues sur l’icône de la cloche
+- mettre à jour automatiquement en temps réel
+- décrémenter dès qu’une notification est lue
+
+- tenter d’activer les badges système (si support navigateur/PWA)
+- assurer compatibilité Android / iOS
+
+Notifications push :
+
+- implémenter notifications push réelles
+- déclencher lors :
+  • ajout nouveau concours
+  • nouvelle école
+  • date limite proche
+
+- vérifier fonctionnement même app fermée
+
+--------------------------------------------------
+
+2. BARRE DE RECHERCHE (BUG MAJEUR)
+
+Corriger entièrement :
+
+- supprimer toute suggestion qui ne provient pas de la base de données
+- empêcher toute redirection automatique
+
+Implémenter :
+
+- recherche multi-type :
+  • établissements
+  • concours
+  • diplômes
+
+- affichage en temps réel (live search)
+- résultats regroupés ou catégorisés
+- chaque résultat cliquable → ouvre sa page
+
+--------------------------------------------------
+
+3. RECHERCHES PRÉCÉDENTES (BUG)
+
+- enregistrer chaque recherche (localStorage ou base de données)
+- afficher liste des recherches récentes
+- clic → relancer recherche
+- ajouter bouton “vider l’historique”
+
+--------------------------------------------------
+
+4. “TROUVER MA VOIE” (CRITIQUE)
+
+Corriger page vide :
+
+- afficher formulaire fonctionnel avec :
+  • série du bac
+  • matières préférées
+  • budget
+  • ville
+  • objectif
+
+- bouton “Voir mes résultats”
+
+Logique :
+
+- générer recommandations dynamiques :
+  • écoles
+  • filières
+  • concours
+
+- afficher message si aucun résultat
+- ne jamais afficher page vide
+
+--------------------------------------------------
+
+5. AUTHENTIFICATION (CRITIQUE)
+
+Corriger :
+
+- erreur HTTP 404 (routes backend cassées)
+- problème de connexion
+
+Implémenter :
+
+- système simple :
+  • email + mot de passe
+
+- placeholder : “Entrez votre email”
+
+- messages d’erreur :
+  • email incorrect
+  • mot de passe incorrect
+  • erreur serveur
+
+IMPORTANT :
+
+- désactiver Apple / Google / iCloud si non configuré correctement
+
+--------------------------------------------------
+
+6. FORMULAIRE CONTACT (EMAIL)
+
+Configurer SMTP Gmail :
+
+Email : competencesci2004@gmail.com  
+Mot de passe d’application : fnez urmi ydka sqmi  
+
+Chaque message doit inclure :
+
+- nom utilisateur
+- email
+- sujet
+- message
+- date
+
+Vérifier :
+
+- envoi sans erreur
+- réception correcte sur Gmail
+
+--------------------------------------------------
+
+7. LANGUE (BUG MAJEUR)
+
+Corriger système de traduction :
+
+- 100% des textes doivent être traduits
+- inclure :
+  • boutons
+  • titres
+  • notifications
+  • nouvelles fonctionnalités
+
+- changement instantané FR / EN
+- aucune partie ne doit rester en français si anglais sélectionné
+
+--------------------------------------------------
+
+8. RESPONSIVE DESIGN
+
+Corriger affichage :
+
+- adapter mobile / tablette / PC
+- éviter débordement horizontal
+- corriger layouts cassés
+
+IMPORTANT :
+
+- certaines pages ne doivent pas apparaître automatiquement sur PC
+- afficher uniquement après action utilisateur
+
+--------------------------------------------------
+
+9. NAVIGATION / HEADER (UX)
+
+Corriger :
+
+- supprimer menu hamburger (3 traits)
+- remplacer par bouton retour (←)
+
+- centrer le titre de chaque page
+
+- afficher uniquement :
+  • cloche notifications
+  • profil utilisateur
+
+- sur page d’accueil :
+  • afficher uniquement contenu principal
+
+--------------------------------------------------
+
+10. TEMPS PASSÉ SUR L’APPLICATION
+
+Corriger :
+
+- calcul du temps par session
+- cumul :
+  • jour
+  • semaine
+  • mois
+
+Améliorer :
+
+- ajouter graphiques simples
+- interface claire et moderne
+
+--------------------------------------------------
+
+11. SECTION “À PROPOS”
+
+Modifier texte :
+
+Application créée par Yao Brou Joris Aymard
+
+--------------------------------------------------
+
+12. VÉRIFICATION GLOBALE (OBLIGATOIRE)
+
+- tester tous les boutons
+- corriger éléments non cliquables
+- vérifier navigation complète
+- améliorer fluidité générale
+- optimiser performance
+
+--------------------------------------------------
+
+OBJECTIF FINAL :
+
+Application :
+
+- sans bug
+- fluide
+- moderne
+- responsive
+- prête à être présentée et testée par des utilisateurs
