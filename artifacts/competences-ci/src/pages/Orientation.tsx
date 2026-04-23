@@ -29,10 +29,25 @@ const GOALS = [
   { value: "long", label: "📚 Longues études", sub: "Licence, Master, Doctorat, Grande École" },
 ];
 
-function scoreSchool(school: { name: string; type: string; city: string; diplomas?: string | null }, answers: Answers): number {
+function arr(v: unknown): string[] {
+  if (Array.isArray(v)) return v.map(String);
+  if (typeof v === "string") return [v];
+  return [];
+}
+
+function joinLower(v: unknown): string {
+  return arr(v).join(" ").toLowerCase();
+}
+
+function scoreSchool(
+  school: { name: string; type: string; city: string; diplomas?: unknown; domains?: unknown },
+  answers: Answers,
+): number {
   let score = 0;
   const name = (school.name || "").toLowerCase();
-  const diplomas = (school.diplomas || "").toLowerCase();
+  const diplomas = joinLower(school.diplomas);
+  const domains = joinLower(school.domains);
+  const haystack = `${name} ${domains}`;
 
   if (school.city === answers.city || answers.city === "Autre") score += 2;
   if (school.city === "Abidjan" && answers.city === "Autre") score += 1;
@@ -46,54 +61,77 @@ function scoreSchool(school: { name: string; type: string; city: string; diploma
   if (answers.goal === "fast" && (diplomas.includes("bts") || diplomas.includes("dut") || diplomas.includes("licence"))) score += 3;
   if (answers.goal === "long" && (diplomas.includes("master") || diplomas.includes("doctorat") || diplomas.includes("ingénieur"))) score += 3;
 
-  // Subject matching
+  // Subject matching (use name + domains)
   if (answers.subjects.includes("Mathématiques") || answers.subjects.includes("Sciences")) {
-    if (name.includes("polytechnique") || name.includes("mines") || name.includes("ingéni") || name.includes("technique")) score += 3;
+    if (haystack.includes("polytechnique") || haystack.includes("mines") || haystack.includes("ingéni") || haystack.includes("technique") || haystack.includes("sciences")) score += 3;
   }
   if (answers.subjects.includes("Informatique")) {
-    if (name.includes("informatique") || name.includes("numérique") || name.includes("technologie") || name.includes("esatic")) score += 3;
+    if (haystack.includes("informatique") || haystack.includes("numérique") || haystack.includes("technologie") || haystack.includes("esatic")) score += 3;
   }
   if (answers.subjects.includes("Droit / Économie")) {
-    if (name.includes("droit") || name.includes("économie") || name.includes("administration") || name.includes("gestion")) score += 3;
+    if (haystack.includes("droit") || haystack.includes("économie") || haystack.includes("administration") || haystack.includes("gestion")) score += 3;
   }
   if (answers.subjects.includes("Lettres / Communication")) {
-    if (name.includes("lettres") || name.includes("communication") || name.includes("arts") || name.includes("istc")) score += 3;
+    if (haystack.includes("lettres") || haystack.includes("communication") || haystack.includes("arts") || haystack.includes("istc")) score += 3;
   }
   if (answers.subjects.includes("Commerce / Gestion")) {
-    if (name.includes("commerce") || name.includes("gestion") || name.includes("management") || name.includes("iam") || name.includes("esca")) score += 3;
+    if (haystack.includes("commerce") || haystack.includes("gestion") || haystack.includes("management") || haystack.includes("iam") || haystack.includes("esca")) score += 3;
   }
   if (answers.subjects.includes("Agriculture")) {
-    if (name.includes("agriculture") || name.includes("agronomie") || name.includes("nangui")) score += 3;
+    if (haystack.includes("agriculture") || haystack.includes("agronomie") || haystack.includes("nangui")) score += 3;
+  }
+  if (answers.subjects.includes("Art / Culture")) {
+    if (haystack.includes("art") || haystack.includes("culture") || haystack.includes("musique") || haystack.includes("design")) score += 3;
   }
 
   // BAC series
-  if (["C", "D", "E", "F"].some(s => answers.bac.startsWith(s)) && school.type === "public" && (name.includes("polytechnique") || name.includes("sciences"))) score += 2;
-  if (["A", "B"].some(s => answers.bac.startsWith(s)) && (name.includes("lettres") || name.includes("commerce") || name.includes("administration"))) score += 2;
+  if (["C", "D", "E", "F"].some(s => answers.bac.startsWith(s)) && school.type === "public" && (haystack.includes("polytechnique") || haystack.includes("sciences"))) score += 2;
+  if (["A", "B"].some(s => answers.bac.startsWith(s)) && (haystack.includes("lettres") || haystack.includes("commerce") || haystack.includes("administration"))) score += 2;
+
+  // Floor: every school gets at least 1 if city matches → ensures non-empty results
+  if (score === 0 && (school.city === answers.city || answers.city === "Autre")) score = 1;
 
   return score;
 }
 
-function scoreCompetition(comp: { title: string; status: string; requiredDiploma?: string | null }, answers: Answers): number {
+function scoreCompetition(
+  comp: { title: string; status: string; diploma?: string | null; ministry?: string },
+  answers: Answers,
+): number {
   let score = 0;
   const title = (comp.title || "").toLowerCase();
-  const diploma = (comp.requiredDiploma || "").toLowerCase();
+  const ministry = (comp.ministry || "").toLowerCase();
+  const diploma = (comp.diploma || "").toLowerCase();
+  const haystack = `${title} ${ministry}`;
 
   if (comp.status === "open") score += 3;
   if (comp.status === "upcoming") score += 1;
 
   if (answers.goal === "fast") score += 2; // concours always fast track
 
+  if (answers.budget === "low") score += 1; // public competitions are accessible
+
+  // Diploma matching with goal
+  if (answers.goal === "fast" && (diploma.includes("bts") || diploma.includes("licence") || diploma.includes("bac"))) score += 2;
+  if (answers.goal === "long" && (diploma.includes("master") || diploma.includes("doctorat") || diploma.includes("ingénieur"))) score += 2;
+
   if (answers.subjects.includes("Droit / Économie")) {
-    if (title.includes("magistrat") || title.includes("trésor") || title.includes("impôt") || title.includes("douane")) score += 3;
+    if (haystack.includes("magistrat") || haystack.includes("trésor") || haystack.includes("impôt") || haystack.includes("douane") || haystack.includes("administrat") || haystack.includes("économie") || haystack.includes("droit")) score += 3;
   }
   if (answers.subjects.includes("Mathématiques") || answers.subjects.includes("Sciences")) {
-    if (title.includes("génie") || title.includes("statistique") || title.includes("informatique")) score += 3;
+    if (haystack.includes("génie") || haystack.includes("statistique") || haystack.includes("informatique") || haystack.includes("ingéni") || haystack.includes("polytechnique")) score += 3;
+  }
+  if (answers.subjects.includes("Informatique")) {
+    if (haystack.includes("informatique") || haystack.includes("numérique") || haystack.includes("technologie")) score += 3;
   }
   if (answers.subjects.includes("Lettres / Communication")) {
-    if (title.includes("enseignant") || title.includes("diplomatie") || title.includes("greffier")) score += 3;
+    if (haystack.includes("enseignant") || haystack.includes("diplomatie") || haystack.includes("greffier") || haystack.includes("éducation") || haystack.includes("communication")) score += 3;
   }
   if (answers.subjects.includes("Commerce / Gestion")) {
-    if (title.includes("trésor") || title.includes("douane") || title.includes("impôt") || title.includes("finance")) score += 3;
+    if (haystack.includes("trésor") || haystack.includes("douane") || haystack.includes("impôt") || haystack.includes("finance") || haystack.includes("gestion") || haystack.includes("commerce")) score += 3;
+  }
+  if (answers.subjects.includes("Agriculture")) {
+    if (haystack.includes("agricult") || haystack.includes("rural") || haystack.includes("agronomie")) score += 3;
   }
 
   return score;
