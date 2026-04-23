@@ -5,23 +5,26 @@ import { useSendMessage } from "@workspace/api-client-react";
 import { MessageCircle, Mail, FileText, Send, CheckCircle2, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
-
-const SUBJECTS = [
-  "Question sur une école",
-  "Question sur un concours",
-  "Signaler une erreur",
-  "Demande de partenariat",
-  "Autre",
-];
+import { useT } from "@/lib/useT";
 
 export default function Messages() {
+  const { t } = useT();
   const { user } = useAuth();
   const [name, setName] = useState(user?.name || "");
   const [email, setEmail] = useState(user?.email || "");
   const [subject, setSubject] = useState("");
+  const [customSubject, setCustomSubject] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+
+  const SUBJECTS: { key: string; label: string }[] = [
+    { key: "school", label: t("messages_subject_school") },
+    { key: "comp", label: t("messages_subject_comp") },
+    { key: "error", label: t("messages_subject_error") },
+    { key: "partner", label: t("messages_subject_partner") },
+    { key: "other", label: t("messages_subject_other") },
+  ];
 
   const { mutate, isPending } = useSendMessage({
     mutation: {
@@ -29,9 +32,10 @@ export default function Messages() {
         setSuccess(true);
         setMessage("");
         setSubject("");
+        setCustomSubject("");
       },
       onError: (err: any) => {
-        setError(err?.message || "Erreur lors de l'envoi. Veuillez réessayer.");
+        setError(err?.message || t("messages_error"));
       },
     },
   });
@@ -39,25 +43,23 @@ export default function Messages() {
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     setError("");
-    if (!name || !email || !subject || !message) {
-      setError("Veuillez remplir tous les champs");
+    const finalSubject = subject === "other" ? customSubject.trim() : subject;
+    if (!name || !email || !finalSubject || !message) {
+      setError(t("messages_required"));
       return;
     }
-    mutate({ data: { name, email, subject, message } });
+    const subjLabel = SUBJECTS.find((s) => s.key === subject)?.label ?? "";
+    mutate({ data: { name, email, subject: subject === "other" ? customSubject : subjLabel, message } });
   };
 
   return (
-    <Layout title="Nous contacter">
+    <Layout title={t("messages_title")}>
       <div className="px-4 pt-6 pb-8 space-y-6">
-
-        {/* Info Banner */}
         <div className="bg-primary/5 border border-primary/20 rounded-2xl p-4 flex items-start gap-3">
           <MessageCircle className="w-5 h-5 text-primary shrink-0 mt-0.5" />
           <div>
-            <p className="text-sm font-semibold text-foreground mb-0.5">Une question ?</p>
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              Notre équipe répond à vos questions sur les écoles, les concours et l'orientation en Côte d'Ivoire.
-            </p>
+            <p className="text-sm font-semibold text-foreground mb-0.5">{t("messages_banner_title")}</p>
+            <p className="text-xs text-muted-foreground leading-relaxed">{t("messages_banner_text")}</p>
           </div>
         </div>
 
@@ -72,15 +74,15 @@ export default function Messages() {
               <div className="w-20 h-20 bg-secondary/10 rounded-full flex items-center justify-center mb-5">
                 <CheckCircle2 className="w-10 h-10 text-secondary" />
               </div>
-              <h3 className="font-display font-bold text-xl mb-2 text-foreground">Message envoyé !</h3>
+              <h3 className="font-display font-bold text-xl mb-2 text-foreground">{t("messages_success_title")}</h3>
               <p className="text-muted-foreground text-sm text-balance mb-6">
-                Merci pour votre message. Nous vous répondrons dans les plus brefs délais à <strong>{email}</strong>.
+                {t("messages_success_sub")} <strong>{email}</strong>.
               </p>
               <button
                 onClick={() => setSuccess(false)}
                 className="px-8 py-3 rounded-2xl bg-primary text-white font-semibold active:scale-95 transition-all"
               >
-                Envoyer un autre message
+                {t("messages_send_another")}
               </button>
             </motion.div>
           ) : (
@@ -97,73 +99,69 @@ export default function Messages() {
                 </div>
               )}
 
-              {/* Name */}
               <div className="space-y-2">
-                <label className="text-sm font-semibold text-foreground">Votre nom</label>
+                <label className="text-sm font-semibold text-foreground">{t("messages_name")}</label>
                 <input
                   type="text"
                   value={name}
-                  onChange={e => setName(e.target.value)}
-                  placeholder="Kouamé Aya"
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder={t("messages_name_ph")}
                   className="w-full px-4 py-3.5 rounded-2xl bg-muted/50 border border-border/80 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-all"
                 />
               </div>
 
-              {/* Email */}
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-foreground flex items-center gap-2">
-                  <Mail className="w-4 h-4" /> Email de réponse
+                  <Mail className="w-4 h-4" /> {t("messages_email")}
                 </label>
                 <input
                   type="email"
                   value={email}
-                  onChange={e => setEmail(e.target.value)}
-                  placeholder="votre@email.ci"
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder={t("messages_email_ph")}
                   className="w-full px-4 py-3.5 rounded-2xl bg-muted/50 border border-border/80 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-all"
                 />
               </div>
 
-              {/* Subject */}
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-foreground flex items-center gap-2">
-                  <FileText className="w-4 h-4" /> Sujet
+                  <FileText className="w-4 h-4" /> {t("messages_subject")}
                 </label>
                 <div className="flex flex-wrap gap-2 mb-2">
-                  {SUBJECTS.map(s => (
+                  {SUBJECTS.map((s) => (
                     <button
-                      key={s}
+                      key={s.key}
                       type="button"
-                      onClick={() => setSubject(s)}
+                      onClick={() => setSubject(s.key)}
                       className={cn(
                         "px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all active:scale-95",
-                        subject === s
+                        subject === s.key
                           ? "bg-primary text-white border-primary shadow-sm"
                           : "bg-muted border-border/60 text-muted-foreground hover:text-foreground"
                       )}
                     >
-                      {s}
+                      {s.label}
                     </button>
                   ))}
                 </div>
-                {subject === "Autre" && (
+                {subject === "other" && (
                   <input
                     type="text"
-                    value={subject === "Autre" ? "" : subject}
-                    onChange={e => setSubject(e.target.value)}
-                    placeholder="Précisez votre sujet..."
+                    value={customSubject}
+                    onChange={(e) => setCustomSubject(e.target.value)}
+                    placeholder={t("messages_subject_other_ph")}
                     className="w-full px-4 py-3.5 rounded-2xl bg-muted/50 border border-border/80 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-all"
                   />
                 )}
               </div>
 
-              {/* Message */}
               <div className="space-y-2">
-                <label className="text-sm font-semibold text-foreground">Votre message</label>
+                <label className="text-sm font-semibold text-foreground">{t("messages_message")}</label>
                 <textarea
                   value={message}
-                  onChange={e => setMessage(e.target.value)}
+                  onChange={(e) => setMessage(e.target.value)}
                   rows={5}
-                  placeholder="Décrivez votre question ou demande en détail..."
+                  placeholder={t("messages_msg_ph")}
                   className="w-full px-4 py-3.5 rounded-2xl bg-muted/50 border border-border/80 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-all resize-none"
                 />
                 <p className="text-xs text-muted-foreground text-right">{message.length}/500</p>
@@ -177,7 +175,9 @@ export default function Messages() {
                 {isPending ? (
                   <Loader2 className="w-5 h-5 animate-spin" />
                 ) : (
-                  <>Envoyer le message <Send className="w-5 h-5" /></>
+                  <>
+                    {t("messages_send")} <Send className="w-5 h-5" />
+                  </>
                 )}
               </button>
             </motion.form>
