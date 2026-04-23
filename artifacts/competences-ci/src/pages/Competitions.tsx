@@ -6,8 +6,10 @@ import { useFilters } from "@/hooks/use-filters";
 import { SlidersHorizontal, Loader2, Search } from "lucide-react";
 import { useListCompetitions, useListCities, useListDiplomas, type ListCompetitionsParams } from "@workspace/api-client-react";
 import { cn } from "@/lib/utils";
+import { useT } from "@/lib/useT";
 
 export default function Competitions() {
+  const { t } = useT();
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const { filters, updateFilter, clearFilters } = useFilters<ListCompetitionsParams>({});
   
@@ -19,10 +21,10 @@ export default function Competitions() {
 
   // Tabs for status filtering on top
   const tabs = [
-    { id: undefined, label: "Tous" },
-    { id: "open", label: "Ouverts" },
-    { id: "upcoming", label: "À venir" },
-    { id: "closed", label: "Fermés" },
+    { id: undefined, label: t("competitions_all") },
+    { id: "open", label: t("competitions_opens") },
+    { id: "upcoming", label: t("competitions_upcomings") },
+    { id: "closed", label: t("competitions_closeds") },
   ];
 
   const applyFilters = () => {
@@ -37,7 +39,7 @@ export default function Competitions() {
   const activeFiltersCount = (filters.city ? 1 : 0) + (filters.diploma ? 1 : 0);
 
   return (
-    <Layout title="Concours Publics">
+    <Layout title={t("competitions_title")}>
       
       {/* Status Tabs Header */}
       <div className="sticky top-14 md:top-16 z-30 bg-background/95 backdrop-blur-md border-b border-border/50 pt-2 pb-3">
@@ -63,14 +65,14 @@ export default function Competitions() {
         
         <div className="px-4 md:px-6 max-w-6xl mx-auto mt-3 flex justify-between items-center">
           <div className="text-sm font-medium text-muted-foreground">
-            {competitions?.length || 0} résultat{competitions?.length !== 1 ? 's' : ''}
+            {competitions?.length || 0} {competitions?.length !== 1 ? t("competitions_count_many") : t("competitions_count_one")}
           </div>
           <button 
             onClick={() => { setLocalFilters(filters); setIsFilterOpen(true); }}
             className="flex items-center text-sm font-semibold text-primary"
           >
             <SlidersHorizontal className="w-4 h-4 mr-1.5" />
-            Filtrer {activeFiltersCount > 0 && `(${activeFiltersCount})`}
+            {t("competitions_filter")} {activeFiltersCount > 0 && `(${activeFiltersCount})`}
           </button>
         </div>
       </div>
@@ -83,20 +85,20 @@ export default function Competitions() {
           </div>
         ) : error ? (
           <div className="text-center py-10 px-4 bg-destructive/5 rounded-2xl border border-destructive/20 text-destructive">
-            <p className="font-semibold">Une erreur est survenue</p>
+            <p className="font-semibold">{t("schools_error_title")}</p>
           </div>
         ) : competitions?.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center px-6">
             <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
               <Search className="w-6 h-6 text-muted-foreground" />
             </div>
-            <h3 className="font-display font-bold text-lg mb-2">Aucun concours</h3>
+            <h3 className="font-display font-bold text-lg mb-2">{t("competitions_no_results")}</h3>
             <p className="text-muted-foreground text-sm text-balance">
-              Aucun concours ne correspond à ces critères actuellement.
+              {t("competitions_no_results_sub")}
             </p>
             {activeFiltersCount > 0 && (
               <button onClick={clearFilters} className="mt-6 px-6 py-2 bg-secondary/10 text-secondary font-semibold rounded-full">
-                Effacer les filtres
+                {t("schools_clear_filters")}
               </button>
             )}
           </div>
@@ -114,20 +116,20 @@ export default function Competitions() {
         onClose={() => setIsFilterOpen(false)}
         onApply={applyFilters}
         onReset={() => setLocalFilters(prev => ({ ...prev, city: undefined, diploma: undefined }))}
-        title="Filtrer les concours"
+        title={t("competitions_filter_title")}
       >
-        <FilterSection title="Lieu de composition (Ville)">
+        <FilterSection title={t("competitions_filter_city")}>
           <FilterSelect 
-            placeholder="Toutes les villes"
+            placeholder={t("schools_all_cities")}
             options={cities}
             value={localFilters.city}
             onChange={(v) => setLocalFilters(prev => ({ ...prev, city: v }))}
           />
         </FilterSection>
 
-        <FilterSection title="Niveau Requis">
+        <FilterSection title={t("competitions_filter_diploma")}>
           <FilterSelect 
-            placeholder="Tous les niveaux"
+            placeholder={t("competitions_all_levels")}
             options={diplomas}
             value={localFilters.diploma}
             onChange={(v) => setLocalFilters(prev => ({ ...prev, diploma: v }))}

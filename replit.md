@@ -87,3 +87,9 @@ Passwords are hashed with SHA-256 + application salt via Node.js built-in `crypt
 - `pnpm run typecheck` — runs `tsc --build --emitDeclarationOnly` using project references
 - `pnpm --filter @workspace/api-spec run codegen` — regenerate API client from OpenAPI spec
 - `pnpm --filter @workspace/db run push` — push DB schema changes
+
+## i18n & UI updates (April 2026)
+
+- `src/lib/i18n.ts` — full FR/EN dictionary covering nav, sidebar, hamburger drawer, theme/lang toggles, schools, competitions, conseils, candidatures, orientation, login/register, favorites, common.
+- `src/components/Layout.tsx` — restored hamburger menu (mobile/tablet only, on the left when no back arrow). Opens a slide-in drawer (`x:-100%` spring) sharing `SidebarContent` with the desktop sidebar. Drawer locks body scroll, closes on backdrop tap or X. All labels use `t()`.
+- `src/components/InAppNotificationToast.tsx` — floating top-of-screen toast shown 1.2 s after open if `unreadCount > 0`, 30 min cooldown via `cci_inapp_toast_last`, auto-dismiss after 8 s, hidden on `/notifications`. Works without browser permission so users always see pending alerts.

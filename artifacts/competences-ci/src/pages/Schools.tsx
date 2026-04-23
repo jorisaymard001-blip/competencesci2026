@@ -5,8 +5,10 @@ import { FilterDrawer, FilterSection, FilterSelect, FilterPills } from "@/compon
 import { useFilters } from "@/hooks/use-filters";
 import { Search, SlidersHorizontal, Loader2, MapPin } from "lucide-react";
 import { useListSchools, useListCities, useListDiplomas, type ListSchoolsParams } from "@workspace/api-client-react";
+import { useT } from "@/lib/useT";
 
 export default function Schools() {
+  const { t } = useT();
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   
@@ -48,7 +50,7 @@ export default function Schools() {
   const activeFiltersCount = Object.values(filters).filter(v => v !== undefined && v !== "").length;
 
   return (
-    <Layout title="Écoles & Instituts">
+    <Layout title={t("schools_title")}>
       
       {/* Sticky Header with Search & Filter Trigger */}
       <div className="sticky top-14 md:top-16 z-30 bg-background/95 backdrop-blur-md border-b border-border/50">
@@ -57,7 +59,7 @@ export default function Schools() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <input 
               type="text" 
-              placeholder="Rechercher une école..." 
+              placeholder={t("schools_search")} 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full bg-muted/50 border border-border/80 rounded-xl pl-9 pr-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-all"
@@ -82,35 +84,35 @@ export default function Schools() {
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-20">
             <Loader2 className="w-8 h-8 animate-spin text-primary mb-4" />
-            <p className="text-muted-foreground font-medium">Chargement des écoles...</p>
+            <p className="text-muted-foreground font-medium">{t("schools_loading")}</p>
           </div>
         ) : error ? (
           <div className="text-center py-10 px-4 bg-destructive/5 rounded-2xl border border-destructive/20 text-destructive">
-            <p className="font-semibold">Une erreur est survenue</p>
-            <p className="text-sm mt-1">Impossible de charger la liste des écoles.</p>
+            <p className="font-semibold">{t("schools_error_title")}</p>
+            <p className="text-sm mt-1">{t("schools_error_sub")}</p>
           </div>
         ) : filteredSchools?.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center px-6">
             <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
               <Search className="w-6 h-6 text-muted-foreground" />
             </div>
-            <h3 className="font-display font-bold text-lg mb-2">Aucun résultat</h3>
+            <h3 className="font-display font-bold text-lg mb-2">{t("schools_no_results")}</h3>
             <p className="text-muted-foreground text-sm text-balance">
-              Essayez de modifier vos filtres ou votre terme de recherche.
+              {t("schools_no_results_sub")}
             </p>
             {activeFiltersCount > 0 && (
               <button 
                 onClick={clearFilters}
                 className="mt-6 px-6 py-2.5 bg-primary/10 text-primary font-semibold rounded-full active:scale-95 min-h-[44px]"
               >
-                Effacer les filtres
+                {t("schools_clear_filters")}
               </button>
             )}
           </div>
         ) : (
           <div>
             <div className="text-sm font-medium text-muted-foreground px-1 mb-4">
-              {filteredSchools?.length} établissement{filteredSchools?.length !== 1 ? 's' : ''} trouvé{filteredSchools?.length !== 1 ? 's' : ''}
+              {filteredSchools?.length} {filteredSchools?.length !== 1 ? t("schools_count_many") : t("schools_count_one")}
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
               {filteredSchools?.map((school, i) => (
@@ -128,29 +130,29 @@ export default function Schools() {
         onApply={applyFilters}
         onReset={() => setLocalFilters({})}
       >
-        <FilterSection title="Type d'établissement">
+        <FilterSection title={t("schools_filter_type")}>
           <FilterPills 
             options={[
-              { value: "public", label: "Public" },
-              { value: "private", label: "Privé" }
+              { value: "public", label: t("schools_public") },
+              { value: "private", label: t("schools_private") }
             ]}
             value={localFilters.type}
             onChange={(v) => setLocalFilters(prev => ({ ...prev, type: v as any }))}
           />
         </FilterSection>
 
-        <FilterSection title="Ville">
+        <FilterSection title={t("schools_filter_city")}>
           <FilterSelect 
-            placeholder="Toutes les villes"
+            placeholder={t("schools_all_cities")}
             options={cities}
             value={localFilters.city}
             onChange={(v) => setLocalFilters(prev => ({ ...prev, city: v }))}
           />
         </FilterSection>
 
-        <FilterSection title="Niveau de Diplôme">
+        <FilterSection title={t("schools_filter_diploma")}>
           <FilterSelect 
-            placeholder="Tous les niveaux"
+            placeholder={t("competitions_all_levels")}
             options={diplomas}
             value={localFilters.diploma}
             onChange={(v) => setLocalFilters(prev => ({ ...prev, diploma: v }))}

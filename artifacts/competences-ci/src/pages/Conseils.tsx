@@ -4,10 +4,19 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, Clock, BookOpen } from "lucide-react";
 import { articles, Article } from "@/lib/articles";
 import { cn } from "@/lib/utils";
+import { useT } from "@/lib/useT";
 
 const CATEGORIES = ["Tous", "Orientation", "Études", "Concours", "Marché du travail"];
+const CAT_KEYS: Record<string, any> = {
+  "Tous": "conseils_cat_all",
+  "Orientation": "conseils_cat_orientation",
+  "Études": "conseils_cat_studies",
+  "Concours": "conseils_cat_competitions",
+  "Marché du travail": "conseils_cat_market",
+};
 
 function ArticleView({ article, onBack }: { article: Article; onBack: () => void }) {
+  const { t } = useT();
   return (
     <motion.div
       initial={{ opacity: 0, x: 40 }}
@@ -35,7 +44,7 @@ function ArticleView({ article, onBack }: { article: Article; onBack: () => void
               "bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400"
             )}>{article.category}</span>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
-              <Clock className="w-3 h-3" /> {article.readTime} de lecture
+              <Clock className="w-3 h-3" /> {article.readTime} {t("conseils_read_time")}
             </div>
           </div>
         </div>
@@ -59,18 +68,19 @@ function ArticleView({ article, onBack }: { article: Article; onBack: () => void
 }
 
 export default function Conseils() {
+  const { t } = useT();
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
   const [activeCategory, setActiveCategory] = useState("Tous");
 
   const filtered = activeCategory === "Tous" ? articles : articles.filter(a => a.category === activeCategory);
 
   return (
-    <Layout title="Conseils & Orientation" showBack noBottomNav>
+    <Layout title={t("conseils_title")} showBack noBottomNav>
       <div className="bg-background min-h-screen pb-12">
         {/* Header */}
         <div className="px-5 pt-4 pb-5 bg-gradient-to-br from-primary/5 to-secondary/5 border-b border-border/40">
           <p className="text-sm text-muted-foreground leading-relaxed">
-            Des articles pratiques pour vous aider dans votre parcours académique et professionnel en Côte d'Ivoire.
+            {t("conseils_intro")}
           </p>
         </div>
 
@@ -87,7 +97,7 @@ export default function Conseils() {
                   : "bg-muted text-muted-foreground hover:bg-muted/80"
               )}
             >
-              {cat}
+              {t(CAT_KEYS[cat])}
             </button>
           ))}
         </div>

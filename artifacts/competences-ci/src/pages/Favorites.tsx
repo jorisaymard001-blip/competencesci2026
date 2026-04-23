@@ -7,8 +7,10 @@ import { CompetitionCard } from "@/components/Cards";
 import { Heart, GraduationCap, Briefcase } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { useT } from "@/lib/useT";
 
 export default function Favorites() {
+  const { t } = useT();
   const { favoriteSchools, favoriteCompetitions } = useFavorites();
   const [activeTab, setActiveTab] = useState<"schools" | "competitions">("schools");
 
@@ -21,7 +23,7 @@ export default function Favorites() {
   const totalFavs = favoriteSchools.length + favoriteCompetitions.length;
 
   return (
-    <Layout title="Mes Favoris">
+    <Layout title={t("favorites_title")}>
       {/* Tabs */}
       <div className="sticky top-16 z-30 bg-background/95 backdrop-blur-md border-b border-border/50 px-4 py-3">
         <div className="flex gap-2">
@@ -35,7 +37,7 @@ export default function Favorites() {
             )}
           >
             <GraduationCap className="w-4 h-4" />
-            Écoles
+            {t("favorites_tab_schools")}
             {favoriteSchools.length > 0 && (
               <span className={cn(
                 "w-5 h-5 rounded-full text-[10px] font-bold flex items-center justify-center",
@@ -55,7 +57,7 @@ export default function Favorites() {
             )}
           >
             <Briefcase className="w-4 h-4" />
-            Concours
+            {t("favorites_tab_comps")}
             {favoriteCompetitions.length > 0 && (
               <span className={cn(
                 "w-5 h-5 rounded-full text-[10px] font-bold flex items-center justify-center",
@@ -74,19 +76,19 @@ export default function Favorites() {
             <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mb-5">
               <Heart className="w-8 h-8 text-red-300" />
             </div>
-            <h3 className="font-display font-bold text-xl mb-2 text-foreground">Aucun favori</h3>
+            <h3 className="font-display font-bold text-xl mb-2 text-foreground">{t("favorites_empty")}</h3>
             <p className="text-muted-foreground text-sm text-balance mb-8">
-              Ajoutez des écoles et des concours à vos favoris en appuyant sur le bouton ❤️ dans leurs pages de détail.
+              {t("favorites_empty_sub")}
             </p>
             <div className="flex gap-3 w-full">
               <Link href="/schools" className="flex-1">
                 <button className="w-full py-3 rounded-2xl bg-primary/10 text-primary font-semibold text-sm active:scale-95 transition-all">
-                  Explorer les écoles
+                  {t("nav_schools")}
                 </button>
               </Link>
               <Link href="/competitions" className="flex-1">
                 <button className="w-full py-3 rounded-2xl bg-secondary/10 text-secondary font-semibold text-sm active:scale-95 transition-all">
-                  Voir les concours
+                  {t("nav_competitions")}
                 </button>
               </Link>
             </div>

@@ -4,8 +4,10 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useRegister } from "@workspace/api-client-react";
 import { GraduationCap, Mail, Lock, User, Eye, EyeOff, ArrowRight, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
+import { useT } from "@/lib/useT";
 
 export default function Register() {
+  const { t } = useT();
   const { login } = useAuth();
   const [, navigate] = useLocation();
   const [name, setName] = useState("");
@@ -21,7 +23,7 @@ export default function Register() {
         navigate("/");
       },
       onError: (err: any) => {
-        setError(err?.message || "Erreur lors de l'inscription");
+        setError(err?.message || t("register_error"));
       },
     },
   });
@@ -50,8 +52,8 @@ export default function Register() {
           <div className="w-14 h-14 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center mb-5 border border-white/20">
             <GraduationCap className="w-7 h-7 text-white" />
           </div>
-          <h1 className="font-display text-3xl font-bold mb-2">Créer un compte</h1>
-          <p className="text-white/70 text-sm">Rejoignez Compétences CI</p>
+          <h1 className="font-display text-3xl font-bold mb-2">{t("register_title")}</h1>
+          <p className="text-white/70 text-sm">{t("register_subtitle")}</p>
         </div>
       </div>
 
@@ -70,7 +72,7 @@ export default function Register() {
           )}
 
           <div className="space-y-2">
-            <label className="text-sm font-semibold text-foreground">Nom complet</label>
+            <label className="text-sm font-semibold text-foreground">{t("register_name")}</label>
             <div className="relative">
               <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <input
@@ -85,14 +87,14 @@ export default function Register() {
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-semibold text-foreground">Email</label>
+            <label className="text-sm font-semibold text-foreground">{t("login_email")}</label>
             <div className="relative">
               <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <input
                 type="email"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
-                placeholder="Entrez votre email"
+                placeholder={t("login_email_placeholder")}
                 className="w-full pl-11 pr-4 py-3.5 rounded-2xl bg-muted/50 border border-border/80 text-sm outline-none focus:ring-2 focus:ring-secondary/20 focus:border-secondary/50 transition-all"
                 autoComplete="email"
               />
@@ -100,7 +102,7 @@ export default function Register() {
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-semibold text-foreground">Mot de passe</label>
+            <label className="text-sm font-semibold text-foreground">{t("login_password")}</label>
             <div className="relative">
               <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <input
@@ -130,16 +132,16 @@ export default function Register() {
             {isPending ? (
               <Loader2 className="w-5 h-5 animate-spin" />
             ) : (
-              <>Créer mon compte <ArrowRight className="w-5 h-5" /></>
+              <>{t("register_btn")} <ArrowRight className="w-5 h-5" /></>
             )}
           </button>
         </motion.form>
 
         <div className="mt-8 text-center">
           <p className="text-sm text-muted-foreground">
-            Déjà un compte ?{" "}
+            {t("register_has_account")}{" "}
             <Link href="/login" className="text-primary font-semibold hover:underline">
-              Se connecter
+              {t("register_login")}
             </Link>
           </p>
         </div>
