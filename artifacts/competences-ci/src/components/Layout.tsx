@@ -229,7 +229,8 @@ export function Layout({
 
         {/* ── PAGE CONTENT ───────────────────────────────────────── */}
         <main className={cn(
-          "flex-1 w-full flex flex-col relative",
+          "flex-1 w-full flex flex-col relative mx-auto",
+          "lg:max-w-5xl xl:max-w-6xl",
           !noBottomNav && "pb-20 lg:pb-6"
         )}>
           {children}

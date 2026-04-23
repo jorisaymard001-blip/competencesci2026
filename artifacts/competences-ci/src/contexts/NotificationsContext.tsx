@@ -1,5 +1,14 @@
 import { createContext, useContext, useState, useEffect, useRef, ReactNode } from "react";
 import { useAuth } from "./AuthContext";
+import {
+  showLocalNotification,
+  setAppBadge,
+  notifyOnAppOpen,
+  startPushScheduler,
+  stopPushScheduler,
+  requestNotificationPermission,
+  hasAskedPermission,
+} from "@/lib/push-scheduler";
 
 export interface AppNotification {
   id: number;
@@ -85,17 +94,19 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
             (n) => !prevIds.has(n.id) &&
             new Date(n.createdAt).getTime() > lastReadAt
           );
-          if (newOnes.length > 0 && "Notification" in window && Notification.permission === "granted") {
-            newOnes.forEach((n) => {
-              try {
-                new Notification(n.title, {
-                  body: n.body,
-                  icon: "/icon-192.png",
-                  tag: `notif-${n.id}`,
-                });
-              } catch {}
+          // Real push via service worker (survives tab close on Android/desktop)
+          newOnes.forEach((n) => {
+            const url =
+              n.referenceType === "school" && n.referenceId ? `/schools/${n.referenceId}` :
+              n.referenceType === "competition" && n.referenceId ? `/competitions/${n.referenceId}` :
+              "/notifications";
+            showLocalNotification({
+              title: n.title,
+              body: n.body,
+              tag: `notif-${n.id}`,
+              url,
             });
-          }
+          });
         }
         firstFetchDone.current = true;
         return data;
@@ -113,12 +124,35 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
     return () => clearInterval(interval);
   }, [isAuthenticated]);
 
+  // Permission + scheduler bootstrap
   useEffect(() => {
-    if (!isAuthenticated) return;
-    if ("Notification" in window && Notification.permission === "default") {
-      Notification.requestPermission();
+    if (!isAuthenticated) {
+      stopPushScheduler();
+      setAppBadge(0);
+      return;
     }
+    // Ask once per device
+    if (!hasAskedPermission()) {
+      // Defer slightly so it doesn't pop immediately on login
+      setTimeout(() => { requestNotificationPermission(); }, 1500);
+    }
+    // Start strategic-time daily reminders (8h, 12h, 18h, 20h)
+    startPushScheduler();
+    return () => stopPushScheduler();
   }, [isAuthenticated]);
+
+  // App-open notification: only fires once per mount
+  const openNotifiedRef = useRef(false);
+  useEffect(() => {
+    if (!isAuthenticated || openNotifiedRef.current) return;
+    if (allNotifications.length === 0) return;
+    openNotifiedRef.current = true;
+    const unread = allNotifications.filter(
+      (n) => !(n.id in deletedMap) && new Date(n.createdAt).getTime() > lastReadAt
+    );
+    const latest = unread[0]?.title;
+    notifyOnAppOpen(unread.length, latest);
+  }, [isAuthenticated, allNotifications.length]);
 
   const saveDeletedMap = (map: Record<number, number>, uid: number) => {
     localStorage.setItem(DELETED_KEY(uid), JSON.stringify(map));
@@ -135,6 +169,11 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
   const unreadCount = visible.filter(
     (n) => new Date(n.createdAt).getTime() > lastReadAt
   ).length;
+
+  // Sync system app badge (PWA on Android/Chrome) whenever unread changes
+  useEffect(() => {
+    if (isAuthenticated) setAppBadge(unreadCount);
+  }, [unreadCount, isAuthenticated]);
 
   const deleteNotification = (id: number) => {
     const now = Date.now();
