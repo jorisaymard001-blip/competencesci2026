@@ -168,26 +168,26 @@ export default function Profile() {
         <div className="px-4 py-5 space-y-4">
 
           {/* Outils */}
-          <Section title="Mes outils">
+          <Section title={t("nav_section_tools")}>
             <MenuItem
               icon={<Compass className="w-5 h-5 text-violet-600" />}
               iconBg="bg-violet-50 dark:bg-violet-900/20"
-              label="Trouver ma voie"
-              subtitle="Quiz d'orientation personnalisé"
+              label={t("profile_orient_label")}
+              subtitle={t("profile_orient_sub")}
               onPress={() => navigate("/orientation")}
             />
             <MenuItem
               icon={<ClipboardList className="w-5 h-5 text-blue-600" />}
               iconBg="bg-blue-50 dark:bg-blue-900/20"
-              label="Mes candidatures"
-              subtitle="Suivre vos dossiers en cours"
+              label={t("profile_cand_label")}
+              subtitle={t("profile_cand_sub")}
               onPress={() => navigate("/candidatures")}
             />
             <MenuItem
               icon={<BookOpen className="w-5 h-5 text-green-600" />}
               iconBg="bg-green-50 dark:bg-green-900/20"
-              label="Conseils & Orientation"
-              subtitle="Articles et guides pratiques"
+              label={t("profile_articles_label")}
+              subtitle={t("profile_articles_sub")}
               onPress={() => navigate("/conseils")}
               last
             />
