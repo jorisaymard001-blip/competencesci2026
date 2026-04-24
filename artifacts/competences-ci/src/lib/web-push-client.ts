@@ -1,0 +1,95 @@
+// ── Web Push (VAPID) — client-side subscription helper ──────────────────────
+
+const SUB_ENDPOINT_KEY = "cci_push_endpoint";
+
+function urlBase64ToUint8Array(base64String: string): Uint8Array {
+  const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
+  const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
+  const raw = atob(base64);
+  const arr = new Uint8Array(raw.length);
+  for (let i = 0; i < raw.length; i++) arr[i] = raw.charCodeAt(i);
+  return arr;
+}
+
+function apiBase(): string {
+  return import.meta.env.BASE_URL ?? "/";
+}
+
+export async function getVapidPublicKey(): Promise<string | null> {
+  try {
+    const res = await fetch(`${apiBase()}api/push/vapid-public-key`);
+    if (!res.ok) return null;
+    const data = (await res.json()) as { publicKey?: string };
+    return data.publicKey ?? null;
+  } catch {
+    return null;
+  }
+}
+
+export async function subscribeToPush(userId: number | null): Promise<boolean> {
+  if (!("serviceWorker" in navigator) || !("PushManager" in window)) return false;
+  if (Notification.permission !== "granted") return false;
+
+  try {
+    const reg = await navigator.serviceWorker.ready;
+    let sub = await reg.pushManager.getSubscription();
+
+    if (!sub) {
+      const publicKey = await getVapidPublicKey();
+      if (!publicKey) {
+        console.warn("[push] VAPID public key unavailable");
+        return false;
+      }
+      sub = await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(publicKey),
+      });
+    }
+
+    const json = sub.toJSON();
+    const body = {
+      endpoint: sub.endpoint,
+      keys: {
+        p256dh: json.keys?.p256dh ?? "",
+        auth: json.keys?.auth ?? "",
+      },
+      userId,
+      userAgent: navigator.userAgent,
+    };
+
+    const res = await fetch(`${apiBase()}api/push/subscribe`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+
+    if (res.ok) {
+      localStorage.setItem(SUB_ENDPOINT_KEY, sub.endpoint);
+      console.info("[push] Subscribed");
+      return true;
+    }
+    return false;
+  } catch (err) {
+    console.warn("[push] Subscribe failed:", err);
+    return false;
+  }
+}
+
+export async function unsubscribeFromPush(): Promise<void> {
+  try {
+    const reg = await navigator.serviceWorker.ready;
+    const sub = await reg.pushManager.getSubscription();
+    if (sub) {
+      const endpoint = sub.endpoint;
+      await sub.unsubscribe().catch(() => {});
+      try {
+        await fetch(`${apiBase()}api/push/unsubscribe`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ endpoint }),
+        });
+      } catch {}
+    }
+    localStorage.removeItem(SUB_ENDPOINT_KEY);
+  } catch {}
+}

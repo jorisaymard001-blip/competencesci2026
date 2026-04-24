@@ -10,6 +10,7 @@ import {
   requestNotificationPermission,
   hasAskedPermission,
 } from "@/lib/push-scheduler";
+import { subscribeToPush, unsubscribeFromPush } from "@/lib/web-push-client";
 
 const LAST_ACTIVE_KEY = "cci_last_active_at";
 const INACTIVITY_NOTIF_KEY = "cci_inactivity_notif_at";
@@ -135,18 +136,30 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!isAuthenticated || !notificationsEnabled) {
       stopPushScheduler();
-      if (!notificationsEnabled) setAppBadge(0);
+      if (!notificationsEnabled) {
+        setAppBadge(0);
+        void unsubscribeFromPush();
+      }
       return;
     }
-    // Ask once per device
-    if (!hasAskedPermission()) {
-      // Defer slightly so it doesn't pop immediately on login
-      setTimeout(() => { requestNotificationPermission(); }, 1500);
-    }
+    // Ask once per device, then subscribe to real push
+    const initPush = async () => {
+      let perm = Notification.permission;
+      if (!hasAskedPermission() && perm === "default") {
+        // Defer slightly so it doesn't pop immediately on login
+        await new Promise((r) => setTimeout(r, 1500));
+        perm = await requestNotificationPermission();
+      }
+      if (perm === "granted") {
+        await subscribeToPush(user?.id ?? null);
+      }
+    };
+    void initPush();
+
     // Start strategic-time daily reminders (8h, 12h, 18h, 20h)
     startPushScheduler();
     return () => stopPushScheduler();
-  }, [isAuthenticated, notificationsEnabled]);
+  }, [isAuthenticated, notificationsEnabled, user?.id]);
 
   // ── Inactivity tracker ────────────────────────────────────────────────
   // On app open, if user was away >48h, fire a "come back" notification

@@ -1,0 +1,91 @@
+Corriger le système de notifications de l’application “Compétences CI”.
+
+PROBLÈME ACTUEL :
+
+- Les notifications sont affichées uniquement dans l’application (boîte de réception interne)
+- Elles ne s’affichent pas sur le téléphone
+- L’utilisateur ne reçoit aucune alerte sur son appareil
+
+OBJECTIF :
+
+Je veux des VRAIES notifications système (push notifications) qui apparaissent directement sur le téléphone, comme :
+
+- messages WhatsApp
+- SMS
+- notifications iPhone / Android
+
+--------------------------------------------------
+
+🔔 1. IMPLEMENTER DES NOTIFICATIONS PUSH RÉELLES
+
+- utiliser Firebase Cloud Messaging (FCM)
+- envoyer des notifications depuis le serveur
+- permettre la réception même lorsque l’application est fermée
+
+--------------------------------------------------
+
+📱 2. AFFICHAGE ATTENDU
+
+Les notifications doivent :
+
+- apparaître en haut de l’écran (bannière)
+- s’afficher sur l’écran verrouillé
+- déclencher une vibration ou un son
+- être visibles même si l’application est fermée
+
+--------------------------------------------------
+
+🔴 3. BADGE SUR L’ICÔNE
+
+- afficher un badge avec le nombre de notifications sur l’icône de l’application
+- synchroniser avec les notifications non lues
+- décrémenter après lecture
+
+--------------------------------------------------
+
+🔐 4. AUTORISATION UTILISATEUR
+
+- demander la permission d’envoyer des notifications dès la première ouverture
+- gérer l’acceptation ou le refus
+
+--------------------------------------------------
+
+⚙️ 5. CONFIGURATION TECHNIQUE
+
+- intégrer Firebase Cloud Messaging (FCM)
+- générer un token unique pour chaque utilisateur
+- stocker ce token en base de données
+- utiliser un service worker pour PWA
+- gérer l’envoi des notifications via backend
+
+--------------------------------------------------
+
+🔁 6. UTILISER LES NOTIFICATIONS EXISTANTES
+
+Les notifications déjà présentes dans l’application (concours, rappels, etc.) doivent :
+
+- être envoyées en push sur le téléphone
+- ET rester visibles dans la boîte de réception interne
+
+--------------------------------------------------
+
+⚠️ IMPORTANT
+
+- ne pas se limiter aux notifications internes
+- implémenter obligatoirement les notifications push système
+- tester sur un téléphone réel
+
+--------------------------------------------------
+
+🎯 RÉSULTAT ATTENDU
+
+- notifications visibles sur le téléphone
+- notifications même app fermée
+- badge sur l’icône
+- expérience identique à WhatsApp / Messages
+
+--------------------------------------------------
+
+INSTRUCTION FINALE :
+
+Corrige ce problème en priorité et implémente les notifications push système complètes sans casser les autres fonctionnalités

@@ -4,7 +4,8 @@ import {
   schoolsTable,
   competitionsTable,
 } from "@workspace/db/schema";
-import { and, eq, gte, lte, sql } from "drizzle-orm";
+import { and, eq, gte, lte } from "drizzle-orm";
+import { sendPushToAll } from "./web-push";
 
 const RUN_INTERVAL_MS = 5 * 60 * 1000;
 const NEW_ITEM_WINDOW_MS = 24 * 60 * 60 * 1000;
@@ -38,6 +39,22 @@ async function insertNotif(payload: {
   console.log(
     `[notif-synth] +${payload.type} ref=${payload.referenceType}#${payload.referenceId}`,
   );
+  // Broadcast as a real system push notification (works app-closed)
+  const url =
+    payload.referenceType === "school"
+      ? `/schools/${payload.referenceId}`
+      : payload.referenceType === "competition"
+        ? `/competitions/${payload.referenceId}`
+        : "/notifications";
+  void sendPushToAll({
+    title: payload.title,
+    body: payload.body,
+    type: payload.type,
+    referenceId: payload.referenceId,
+    referenceType: payload.referenceType,
+    tag: `${payload.type}-${payload.referenceId}`,
+    url,
+  });
 }
 
 async function syncNewSchools(): Promise<void> {
