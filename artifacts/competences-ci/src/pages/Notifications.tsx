@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Layout } from "@/components/Layout";
 import { useNotifications } from "@/contexts/NotificationsContext";
-import { Bell, BellOff, GraduationCap, Briefcase, Info, CheckCheck, Bookmark, Trash2, RotateCcw } from "lucide-react";
+import { Bell, BellOff, GraduationCap, Briefcase, Info, CheckCheck, Bookmark, Trash2, RotateCcw, AlarmClock, XCircle, Eye } from "lucide-react";
 import { motion, AnimatePresence, useMotionValue, useTransform, animate } from "framer-motion";
 import { useLocation } from "wouter";
 import { useT } from "@/lib/useT";
@@ -10,6 +10,10 @@ import { cn } from "@/lib/utils";
 const typeConfig: Record<string, { icon: React.ComponentType<{ className?: string }>, color: string, bg: string }> = {
   new_school: { icon: GraduationCap, color: "text-primary", bg: "bg-primary/10" },
   new_competition: { icon: Briefcase, color: "text-secondary", bg: "bg-secondary/10" },
+  deadline_soon: { icon: AlarmClock, color: "text-orange-500", bg: "bg-orange-50 dark:bg-orange-900/20" },
+  competition_closed: { icon: XCircle, color: "text-slate-500", bg: "bg-slate-100 dark:bg-slate-800/40" },
+  inactivity: { icon: Eye, color: "text-blue-600", bg: "bg-blue-50 dark:bg-blue-900/20" },
+  motivation: { icon: Bell, color: "text-violet-600", bg: "bg-violet-50 dark:bg-violet-900/20" },
   general: { icon: Info, color: "text-blue-600", bg: "bg-blue-50 dark:bg-blue-900/20" },
 };
 

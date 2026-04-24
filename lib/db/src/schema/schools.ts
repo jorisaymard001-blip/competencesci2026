@@ -1,4 +1,4 @@
-import { pgTable, serial, text, integer, pgEnum } from "drizzle-orm/pg-core";
+import { pgTable, serial, text, integer, pgEnum, timestamp } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
@@ -18,6 +18,7 @@ export const schoolsTable = pgTable("schools", {
   domains: text("domains").array().notNull().default([]),
   accreditation: text("accreditation"),
   founded: integer("founded"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
 export const insertSchoolSchema = createInsertSchema(schoolsTable).omit({ id: true });

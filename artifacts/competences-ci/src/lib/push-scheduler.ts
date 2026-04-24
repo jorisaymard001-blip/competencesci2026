@@ -9,6 +9,16 @@
 const LAST_OPEN_KEY = "cci_last_open_at";
 const LAST_REMINDER_KEY = "cci_last_reminder_at";
 const PERM_ASKED_KEY = "cci_perm_asked";
+const SETTINGS_KEY = "competences_ci_settings";
+
+function notifsAllowedBySettings(): boolean {
+  try {
+    const s = JSON.parse(localStorage.getItem(SETTINGS_KEY) || "{}");
+    return s.notificationsEnabled !== false;
+  } catch {
+    return true;
+  }
+}
 
 // Strategic times of day (24h format) — when daily reminders fire
 const STRATEGIC_HOURS = [8, 12, 18, 20];
@@ -59,6 +69,7 @@ export async function showLocalNotification(opts: {
   icon?: string;
 }): Promise<boolean> {
   if (!notificationsSupported() || Notification.permission !== "granted") return false;
+  if (!notifsAllowedBySettings()) return false;
 
   const payload: NotificationOptions = {
     body: opts.body,
@@ -172,6 +183,7 @@ function scheduleNextDailyReminder(): void {
 
 export function startPushScheduler(): void {
   if (!notificationsSupported()) return;
+  if (!notifsAllowedBySettings()) return;
 
   // Re-arm strategic reminders every time the app loads
   if (Notification.permission === "granted") {

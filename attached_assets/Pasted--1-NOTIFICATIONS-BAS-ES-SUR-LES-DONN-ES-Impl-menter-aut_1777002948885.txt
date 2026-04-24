@@ -1,0 +1,171 @@
+🔔 1. NOTIFICATIONS BASÉES SUR LES DONNÉES
+
+Implémenter automatiquement :
+
+📢 Nouveau concours
+
+→ Notification lorsqu’un concours est ajouté
+
+⏰ Date limite proche
+
+→ Notification 3 jours avant la fin
+
+❌ Concours fermé
+
+→ Notification après expiration
+
+🎓 Nouvelle école
+
+→ Notification lorsqu’un établissement est ajouté
+
+👀 Inactivité
+
+→ Notification après 48h sans activité
+
+⸻
+
+⏰ 2. NOTIFICATIONS PROGRAMMÉES
+
+Envoyer des notifications à :
+
+* 8h
+* 14h
+* 18h
+* 20h
+
+Logique :
+
+* priorité aux données réelles
+* sinon → notification motivation
+
+⸻
+
+💬 3. MESSAGES
+
+Utiliser des messages dynamiques :
+
+* “📢 Nouveau concours disponible !”
+* “⏰ Attention, date limite proche !”
+* “🚫 Concours terminé”
+* “🎓 Nouvelle école disponible”
+* “👀 Reviens voir les nouveautés”
+
+⸻
+
+🧠 4. LOGIQUE INTELLIGENTE
+
+* max 2 notifications / jour
+* éviter doublons
+* ne pas renvoyer la même notification
+* stocker en base de données
+* prioriser les plus importantes
+
+⸻
+
+📱 5. INTERACTION
+
+* notification cliquable
+* redirection vers :
+    * concours
+    * école
+    * page concernée
+
+⸻
+
+⚙️ 6. PARAMÈTRES UTILISATEUR
+
+* option activer/désactiver notifications
+* sauvegarder le choix
+
+⸻
+
+🔢 7. BADGE DANS L’APP
+
+* afficher nombre non lu sur la cloche
+* mise à jour automatique
+* décrémenter après lecture
+
+⸻
+
+📲 8. BADGE SYSTÈME
+
+* afficher badge sur l’icône de l’app (si supporté)
+* synchroniser avec non lus
+* compatibilité Android / iOS
+
+⸻
+
+🔔 9. NOTIFICATIONS PUSH (TRÈS IMPORTANT)
+
+Implémenter de vraies notifications système :
+
+* utiliser Firebase Cloud Messaging (FCM)
+* demander permission utilisateur
+* fonctionner même app fermée
+
+Affichage :
+
+* bannière
+* vibration
+* son
+* écran verrouillé
+
+⸻
+
+🔴 10. BADGE SYSTÈME AVANCÉ
+
+* badge rouge sur icône (1, 2, 3…)
+* décrémentation automatique
+* iOS + Android support
+
+⸻
+
+⚙️ 11. TECHNIQUE
+
+* utiliser Service Worker (PWA)
+* gérer tokens utilisateurs
+* stocker en base de données
+* tester sur mobile réel
+
+⸻
+
+🧾 12. STRUCTURE NOTIFICATION
+
+Chaque notification contient :
+
+* titre
+* message
+* type
+* date
+* statut (lu / non lu)
+
+⸻
+
+🎨 13. DESIGN
+
+* design moderne
+* différencier lu / non lu
+* animations légères
+
+⸻
+
+🚀 RÉSULTAT ATTENDU
+
+* notifications intelligentes
+* expérience améliorée
+* app plus professionnelle
+* engagement utilisateur augmenté
+
+⸻
+
+⚠️ IMPORTANT
+
+* ne rien casser
+* tester chaque fonctionnalité
+* compatibilité mobile obligatoire
+
+⸻
+
+🔁 INSTRUCTION FINALE POUR REPLIT
+
+👉 Corrige uniquement les bugs et implémente chaque point étape par étape sans rien ignorer

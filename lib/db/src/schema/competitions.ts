@@ -1,4 +1,4 @@
-import { pgTable, serial, text, integer, pgEnum, date } from "drizzle-orm/pg-core";
+import { pgTable, serial, text, integer, pgEnum, date, timestamp } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
@@ -19,6 +19,7 @@ export const competitionsTable = pgTable("competitions", {
   process: text("process").array().notNull().default([]),
   contact: text("contact"),
   website: text("website"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
 export const insertCompetitionSchema = createInsertSchema(competitionsTable).omit({ id: true });

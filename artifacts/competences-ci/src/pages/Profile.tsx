@@ -8,7 +8,7 @@ import {
   User, Heart, MessageCircle, Settings, Info, Share2,
   LogOut, ChevronRight, Sun, Moon, Globe, Clock,
   Search, Trash2, Camera, Check, GraduationCap, Briefcase,
-  Timer, Calendar, BarChart3, Compass, ClipboardList, BookOpen
+  Timer, Calendar, BarChart3, Compass, ClipboardList, BookOpen, Bell
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -43,7 +43,7 @@ function Avatar({ size = "lg" }: { size?: "sm" | "lg" }) {
 export default function Profile() {
   const { user, logout } = useAuth();
   const { favoriteSchools, favoriteCompetitions } = useFavorites();
-  const { theme, toggleTheme, language, setLanguage, searchHistory, clearSearchHistory, getTodaySeconds, getThisYearSeconds } = useSettings();
+  const { theme, toggleTheme, language, setLanguage, notificationsEnabled, setNotificationsEnabled, searchHistory, clearSearchHistory, getTodaySeconds, getThisYearSeconds } = useSettings();
   const [, navigate] = useLocation();
 
   const [avatar, setAvatar] = useState(getStoredAvatar);
@@ -250,6 +250,32 @@ export default function Profile() {
                   </button>
                 ))}
               </div>
+            </div>
+
+            {/* Notifications toggle */}
+            <div className="flex items-center justify-between px-4 py-3.5 border-b border-border/40">
+              <div className="flex items-center gap-3 flex-1 min-w-0">
+                <div className={cn("w-9 h-9 rounded-xl flex items-center justify-center", notificationsEnabled ? "bg-orange-50 dark:bg-orange-900/20" : "bg-muted")}>
+                  <Bell className={cn("w-5 h-5", notificationsEnabled ? "text-orange-500" : "text-muted-foreground")} />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-foreground">{t("profile_notifs")}</p>
+                  <p className="text-[11px] text-muted-foreground truncate">{t("profile_notifs_sub")}</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setNotificationsEnabled(!notificationsEnabled)}
+                className={cn(
+                  "relative w-12 h-6 rounded-full transition-colors duration-300 shrink-0",
+                  notificationsEnabled ? "bg-primary" : "bg-muted-foreground/30"
+                )}
+                aria-label="Toggle notifications"
+              >
+                <div className={cn(
+                  "absolute top-0.5 w-5 h-5 rounded-full bg-white shadow-md transition-transform duration-300",
+                  notificationsEnabled ? "translate-x-6" : "translate-x-0.5"
+                )} />
+              </button>
             </div>
 
             {/* Mode */}

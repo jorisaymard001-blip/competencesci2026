@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, useRef, ReactNode } from "react";
 import { useAuth } from "./AuthContext";
+import { useSettings } from "./SettingsContext";
 import {
   showLocalNotification,
   setAppBadge,
@@ -9,6 +10,11 @@ import {
   requestNotificationPermission,
   hasAskedPermission,
 } from "@/lib/push-scheduler";
+
+const LAST_ACTIVE_KEY = "cci_last_active_at";
+const INACTIVITY_NOTIF_KEY = "cci_inactivity_notif_at";
+const INACTIVITY_THRESHOLD_MS = 48 * 60 * 60 * 1000;
+const INACTIVITY_COOLDOWN_MS = 24 * 60 * 60 * 1000;
 
 export interface AppNotification {
   id: number;
@@ -43,6 +49,7 @@ const FIFTEEN_DAYS_MS = 15 * 24 * 60 * 60 * 1000;
 
 export function NotificationsProvider({ children }: { children: ReactNode }) {
   const { user, isAuthenticated } = useAuth();
+  const { notificationsEnabled } = useSettings();
   const [allNotifications, setAllNotifications] = useState<AppNotification[]>([]);
   // deletedMap: id → timestamp when deleted
   const [deletedMap, setDeletedMap] = useState<Record<number, number>>({});
@@ -89,7 +96,7 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
       setAllNotifications((prev) => {
         const prevIds = new Set(prev.map(n => n.id));
         // Only trigger push notifications after the first fetch
-        if (firstFetchDone.current) {
+        if (firstFetchDone.current && notificationsEnabled) {
           const newOnes = data.filter(
             (n) => !prevIds.has(n.id) &&
             new Date(n.createdAt).getTime() > lastReadAt
@@ -126,9 +133,9 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
 
   // Permission + scheduler bootstrap
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (!isAuthenticated || !notificationsEnabled) {
       stopPushScheduler();
-      setAppBadge(0);
+      if (!notificationsEnabled) setAppBadge(0);
       return;
     }
     // Ask once per device
@@ -139,12 +146,53 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
     // Start strategic-time daily reminders (8h, 12h, 18h, 20h)
     startPushScheduler();
     return () => stopPushScheduler();
-  }, [isAuthenticated]);
+  }, [isAuthenticated, notificationsEnabled]);
+
+  // ── Inactivity tracker ────────────────────────────────────────────────
+  // On app open, if user was away >48h, fire a "come back" notification
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    const now = Date.now();
+    const last = parseInt(localStorage.getItem(LAST_ACTIVE_KEY) || "0", 10);
+    const lastInactivityNotif = parseInt(
+      localStorage.getItem(INACTIVITY_NOTIF_KEY) || "0",
+      10,
+    );
+
+    if (
+      last > 0 &&
+      now - last > INACTIVITY_THRESHOLD_MS &&
+      now - lastInactivityNotif > INACTIVITY_COOLDOWN_MS &&
+      notificationsEnabled
+    ) {
+      showLocalNotification({
+        title: "👀 Reviens voir les nouveautés",
+        body: "Plusieurs concours et écoles sont peut-être disponibles depuis ta dernière visite.",
+        tag: "inactivity",
+        url: "/notifications",
+      });
+      localStorage.setItem(INACTIVITY_NOTIF_KEY, String(now));
+    }
+
+    const stamp = () => localStorage.setItem(LAST_ACTIVE_KEY, String(Date.now()));
+    stamp();
+    const interval = setInterval(stamp, 60_000);
+    const onVisibility = () => {
+      if (document.visibilityState === "visible") stamp();
+    };
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener("visibilitychange", onVisibility);
+    };
+  }, [isAuthenticated, notificationsEnabled]);
 
   // App-open notification: only fires once per mount
   const openNotifiedRef = useRef(false);
   useEffect(() => {
     if (!isAuthenticated || openNotifiedRef.current) return;
+    if (!notificationsEnabled) return;
     if (allNotifications.length === 0) return;
     openNotifiedRef.current = true;
     const unread = allNotifications.filter(
@@ -152,7 +200,7 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
     );
     const latest = unread[0]?.title;
     notifyOnAppOpen(unread.length, latest);
-  }, [isAuthenticated, allNotifications.length]);
+  }, [isAuthenticated, allNotifications.length, notificationsEnabled]);
 
   const saveDeletedMap = (map: Record<number, number>, uid: number) => {
     localStorage.setItem(DELETED_KEY(uid), JSON.stringify(map));
@@ -172,8 +220,9 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
 
   // Sync system app badge (PWA on Android/Chrome) whenever unread changes
   useEffect(() => {
-    if (isAuthenticated) setAppBadge(unreadCount);
-  }, [unreadCount, isAuthenticated]);
+    if (isAuthenticated && notificationsEnabled) setAppBadge(unreadCount);
+    else setAppBadge(0);
+  }, [unreadCount, isAuthenticated, notificationsEnabled]);
 
   const deleteNotification = (id: number) => {
     const now = Date.now();

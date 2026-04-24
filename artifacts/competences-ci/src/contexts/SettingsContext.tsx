@@ -20,6 +20,8 @@ interface SettingsContextType {
   toggleTheme: () => void;
   language: Language;
   setLanguage: (l: Language) => void;
+  notificationsEnabled: boolean;
+  setNotificationsEnabled: (v: boolean) => void;
   searchHistory: SearchEntry[];
   addSearch: (query: string, type: SearchEntry["type"]) => void;
   clearSearchHistory: () => void;
@@ -57,6 +59,13 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     } catch { return "fr"; }
   });
 
+  const [notificationsEnabled, setNotificationsEnabledState] = useState<boolean>(() => {
+    try {
+      const s = JSON.parse(localStorage.getItem(SETTINGS_KEY) || "{}");
+      return s.notificationsEnabled ?? true;
+    } catch { return true; }
+  });
+
   const [searchHistory, setSearchHistory] = useState<SearchEntry[]>(() => {
     try {
       return JSON.parse(localStorage.getItem(SEARCH_KEY) || "[]");
@@ -84,8 +93,8 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
 
   // Persist settings
   useEffect(() => {
-    localStorage.setItem(SETTINGS_KEY, JSON.stringify({ theme, language }));
-  }, [theme, language]);
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify({ theme, language, notificationsEnabled }));
+  }, [theme, language, notificationsEnabled]);
 
   // Track usage time
   useEffect(() => {
@@ -118,6 +127,10 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
 
   const setLanguage = (l: Language) => {
     setLanguageState(l);
+  };
+
+  const setNotificationsEnabled = (v: boolean) => {
+    setNotificationsEnabledState(v);
   };
 
   const addSearch = (query: string, type: SearchEntry["type"]) => {
@@ -153,6 +166,8 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
       toggleTheme,
       language,
       setLanguage,
+      notificationsEnabled,
+      setNotificationsEnabled,
       searchHistory,
       addSearch,
       clearSearchHistory,
