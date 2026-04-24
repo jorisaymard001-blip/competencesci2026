@@ -9,6 +9,8 @@ import {
   stopPushScheduler,
   requestNotificationPermission,
   hasAskedPermission,
+  notificationsSupported,
+  getPermission,
 } from "@/lib/push-scheduler";
 import { subscribeToPush, unsubscribeFromPush } from "@/lib/web-push-client";
 
@@ -142,9 +144,11 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
       }
       return;
     }
+    if (!notificationsSupported()) return;
+
     // Ask once per device, then subscribe to real push
     const initPush = async () => {
-      let perm = Notification.permission;
+      let perm = getPermission();
       if (!hasAskedPermission() && perm === "default") {
         // Defer slightly so it doesn't pop immediately on login
         await new Promise((r) => setTimeout(r, 1500));

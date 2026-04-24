@@ -13,6 +13,12 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useT } from "@/lib/useT";
+import {
+  notificationsSupported,
+  getPermission,
+  requestNotificationPermission,
+} from "@/lib/push-scheduler";
+import { subscribeToPush } from "@/lib/web-push-client";
 
 const AVATARS = [
   { id: "boy", label: "Garçon", emoji: "👦" },
@@ -278,6 +284,9 @@ export default function Profile() {
               </button>
             </div>
 
+            {/* Push permission control */}
+            {notificationsEnabled && <PushPermissionRow userId={user?.id ?? null} />}
+
             {/* Mode */}
             <div className="flex items-center justify-between px-4 py-3.5 border-b border-border/40">
               <div className="flex items-center gap-3">
@@ -411,6 +420,129 @@ export default function Profile() {
         </div>
       </div>
     </Layout>
+  );
+}
+
+function PushPermissionRow({ userId }: { userId: number | null }) {
+  const [perm, setPerm] = useState<NotificationPermission | "unsupported">("default");
+  const [busy, setBusy] = useState(false);
+  const [hint, setHint] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!notificationsSupported()) {
+      setPerm("unsupported");
+      return;
+    }
+    setPerm(getPermission());
+    const onVisible = () => setPerm(getPermission());
+    document.addEventListener("visibilitychange", onVisible);
+    return () => document.removeEventListener("visibilitychange", onVisible);
+  }, []);
+
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+  const isStandalone =
+    window.matchMedia("(display-mode: standalone)").matches ||
+    (navigator as Navigator & { standalone?: boolean }).standalone === true;
+
+  const enable = async () => {
+    setBusy(true);
+    setHint(null);
+    try {
+      const result = await requestNotificationPermission();
+      setPerm(result);
+      if (result === "granted") {
+        const ok = await subscribeToPush(userId);
+        setHint(ok ? "✅ Notifications activées" : "Inscription échouée — réessaie");
+      } else if (result === "denied") {
+        setHint("Permission refusée. Active-la dans les réglages du navigateur.");
+      }
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const test = async () => {
+    setBusy(true);
+    setHint(null);
+    try {
+      const base = import.meta.env.BASE_URL ?? "/";
+      const res = await fetch(`${base}api/push/test`, { method: "POST" });
+      const data = (await res.json()) as { sent?: number };
+      setHint(
+        (data.sent ?? 0) > 0
+          ? `✅ ${data.sent} notification(s) envoyée(s)`
+          : "Aucun appareil abonné — accepte d'abord la permission",
+      );
+    } catch {
+      setHint("Test échoué");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  if (perm === "unsupported") {
+    return (
+      <div className="px-4 py-3 border-b border-border/40 bg-amber-50 dark:bg-amber-900/10">
+        <p className="text-[11px] text-amber-700 dark:text-amber-400">
+          📱 Pour recevoir les notifications push, ajoute l'app à ton écran d'accueil
+          {isIOS && " (Partager → Sur l'écran d'accueil) puis ouvre-la depuis l'icône."}
+        </p>
+      </div>
+    );
+  }
+
+  if (isIOS && !isStandalone) {
+    return (
+      <div className="px-4 py-3 border-b border-border/40 bg-blue-50 dark:bg-blue-900/10">
+        <p className="text-[11px] text-blue-700 dark:text-blue-400 leading-snug">
+          📲 <span className="font-semibold">iOS</span> : pour des notifications push, ajoute
+          l'app à l'écran d'accueil (icône Partager → « Sur l'écran d'accueil ») puis ouvre-la
+          depuis l'icône.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="px-4 py-3 border-b border-border/40 space-y-2">
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2 min-w-0">
+          <div className={cn(
+            "w-2 h-2 rounded-full shrink-0",
+            perm === "granted" ? "bg-green-500" :
+            perm === "denied" ? "bg-red-500" : "bg-amber-500"
+          )} />
+          <p className="text-[11px] text-muted-foreground truncate">
+            {perm === "granted" && "Notifications push autorisées"}
+            {perm === "default" && "Permission non demandée"}
+            {perm === "denied" && "Permission refusée"}
+          </p>
+        </div>
+        <div className="flex gap-1.5 shrink-0">
+          {perm !== "granted" && (
+            <button
+              onClick={enable}
+              disabled={busy}
+              className="text-[11px] font-semibold text-white bg-primary px-3 py-1.5 rounded-lg active:scale-95 disabled:opacity-50 transition-transform"
+            >
+              {busy ? "..." : "Activer"}
+            </button>
+          )}
+          {perm === "granted" && (
+            <button
+              onClick={test}
+              disabled={busy}
+              className="text-[11px] font-semibold text-primary bg-primary/10 px-3 py-1.5 rounded-lg active:scale-95 disabled:opacity-50 transition-transform"
+            >
+              {busy ? "..." : "Tester"}
+            </button>
+          )}
+        </div>
+      </div>
+      {hint && (
+        <p className="text-[10px] text-muted-foreground leading-snug">{hint}</p>
+      )}
+    </div>
   );
 }
 

@@ -27,8 +27,14 @@ export async function getVapidPublicKey(): Promise<string | null> {
 }
 
 export async function subscribeToPush(userId: number | null): Promise<boolean> {
+  if (typeof window === "undefined") return false;
   if (!("serviceWorker" in navigator) || !("PushManager" in window)) return false;
-  if (Notification.permission !== "granted") return false;
+  if (typeof Notification === "undefined") return false;
+  try {
+    if (Notification.permission !== "granted") return false;
+  } catch {
+    return false;
+  }
 
   try {
     const reg = await navigator.serviceWorker.ready;

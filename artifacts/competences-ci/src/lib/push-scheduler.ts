@@ -36,17 +36,26 @@ const DAILY_MESSAGES = [
 // ── Permission ───────────────────────────────────────────────────────────────
 
 export function notificationsSupported(): boolean {
-  return typeof window !== "undefined" && "Notification" in window && "serviceWorker" in navigator;
+  return (
+    typeof window !== "undefined" &&
+    typeof Notification !== "undefined" &&
+    "serviceWorker" in navigator
+  );
 }
 
 export function getPermission(): NotificationPermission {
-  return notificationsSupported() ? Notification.permission : "denied";
+  if (!notificationsSupported()) return "denied";
+  try {
+    return Notification.permission;
+  } catch {
+    return "denied";
+  }
 }
 
 export async function requestNotificationPermission(): Promise<NotificationPermission> {
   if (!notificationsSupported()) return "denied";
-  if (Notification.permission !== "default") return Notification.permission;
   try {
+    if (Notification.permission !== "default") return Notification.permission;
     const result = await Notification.requestPermission();
     localStorage.setItem(PERM_ASKED_KEY, "1");
     return result;
@@ -68,7 +77,7 @@ export async function showLocalNotification(opts: {
   url?: string;
   icon?: string;
 }): Promise<boolean> {
-  if (!notificationsSupported() || Notification.permission !== "granted") return false;
+  if (!notificationsSupported() || getPermission() !== "granted") return false;
   if (!notifsAllowedBySettings()) return false;
 
   const payload: NotificationOptions = {
@@ -82,7 +91,7 @@ export async function showLocalNotification(opts: {
   try {
     // Prefer service worker registration so notifications survive page close
     const reg = await navigator.serviceWorker.getRegistration();
-    if (reg) {
+    if (reg && "showNotification" in reg) {
       await reg.showNotification(opts.title, payload);
       return true;
     }
@@ -116,7 +125,7 @@ export async function notifyOnAppOpen(unreadCount: number, latestTitle?: string)
   // Update app badge whatever the case
   setAppBadge(unreadCount);
 
-  if (Notification.permission !== "granted") return;
+  if (getPermission() !== "granted") return;
 
   // Don't spam: show open-notification only if last open was > 30min ago
   const THIRTY_MIN = 30 * 60 * 1000;
@@ -186,13 +195,13 @@ export function startPushScheduler(): void {
   if (!notifsAllowedBySettings()) return;
 
   // Re-arm strategic reminders every time the app loads
-  if (Notification.permission === "granted") {
+  if (getPermission() === "granted") {
     scheduleNextDailyReminder();
   }
 
   // Re-arm when tab becomes visible after long idle
   document.addEventListener("visibilitychange", () => {
-    if (document.visibilityState === "visible" && Notification.permission === "granted") {
+    if (document.visibilityState === "visible" && getPermission() === "granted") {
       scheduleNextDailyReminder();
     }
   });
