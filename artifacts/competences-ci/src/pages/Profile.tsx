@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useLocation } from "wouter";
 import { Layout } from "@/components/Layout";
 import { useAuth } from "@/contexts/AuthContext";
