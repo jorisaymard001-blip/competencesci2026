@@ -57,6 +57,12 @@ const translations = {
     home_promo_title: "Mes candidatures",
     home_promo_sub: "Suivez toutes vos candidatures aux écoles et concours en un seul endroit.",
     home_promo_btn: "Accéder à mes candidatures",
+    home_explore: "Explorer",
+    home_parcours_title: "Mon Parcours",
+    home_parcours_sub: "Suis tes candidatures et résultats",
+    home_urgent_title: "Fermeture imminente",
+    home_urgent_closes_in: "Ferme dans",
+    home_urgent_days: "jours",
 
     // ── Search
     search_global_placeholder: "Écoles, concours, diplômes...",
@@ -474,6 +480,12 @@ const translations = {
     home_promo_title: "My applications",
     home_promo_sub: "Track all your school and contest applications in one place.",
     home_promo_btn: "Go to my applications",
+    home_explore: "Explore",
+    home_parcours_title: "My Journey",
+    home_parcours_sub: "Track your applications and results",
+    home_urgent_title: "Closing soon",
+    home_urgent_closes_in: "Closes in",
+    home_urgent_days: "days",
 
     // ── Search
     search_global_placeholder: "Schools, contests, diplomas...",
