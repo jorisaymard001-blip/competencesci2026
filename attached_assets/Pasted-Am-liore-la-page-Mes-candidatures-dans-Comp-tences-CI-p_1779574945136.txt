@@ -1,0 +1,377 @@
+Améliore la page "Mes candidatures" dans Compétences CI
+pour permettre à l'utilisateur d'ajouter ses concours
+et écoles et recevoir les vrais résultats automatiquement.
+
+## PROBLÈME ACTUEL
+Quand l'utilisateur ajoute une candidature, il voit 
+les données internes de l'app. Ce n'est pas correct.
+Il doit pouvoir saisir librement ses informations.
+
+## ÉTAPE 1 — Formulaire d'ajout corrigé
+
+Remplace complètement le formulaire actuel par :
+
+const [form, setForm] = useState({
+  type: 'concours',
+  nomConcours: '',
+  institution: '',
+  annee: new Date().getFullYear().toString(),
+  numeroCandidat: '',
+  nomComplet: '',
+  dateNaissance: '',
+  numeroPiece: '',
+  urlResultats: '',
+  datePublication: ''
+});
+
+### Interface du formulaire :
+
+{/* Étape 1 — Type */}
+<div className="flex gap-3 mb-4">
+  <button 
+    onClick={() => setForm({...form, type: 'concours'})}
+    className={`flex-1 py-3 rounded-xl font-semibold
+      ${form.type === 'concours' 
+        ? 'bg-orange-500 text-white' 
+        : 'bg-gray-800 text-gray-400'}`}
+  >
+    🏆 Concours Public
+  </button>
+  <button 
+    onClick={() => setForm({...form, type: 'ecole'})}
+    className={`flex-1 py-3 rounded-xl font-semibold
+      ${form.type === 'ecole' 
+        ? 'bg-orange-500 text-white' 
+        : 'bg-gray-800 text-gray-400'}`}
+  >
+    🎓 École
+  </button>
+</div>
+
+{/* Nom du concours — saisie libre */}
+<input
+  placeholder="Nom du concours ou examen (ex: Concours 
+    d'Administrateurs Civils)"
+  value={form.nomConcours}
+  onChange={(e) => setForm({...form, nomConcours: e.target.value})}
+  className="w-full bg-gray-800 text-white rounded-xl 
+    px-4 py-3 mb-3 outline-none"
+/>
+
+{/* Institution */}
+<input
+  placeholder="Institution (ex: Ministère de la Fonction Publique)"
+  value={form.institution}
+  onChange={(e) => setForm({...form, institution: e.target.value})}
+  className="w-full bg-gray-800 text-white rounded-xl 
+    px-4 py-3 mb-3 outline-none"
+/>
+
+{/* Année */}
+<select
+  value={form.annee}
+  onChange={(e) => setForm({...form, annee: e.target.value})}
+  className="w-full bg-gray-800 text-white rounded-xl 
+    px-4 py-3 mb-3"
+>
+  <option value="2026">2026</option>
+  <option value="2025">2025</option>
+  <option value="2024">2024</option>
+</select>
+
+{/* Numéro de candidat */}
+<input
+  placeholder="Numéro de candidat (ex: CI-2026-00123)"
+  value={form.numeroCandidat}
+  onChange={(e) => setForm({...form, numeroCandidat: e.target.value})}
+  className="w-full bg-gray-800 text-white rounded-xl 
+    px-4 py-3 mb-3 outline-none"
+/>
+
+{/* Nom complet */}
+<input
+  placeholder="Nom et prénom complets (comme sur le dossier)"
+  value={form.nomComplet}
+  onChange={(e) => setForm({...form, nomComplet: e.target.value})}
+  className="w-full bg-gray-800 text-white rounded-xl 
+    px-4 py-3 mb-3 outline-none"
+/>
+
+{/* Date de naissance */}
+<input
+  type="date"
+  placeholder="Date de naissance"
+  value={form.dateNaissance}
+  onChange={(e) => setForm({...form, dateNaissance: e.target.value})}
+  className="w-full bg-gray-800 text-white rounded-xl 
+    px-4 py-3 mb-3 outline-none"
+/>
+
+{/* URL du site officiel des résultats */}
+<input
+  placeholder="Lien du site officiel des résultats 
+    (ex: https://resultat.fonctionpublique.ci)"
+  value={form.urlResultats}
+  onChange={(e) => setForm({...form, urlResultats: e.target.value})}
+  className="w-full bg-gray-800 text-white rounded-xl 
+    px-4 py-3 mb-3 outline-none"
+/>
+
+{/* Date prévue de publication des résultats */}
+<input
+  type="date"
+  placeholder="Date prévue des résultats"
+  value={form.datePublication}
+  onChange={(e) => setForm({...form, datePublication: e.target.value})}
+  className="w-full bg-gray-800 text-white rounded-xl 
+    px-4 py-3 mb-4 outline-none"
+/>
+
+
+## ÉTAPE 2 — Système de vérification automatique des résultats
+
+Crée src/services/resultatService.js :
+
+export const verifierResultat = async (candidature) => {
+  const { 
+    urlResultats, 
+    numeroCandidat, 
+    nomComplet,
+    dateNaissance 
+  } = candidature;
+
+  try {
+    // Appel vers ton backend pour scraper le site officiel
+    const response = await fetch('/api/verifier-resultat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        url: urlResultats,
+        numeroCandidat,
+        nomComplet,
+        dateNaissance
+      })
+    });
+
+    const data = await response.json();
+    return data;
+
+  } catch (error) {
+    console.error('Erreur vérification résultat:', error);
+    return { statut: 'erreur', message: 'Impossible de vérifier' };
+  }
+};
+
+// Vérifie automatiquement tous les jours si résultats disponibles
+export const verifierToutesCandidatures = async (candidatures) => {
+  const resultats = [];
+  
+  for (const c of candidatures) {
+    // Vérifie seulement si date publication est passée
+    const datePubli = new Date(c.datePublication);
+    const aujourd_hui = new Date();
+    
+    if (datePubli <= aujourd_hui && c.statut === 'en_attente') {
+      const resultat = await verifierResultat(c);
+      resultats.push({ id: c.id, ...resultat });
+      
+      // Si résultat trouvé, envoie notification
+      if (resultat.statut === 'admis') {
+        await envoyerNotificationAdmission(c.nomConcours, true);
+      } else if (resultat.statut === 'refuse') {
+        await envoyerNotificationAdmission(c.nomConcours, false);
+      }
+    }
+  }
+  
+  return resultats;
+};
+
+// Notification du résultat
+const envoyerNotificationAdmission = async (nomConcours, admis) => {
+  new Notification(
+    admis ? '🎉 Félicitations !' : '😔 Résultat disponible',
+    {
+      body: admis 
+        ? `Tu es ADMIS au ${nomConcours} ! Ouvre l'app pour les détails.`
+        : `Le résultat du ${nomConcours} est disponible. Courage !`,
+      icon: '/icon-192x192.png'
+    }
+  );
+};
+
+
+## ÉTAPE 3 — Backend API (server.js ou api/verifier-resultat.js)
+
+Crée l'endpoint qui va chercher les résultats :
+
+import fetch from 'node-fetch';
+import * as cheerio from 'cheerio';
+
+export default async function handler(req, res) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  const { url, numeroCandidat, nomComplet, dateNaissance } = req.body;
+
+  try {
+    // Récupère la page des résultats
+    const response = await fetch(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (compatible; CompetencesCI/1.0)'
+      }
+    });
+    
+    const html = await response.text();
+    const $ = cheerio.load(html);
+    
+    // Cherche le numéro de candidat dans la page
+    const pageText = $('body').text().toLowerCase();
+    const numeroCherche = numeroCandidat.toLowerCase();
+    const nomCherche = nomComplet.toLowerCase();
+    
+    // Vérifie si le candidat est dans la liste
+    const estAdmis = pageText.includes(numeroCherche) || 
+                     pageText.includes(nomCherche);
+    
+    if (estAdmis) {
+      return res.json({
+        statut: 'admis',
+        message: 'Félicitations ! Vous êtes admis.',
+        details: extraireDetails($, numeroCandidat)
+      });
+    } else {
+      // Vérifie si la page contient des résultats 
+      // (page chargée mais candidat absent)
+      const pageContientResultats = 
+        pageText.includes('admis') || 
+        pageText.includes('résultat') ||
+        pageText.includes('liste');
+        
+      if (pageContientResultats) {
+        return res.json({
+          statut: 'refuse',
+          message: 'Votre nom ne figure pas sur la liste.'
+        });
+      } else {
+        return res.json({
+          statut: 'en_attente',
+          message: 'Les résultats ne sont pas encore publiés.'
+        });
+      }
+    }
+    
+  } catch (error) {
+    return res.status(500).json({
+      statut: 'erreur',
+      message: 'Impossible d\'accéder au site officiel.'
+    });
+  }
+}
+
+// Extrait les détails supplémentaires si disponibles
+function extraireDetails($, numeroCandidat) {
+  try {
+    // Cherche la ligne contenant le numéro de candidat
+    let details = '';
+    $('tr, li, p').each((i, el) => {
+      const text = $(el).text();
+      if (text.includes(numeroCandidat)) {
+        details = text.trim();
+      }
+    });
+    return details;
+  } catch {
+    return '';
+  }
+}
+
+
+## ÉTAPE 4 — Vérification automatique quotidienne
+
+Dans App.js, lance la vérification chaque jour :
+
+import { verifierToutesCandidatures } from './services/resultatService';
+
+useEffect(() => {
+  const verifierResultats = async () => {
+    const candidatures = JSON.parse(
+      localStorage.getItem('candidatures') || '[]'
+    );
+    
+    if (candidatures.length > 0) {
+      const resultats = await verifierToutesCandidatures(candidatures);
+      
+      // Met à jour les statuts
+      resultats.forEach(r => {
+        const index = candidatures.findIndex(c => c.id === r.id);
+        if (index !== -1) {
+          candidatures[index].statut = r.statut;
+        }
+      });
+      
+      localStorage.setItem('candidatures', JSON.stringify(candidatures));
+    }
+  };
+
+  // Vérifie au démarrage
+  verifierResultats();
+  
+  // Puis toutes les 24h
+  const interval = setInterval(verifierResultats, 24 * 60 * 60 * 1000);
+  return () => clearInterval(interval);
+}, []);
+
+
+## ÉTAPE 5 — Affichage du statut sur la card
+
+Sur chaque card de candidature affiche :
+
+{/* Bouton vérifier manuellement */}
+<button
+  onClick={() => verifierManuellement(candidature)}
+  className="w-full py-2 bg-orange-900 rounded-xl 
+    text-orange-400 text-sm font-semibold mt-2"
+>
+  🔍 Vérifier les résultats maintenant
+</button>
+
+{/* Statut avec animation */}
+{statut === 'admis' && (
+  <div className="bg-green-900 rounded-xl p-3 mt-2 
+    flex items-center gap-2">
+    <span className="text-2xl">🎉</span>
+    <div>
+      <p className="text-green-400 font-bold">ADMIS !</p>
+      <p className="text-green-300 text-xs">{details}</p>
+    </div>
+  </div>
+)}
+
+{statut === 'refuse' && (
+  <div className="bg-red-900 rounded-xl p-3 mt-2 
+    flex items-center gap-2">
+    <span className="text-2xl">😔</span>
+    <div>
+      <p className="text-red-400 font-bold">Non retenu</p>
+      <p className="text-red-300 text-xs">
+        Courage, d'autres concours t'attendent !
+      </p>
+    </div>
+  </div>
+)}
+
+{statut === 'en_attente' && (
+  <div className="bg-gray-800 rounded-xl p-3 mt-2 
+    flex items-center gap-2">
+    <span className="text-2xl">⏳</span>
+    <p className="text-gray-400 text-sm">
+      Résultats attendus le {datePublication}
+    </p>
+  </div>
+)}
+
+
+## INSTALLER LA DÉPENDANCE
+npm install cheerio node-fetch

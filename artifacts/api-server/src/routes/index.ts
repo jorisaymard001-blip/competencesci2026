@@ -6,6 +6,7 @@ import authRouter from "./auth";
 import messagesRouter from "./messages";
 import notificationsRouter from "./notifications";
 import pushRouter from "./push";
+import resultatRouter from "./resultat";
 
 const router: IRouter = Router();
 
@@ -16,5 +17,6 @@ router.use(authRouter);
 router.use(messagesRouter);
 router.use("/notifications", notificationsRouter);
 router.use(pushRouter);
+router.use(resultatRouter);
 
 export default router;
