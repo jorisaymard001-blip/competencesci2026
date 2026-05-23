@@ -8,10 +8,12 @@ import { formatDate } from "@/lib/utils";
 import { useFavorites } from "@/contexts/FavoritesContext";
 import { getCompetitionInfo } from "@/lib/competition-info";
 import { cn } from "@/lib/utils";
+import { useT } from "@/lib/useT";
 
 export default function CompetitionDetail() {
   const [, params] = useRoute("/competitions/:id");
   const id = params?.id ? parseInt(params.id, 10) : 0;
+  const { t, language } = useT();
 
   const { data: comp, isLoading, error } = useGetCompetition(id, {
     query: { enabled: !!id }
@@ -33,16 +35,28 @@ export default function CompetitionDetail() {
   }
 
   if (error || !comp) {
-    return <Layout showBack title="Erreur"><div className="p-6 text-center">Concours introuvable.</div></Layout>;
+    return <Layout showBack title={t("comp_error")}><div className="p-6 text-center">{t("comp_error")}</div></Layout>;
   }
 
   const statusConfig = {
-    open: { label: "Ouvert", color: "text-green-700", bg: "bg-green-100", border: "border-green-200" },
-    closed: { label: "Fermé", color: "text-red-700", bg: "bg-red-100", border: "border-red-200" },
-    upcoming: { label: "À venir", color: "text-blue-700", bg: "bg-blue-100", border: "border-blue-200" },
+    open: { label: t("competitions_open"), color: "text-green-700", bg: "bg-green-100", border: "border-green-200" },
+    closed: { label: t("competitions_closed"), color: "text-red-700", bg: "bg-red-100", border: "border-red-200" },
+    upcoming: { label: t("competitions_upcoming"), color: "text-blue-700", bg: "bg-blue-100", border: "border-blue-200" },
   };
 
   const status = statusConfig[comp.status as keyof typeof statusConfig] || statusConfig.closed;
+
+  const frBadge = language === "en" ? (
+    <span className="ml-2 text-[10px] font-medium text-muted-foreground bg-white/20 px-1.5 py-0.5 rounded">
+      {t("comp_content_fr")}
+    </span>
+  ) : null;
+
+  const frBadgeLight = language === "en" ? (
+    <span className="ml-2 text-[10px] font-medium text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
+      {t("comp_content_fr")}
+    </span>
+  ) : null;
 
   return (
     <Layout showBack noBottomNav>
@@ -57,7 +71,6 @@ export default function CompetitionDetail() {
               <div className={`inline-flex px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border ${status.bg} ${status.color} ${status.border}`}>
                 {status.label}
               </div>
-              {/* Favorite button */}
               <button
                 onClick={() => toggleCompetition(comp.id)}
                 className={cn(
@@ -66,7 +79,7 @@ export default function CompetitionDetail() {
                     ? "bg-red-500/20 border-red-400/30 text-red-300"
                     : "bg-white/10 border-white/20 text-white/60 hover:text-red-300"
                 )}
-                aria-label={isFav ? "Retirer des favoris" : "Ajouter aux favoris"}
+                aria-label={isFav ? t("remove_favorite") : t("add_favorite")}
               >
                 <Heart className={cn("w-4 h-4 transition-all", isFav && "fill-red-400 text-red-400")} />
               </button>
@@ -77,18 +90,18 @@ export default function CompetitionDetail() {
             </h1>
 
             <div className="text-white/80 text-sm font-medium mb-6">
-              Ministère : <span className="text-white">{comp.ministry}</span>
+              {t("comp_ministry_label")} : <span className="text-white">{comp.ministry}</span>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-white/10 rounded-2xl p-4 backdrop-blur-sm border border-white/5">
                 <Calendar className="w-5 h-5 mb-2 text-secondary" />
-                <div className="text-[10px] text-white/60 uppercase font-bold tracking-wider mb-1">Ouverture</div>
+                <div className="text-[10px] text-white/60 uppercase font-bold tracking-wider mb-1">{t("comp_open_date")}</div>
                 <div className="text-sm font-semibold">{formatDate(comp.openDate)}</div>
               </div>
               <div className="bg-white/10 rounded-2xl p-4 backdrop-blur-sm border border-white/5">
                 <Calendar className="w-5 h-5 mb-2 text-orange-400" />
-                <div className="text-[10px] text-white/60 uppercase font-bold tracking-wider mb-1">Clôture</div>
+                <div className="text-[10px] text-white/60 uppercase font-bold tracking-wider mb-1">{t("comp_close_date")}</div>
                 <div className="text-sm font-semibold">{formatDate(comp.closeDate)}</div>
               </div>
             </div>
@@ -101,19 +114,19 @@ export default function CompetitionDetail() {
             <div className="flex flex-col items-center text-center px-2">
               <Briefcase className="w-5 h-5 text-muted-foreground mb-1" />
               <span className="text-xl font-display font-bold text-foreground">{comp.positions}</span>
-              <span className="text-[10px] font-medium uppercase text-muted-foreground">Postes</span>
+              <span className="text-[10px] font-medium uppercase text-muted-foreground">{t("comp_positions_label")}</span>
             </div>
             <div className="w-px bg-border/60" />
             <div className="flex flex-col items-center text-center px-2">
               <GraduationCap className="w-5 h-5 text-muted-foreground mb-1" />
               <span className="text-sm font-display font-bold text-foreground mt-1 max-w-[100px] truncate">{comp.diploma}</span>
-              <span className="text-[10px] font-medium uppercase text-muted-foreground mt-0.5">Niveau</span>
+              <span className="text-[10px] font-medium uppercase text-muted-foreground mt-0.5">{t("comp_level")}</span>
             </div>
             <div className="w-px bg-border/60" />
             <div className="flex flex-col items-center text-center px-2">
               <MapPin className="w-5 h-5 text-muted-foreground mb-1" />
               <span className="text-sm font-display font-bold text-foreground mt-1">{comp.city}</span>
-              <span className="text-[10px] font-medium uppercase text-muted-foreground mt-0.5">Lieu</span>
+              <span className="text-[10px] font-medium uppercase text-muted-foreground mt-0.5">{t("comp_location")}</span>
             </div>
           </div>
         </div>
@@ -121,7 +134,9 @@ export default function CompetitionDetail() {
         <div className="px-6 py-8 space-y-8">
 
           <section>
-            <h2 className="font-display text-lg font-bold mb-3">Description</h2>
+            <h2 className="font-display text-lg font-bold mb-3 flex items-center">
+              {t("comp_description")} {frBadgeLight}
+            </h2>
             <p className="text-sm text-muted-foreground leading-relaxed">
               {comp.description}
             </p>
@@ -130,7 +145,7 @@ export default function CompetitionDetail() {
           {comp.requirements && comp.requirements.length > 0 && (
             <section>
               <h2 className="font-display text-lg font-bold mb-4 flex items-center">
-                <FileText className="w-5 h-5 mr-2 text-secondary" /> Conditions requises
+                <FileText className="w-5 h-5 mr-2 text-secondary" /> {t("comp_requirements")} {frBadgeLight}
               </h2>
               <ul className="space-y-3">
                 {comp.requirements.map((req, i) => (
@@ -145,12 +160,14 @@ export default function CompetitionDetail() {
 
           {comp.process && comp.process.length > 0 && (
             <section>
-              <h2 className="font-display text-lg font-bold mb-4">Processus de sélection</h2>
+              <h2 className="font-display text-lg font-bold mb-4 flex items-center">
+                {t("comp_selection")} {frBadgeLight}
+              </h2>
               <div className="relative pl-4 border-l-2 border-muted">
                 {comp.process.map((step, i) => (
                   <div key={i} className="mb-6 relative">
                     <div className="absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full bg-secondary ring-4 ring-background" />
-                    <h3 className="text-sm font-bold text-foreground mb-1">Étape {i + 1}</h3>
+                    <h3 className="text-sm font-bold text-foreground mb-1">{t("comp_step")} {i + 1}</h3>
                     <p className="text-sm text-muted-foreground">{step}</p>
                   </div>
                 ))}
@@ -159,17 +176,17 @@ export default function CompetitionDetail() {
           )}
 
           {(comp.website || comp.contact) && (
-            <section className="bg-green-50 border border-green-100 rounded-2xl p-5">
-              <h2 className="font-display text-base font-bold mb-3 text-green-900">Plus d'informations</h2>
+            <section className="bg-green-50 dark:bg-green-900/10 border border-green-100 dark:border-green-900/30 rounded-2xl p-5">
+              <h2 className="font-display text-base font-bold mb-3 text-green-900 dark:text-green-300">{t("comp_more_info")}</h2>
               <div className="space-y-3">
                 {comp.website && (
-                  <a href={comp.website} target="_blank" rel="noopener noreferrer" className="flex items-center text-sm font-medium text-green-800 hover:text-green-600">
-                    <Globe className="w-4 h-4 mr-3" /> Inscription en ligne
+                  <a href={comp.website} target="_blank" rel="noopener noreferrer" className="flex items-center text-sm font-medium text-green-800 dark:text-green-400 hover:text-green-600">
+                    <Globe className="w-4 h-4 mr-3" /> {t("comp_register_online")}
                   </a>
                 )}
                 {comp.contact && (
-                  <a href={`mailto:${comp.contact}`} className="flex items-center text-sm font-medium text-green-800 hover:text-green-600">
-                    <Phone className="w-4 h-4 mr-3" /> Contact: {comp.contact}
+                  <a href={`mailto:${comp.contact}`} className="flex items-center text-sm font-medium text-green-800 dark:text-green-400 hover:text-green-600">
+                    <Phone className="w-4 h-4 mr-3" /> {t("comp_contact_label")}: {comp.contact}
                   </a>
                 )}
               </div>
@@ -180,13 +197,15 @@ export default function CompetitionDetail() {
           {(() => {
             const info = getCompetitionInfo(comp.title);
             const sections = [
-              { id: "docs", label: "Documents requis", icon: ClipboardList, color: "text-primary", data: info.documents },
-              { id: "steps", label: "Étapes d'inscription", icon: ListChecks, color: "text-secondary", data: info.steps },
-              { id: "conditions", label: "Conditions d'accès", icon: UserCheck, color: "text-blue-600", data: info.conditions },
+              { id: "docs", label: t("comp_docs"), icon: ClipboardList, color: "text-primary", data: info.documents },
+              { id: "steps", label: t("comp_steps_label"), icon: ListChecks, color: "text-secondary", data: info.steps },
+              { id: "conditions", label: t("comp_conditions"), icon: UserCheck, color: "text-blue-600", data: info.conditions },
             ];
             return (
               <section>
-                <h2 className="font-display text-lg font-bold mb-3">Informations pratiques</h2>
+                <h2 className="font-display text-lg font-bold mb-3 flex items-center">
+                  {t("comp_practical")} {frBadgeLight}
+                </h2>
                 <div className="space-y-2">
                   {sections.map(sec => {
                     const Icon = sec.icon;
@@ -237,12 +256,12 @@ export default function CompetitionDetail() {
             )}
           >
             <Heart className={cn("w-5 h-5", isFav && "fill-red-500 text-red-500")} />
-            {isFav ? "Retirer des favoris" : "Ajouter aux favoris"}
+            {isFav ? t("remove_favorite") : t("add_favorite")}
           </button>
 
         </div>
 
-        {/* Fixed Apply Button */}
+        {/* Apply Button */}
         {comp.status === 'open' && (
           <div className="px-6 pb-8">
             {comp.website ? (
@@ -252,7 +271,7 @@ export default function CompetitionDetail() {
                 rel="noopener noreferrer"
                 className="block w-full py-4 rounded-2xl bg-secondary text-white font-bold text-center shadow-lg shadow-secondary/30 active:scale-[0.98] transition-all"
               >
-                S'inscrire au concours →
+                {t("register_btn_label")}
               </a>
             ) : (
               <a
@@ -261,7 +280,7 @@ export default function CompetitionDetail() {
                 rel="noopener noreferrer"
                 className="block w-full py-4 rounded-2xl bg-secondary text-white font-bold text-center shadow-lg shadow-secondary/30 active:scale-[0.98] transition-all"
               >
-                S'inscrire sur le site officiel →
+                {t("register_official")}
               </a>
             )}
           </div>

@@ -1,0 +1,428 @@
+Bug à corriger dans Compétences CI : quand l'utilisateur 
+change la langue en anglais via i18next, les textes 
+statiques se traduisent mais les données dynamiques 
+venant de la base de données restent en français.
+
+Exemples de données non traduites :
+- Descriptions des écoles
+- Noms des filières
+- Frais de scolarité (labels)
+- Conditions des concours
+- Processus de sélection
+- Documents requis
+- Articles Conseils & Orientation
+
+## SOLUTION COMPLÈTE
+
+### ÉTAPE 1 — Structure des fichiers de traduction
+
+Mets à jour src/i18n/locales/fr.json :
+{
+  "common": {
+    "loading": "Chargement...",
+    "error": "Une erreur est survenue",
+    "noResults": "Aucun résultat trouvé",
+    "search": "Rechercher...",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "back": "Retour",
+    "share": "Partager",
+    "favorite": "Ajouter aux favoris",
+    "removeFavorite": "Retirer des favoris",
+    "leaveReview": "Laisser un avis",
+    "noReview": "Aucun avis pour cet établissement. Soyez le premier !"
+  },
+  "home": {
+    "tagline": "Pour l'avenir de la Côte d'Ivoire",
+    "title": "Trouvez votre",
+    "titleAccent": "voie idéale.",
+    "subtitle": "Explorez les meilleures écoles et découvrez les concours de la fonction publique ivoirienne.",
+    "searchPlaceholder": "Rechercher une école, un concours, un diplôme...",
+    "stats": {
+      "schools": "Écoles Référencées",
+      "contests": "Concours Ouverts",
+      "cities": "Villes couvertes",
+      "fields": "Filières disponibles"
+    }
+  },
+  "schools": {
+    "title": "Écoles & Instituts",
+    "found": "établissements trouvés",
+    "public": "PUBLIC",
+    "private": "PRIVÉ",
+    "about": "À propos",
+    "accreditation": "Accréditation",
+    "fields": "Domaines de formation",
+    "degrees": "Diplômes préparés",
+    "degreeDetails": "Détails",
+    "clickDegree": "Appuyez sur un diplôme pour voir les détails",
+    "cost": "Coût de la formation",
+    "tuition": "Frais de scolarité",
+    "registration": "Frais d'inscription",
+    "publicNote": "Frais de scolarité publics — inscription MESRS obligatoire",
+    "reviews": "Avis des étudiants",
+    "call": "Appeler",
+    "website": "Site Web",
+    "directions": "Itinéraire",
+    "foundedIn": "Fondé en",
+    "perYear": "/an"
+  },
+  "contests": {
+    "title": "Concours Publics",
+    "all": "Tous",
+    "open": "Ouverts",
+    "upcoming": "À venir",
+    "closed": "Fermés",
+    "results": "résultats",
+    "filter": "Filtrer",
+    "posts": "postes",
+    "level": "NIVEAU",
+    "location": "LIEU",
+    "description": "Description",
+    "requirements": "Conditions requises",
+    "selection": "Processus de sélection",
+    "step": "Étape",
+    "moreInfo": "Plus d'informations",
+    "practicalInfo": "Informations pratiques",
+    "requiredDocs": "Documents requis",
+    "registrationSteps": "Étapes d'inscription",
+    "accessConditions": "Conditions d'accès",
+    "openDate": "OUVERTURE",
+    "closeDate": "CLÔTURE",
+    "closed_label": "Clôturé",
+    "ministry": "Ministère",
+    "alert": "M'alerter",
+    "urgent": "URGENT",
+    "fromDate": "Dès le"
+  },
+  "quiz": {
+    "title": "Trouver ma voie",
+    "subtitle": "Trouvez votre voie idéale",
+    "description": "Répondez à 5 questions courtes et nous vous recommandons les meilleures écoles et concours selon votre profil en Côte d'Ivoire.",
+    "start": "Commencer le quiz",
+    "continue": "Continuer",
+    "question": "Question",
+    "of": "/",
+    "q1": "Quelle est votre série au Bac ?",
+    "q2": "Quel domaine vous intéresse ?",
+    "q3": "Quel est votre budget annuel pour les études ?",
+    "budget": {
+      "low": "Faible",
+      "lowDetail": "< 200 000 FCFA/an",
+      "medium": "Moyen",
+      "mediumDetail": "200 000 – 600 000 FCFA/an",
+      "high": "Élevé",
+      "highDetail": "> 600 000 FCFA/an"
+    },
+    "results": "Résultats",
+    "recommendedSchools": "Écoles recommandées",
+    "recommendedContests": "Concours recommandés"
+  },
+  "profile": {
+    "title": "Mon Profil",
+    "applications": "Mes candidatures",
+    "favorites": "Mes favoris",
+    "notifications": "Notifications",
+    "notifSchedule": "8h · 12h · 16h · 20h",
+    "testNotif": "Tester une notification",
+    "lightMode": "Mode clair",
+    "language": "Langue",
+    "logout": "Se déconnecter",
+    "editProfile": "Modifier le profil"
+  },
+  "menu": {
+    "discover": "DÉCOUVRIR",
+    "myTools": "MES OUTILS",
+    "other": "AUTRES",
+    "home": "Accueil",
+    "schools": "Écoles",
+    "contests": "Concours",
+    "findMyPath": "Trouver ma voie",
+    "applications": "Mes candidatures",
+    "favorites": "Mes favoris",
+    "tips": "Conseils",
+    "notifications": "Notifications",
+    "profile": "Profil"
+  },
+  "tips": {
+    "title": "Conseils & Orientation",
+    "subtitle": "Des articles pratiques pour vous aider dans votre parcours académique et professionnel en Côte d'Ivoire.",
+    "all": "Tous",
+    "orientation": "Orientation",
+    "studies": "Études",
+    "contests": "Concours",
+    "jobMarket": "Marché du travail",
+    "minRead": "min"
+  },
+  "notifications": {
+    "morning": {
+      "title1": "🌅 Good morning!",
+      "body1": "Every morning is a new chance. Check today's open contests!",
+      "title2": "☀️ Start strong!",
+      "body2": "Explore a new school this morning. Your future starts now.",
+      "title3": "🎯 Today's goal",
+      "body3": "You are one contest away from changing your life!"
+    },
+    "noon": {
+      "title1": "🍽️ Lunch break",
+      "body1": "Use your break to discover available fields of study in CI.",
+      "title2": "💡 Did you know?",
+      "body2": "40 schools listed in Côte d'Ivoire. Have you found yours?",
+      "title3": "📚 Midday tip",
+      "body3": "Prepare your documents in advance. A complete file is 50% of success."
+    },
+    "afternoon": {
+      "title1": "⚡ Afternoon boost",
+      "body1": "Don't miss opportunities! Check the new contests added this week.",
+      "title2": "🏆 You can do it!",
+      "body2": "Thousands of Ivorians have passed their contests. It's your turn!",
+      "title3": "🔔 Important reminder",
+      "body3": "Have you checked the registration conditions for contests you like?"
+    },
+    "evening": {
+      "title1": "🌙 Evening recap",
+      "body1": "What did you do today for your future? Explore CI schools.",
+      "title2": "✨ Prepare tomorrow",
+      "body2": "Note 3 schools or contests to explore tomorrow. Preparation is key!",
+      "title3": "💪 You're progressing!",
+      "body3": "Every visit to Compétences CI brings you closer to your ideal path!"
+    }
+  }
+}
+
+Crée le même fichier src/i18n/locales/en.json 
+avec toutes les traductions en anglais :
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "noResults": "No results found",
+    "search": "Search...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "back": "Back",
+    "share": "Share",
+    "favorite": "Add to favorites",
+    "removeFavorite": "Remove from favorites",
+    "leaveReview": "Leave a review",
+    "noReview": "No reviews for this institution. Be the first!"
+  },
+  "home": {
+    "tagline": "For the future of Côte d'Ivoire",
+    "title": "Find your",
+    "titleAccent": "ideal path.",
+    "subtitle": "Explore the best schools and discover Ivorian public service competitions.",
+    "searchPlaceholder": "Search for a school, contest, degree...",
+    "stats": {
+      "schools": "Listed Schools",
+      "contests": "Open Contests",
+      "cities": "Cities covered",
+      "fields": "Available fields"
+    }
+  },
+  "schools": {
+    "title": "Schools & Institutes",
+    "found": "institutions found",
+    "public": "PUBLIC",
+    "private": "PRIVATE",
+    "about": "About",
+    "accreditation": "Accreditation",
+    "fields": "Fields of study",
+    "degrees": "Degrees offered",
+    "degreeDetails": "Details",
+    "clickDegree": "Tap a degree to see details",
+    "cost": "Training cost",
+    "tuition": "Tuition fees",
+    "registration": "Registration fees",
+    "publicNote": "Public tuition fees — MESRS registration required",
+    "reviews": "Student reviews",
+    "call": "Call",
+    "website": "Website",
+    "directions": "Directions",
+    "foundedIn": "Founded in",
+    "perYear": "/year"
+  },
+  "contests": {
+    "title": "Public Contests",
+    "all": "All",
+    "open": "Open",
+    "upcoming": "Upcoming",
+    "closed": "Closed",
+    "results": "results",
+    "filter": "Filter",
+    "posts": "positions",
+    "level": "LEVEL",
+    "location": "LOCATION",
+    "description": "Description",
+    "requirements": "Requirements",
+    "selection": "Selection process",
+    "step": "Step",
+    "moreInfo": "More information",
+    "practicalInfo": "Practical information",
+    "requiredDocs": "Required documents",
+    "registrationSteps": "Registration steps",
+    "accessConditions": "Access conditions",
+    "openDate": "OPENING",
+    "closeDate": "CLOSING",
+    "closed_label": "Closed",
+    "ministry": "Ministry",
+    "alert": "Alert me",
+    "urgent": "URGENT",
+    "fromDate": "From"
+  },
+  "quiz": {
+    "title": "Find my path",
+    "subtitle": "Find your ideal path",
+    "description": "Answer 5 short questions and we recommend the best schools and contests for your profile in Côte d'Ivoire.",
+    "start": "Start the quiz",
+    "continue": "Continue",
+    "question": "Question",
+    "of": "/",
+    "q1": "What is your Baccalaureate series?",
+    "q2": "Which field interests you?",
+    "q3": "What is your annual study budget?",
+    "budget": {
+      "low": "Low",
+      "lowDetail": "< 200,000 FCFA/year",
+      "medium": "Medium",
+      "mediumDetail": "200,000 – 600,000 FCFA/year",
+      "high": "High",
+      "highDetail": "> 600,000 FCFA/year"
+    },
+    "results": "Results",
+    "recommendedSchools": "Recommended schools",
+    "recommendedContests": "Recommended contests"
+  },
+  "profile": {
+    "title": "My Profile",
+    "applications": "My applications",
+    "favorites": "My favorites",
+    "notifications": "Notifications",
+    "notifSchedule": "8am · 12pm · 4pm · 8pm",
+    "testNotif": "Test a notification",
+    "lightMode": "Light mode",
+    "language": "Language",
+    "logout": "Log out",
+    "editProfile": "Edit profile"
+  },
+  "menu": {
+    "discover": "DISCOVER",
+    "myTools": "MY TOOLS",
+    "other": "OTHER",
+    "home": "Home",
+    "schools": "Schools",
+    "contests": "Contests",
+    "findMyPath": "Find my path",
+    "applications": "My applications",
+    "favorites": "My favorites",
+    "tips": "Tips",
+    "notifications": "Notifications",
+    "profile": "Profile"
+  },
+  "tips": {
+    "title": "Tips & Guidance",
+    "subtitle": "Practical articles to help you in your academic and professional journey in Côte d'Ivoire.",
+    "all": "All",
+    "orientation": "Orientation",
+    "studies": "Studies",
+    "contests": "Contests",
+    "jobMarket": "Job market",
+    "minRead": "min"
+  }
+}
+
+
+### ÉTAPE 2 — Configuration i18next (src/i18n/index.js)
+
+import i18n from 'i18next';
+import { initReactI18next } from 'react-i18next';
+import fr from './locales/fr.json';
+import en from './locales/en.json';
+
+i18n
+  .use(initReactI18next)
+  .init({
+    resources: {
+      fr: { translation: fr },
+      en: { translation: en }
+    },
+    lng: localStorage.getItem('language') || 'fr',
+    fallbackLng: 'fr',
+    interpolation: {
+      escapeValue: false
+    }
+  });
+
+export default i18n;
+
+
+### ÉTAPE 3 — Remplace TOUS les textes codés en dur
+
+Dans CHAQUE composant, remplace les textes directs 
+par les clés de traduction.
+
+Exemple AVANT (mauvais) :
+<h1>Écoles & Instituts</h1>
+<p>40 établissements trouvés</p>
+<span>Frais de scolarité</span>
+<span>Frais d'inscription</span>
+<p>Aucun avis pour cet établissement</p>
+
+Exemple APRÈS (correct) :
+import { useTranslation } from 'react-i18next';
+const { t } = useTranslation();
+
+<h1>{t('schools.title')}</h1>
+<p>{count} {t('schools.found')}</p>
+<span>{t('schools.tuition')}</span>
+<span>{t('schools.registration')}</span>
+<p>{t('common.noReview')}</p>
+
+Fais ce remplacement dans ces fichiers :
+- HomeScreen / HomePage
+- SchoolsScreen / SchoolsList
+- SchoolDetailScreen / SchoolDetail
+- ContestsScreen / ContestsList  
+- ContestDetailScreen / ContestDetail
+- QuizScreen / TrouverMaVoie
+- ProfileScreen
+- MenuDrawer / Sidebar
+- TipsScreen / ConseilsScreen
+- NotificationService
+
+
+### ÉTAPE 4 — Sauvegarde la langue choisie
+
+Dans le composant qui gère le switch de langue :
+
+import { useTranslation } from 'react-i18next';
+
+const { i18n } = useTranslation();
+
+const changeLanguage = (lang) => {
+  i18n.changeLanguage(lang);
+  localStorage.setItem('language', lang);
+};
+
+// Boutons de sélection :
+<button onClick={() => changeLanguage('fr')}>🇫🇷 FR</button>
+<button onClick={() => changeLanguage('en')}>🇬🇧 EN</button>
+
+
+### ÉTAPE 5 — Vérifie qu'aucun texte n'est oublié
+
+Après avoir tout remplacé, cherche dans tout 
+le projet les textes français codés en dur.
+Lance cette recherche dans le code :
+- "Frais de scolarité" → remplacer par t('schools.tuition')
+- "Frais d'inscription" → remplacer par t('schools.registration')  
+- "Aucun avis" → remplacer par t('common.noReview')
+- "Concours Publics" → remplacer par t('contests.title')
+- "Établissement Public" → remplacer par t('schools.public')
+- "Établissement Privé" → remplacer par t('schools.private')
+- "Laisser un avis" → remplacer par t('common.leaveReview')
+- "Ajouter aux favoris" → remplacer par t('common.favorite')
+- "Se déconnecter" → remplacer par t('profile.logout')
+
+L'objectif final : ZÉRO texte français écrit 
+directement dans le JSX. Tout doit passer par t().

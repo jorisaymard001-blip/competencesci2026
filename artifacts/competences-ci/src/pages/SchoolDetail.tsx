@@ -9,6 +9,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useFavorites } from "@/contexts/FavoritesContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
+import { useT } from "@/lib/useT";
 
 interface Review { userId: number; userName: string; rating: number; comment: string; date: string; }
 function getReviews(schoolId: number): Review[] {
@@ -34,6 +35,7 @@ function StarRating({ value, onChange, size = "md" }: { value: number; onChange?
 export default function SchoolDetail() {
   const [, params] = useRoute("/schools/:id");
   const id = params?.id ? parseInt(params.id, 10) : 0;
+  const { t, language } = useT();
 
   const { data: school, isLoading, error } = useGetSchool(id, {
     query: { enabled: !!id }
@@ -74,15 +76,20 @@ export default function SchoolDetail() {
 
   if (error || !school) {
     return (
-      <Layout showBack title="Erreur">
+      <Layout showBack title={t("school_error")}>
         <div className="p-6 text-center">
-          <p className="text-muted-foreground">École introuvable.</p>
+          <p className="text-muted-foreground">{t("school_error")}</p>
         </div>
       </Layout>
     );
   }
 
   const isPublic = school.type === "public";
+  const frBadge = language === "en" ? (
+    <span className="ml-2 text-[10px] font-medium text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
+      {t("school_content_fr")}
+    </span>
+  ) : null;
 
   return (
     <Layout showBack noBottomNav transparentHeader>
@@ -106,15 +113,14 @@ export default function SchoolDetail() {
         >
           <div className="flex justify-between items-start mb-4">
             <div className={`px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider ${isPublic ? 'bg-secondary/10 text-secondary' : 'bg-primary/10 text-primary'}`}>
-              {isPublic ? "Établissement Public" : "Établissement Privé"}
+              {isPublic ? t("school_public") : t("school_private")}
             </div>
             <div className="flex items-center gap-2">
               {school.founded && (
                 <div className="text-xs font-medium text-muted-foreground bg-muted px-2 py-1 rounded-md">
-                  Fondé en {school.founded}
+                  {t("school_founded_in")} {school.founded}
                 </div>
               )}
-              {/* Favorite Button */}
               <button
                 onClick={() => toggleSchool(school.id)}
                 className={cn(
@@ -123,7 +129,7 @@ export default function SchoolDetail() {
                     ? "bg-red-50 border-red-200 text-red-500"
                     : "bg-muted border-border text-muted-foreground hover:text-red-400"
                 )}
-                aria-label={isFav ? "Retirer des favoris" : "Ajouter aux favoris"}
+                aria-label={isFav ? t("remove_favorite") : t("add_favorite")}
               >
                 <Heart className={cn("w-4 h-4 transition-all", isFav && "fill-red-500 text-red-500")} />
               </button>
@@ -145,7 +151,7 @@ export default function SchoolDetail() {
                 <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center mr-2 shrink-0">
                   <Phone className="w-4 h-4" />
                 </div>
-                Appeler
+                {t("school_call")}
               </a>
             )}
             {school.website && (
@@ -153,7 +159,7 @@ export default function SchoolDetail() {
                 <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center mr-2 shrink-0">
                   <Globe className="w-4 h-4" />
                 </div>
-                Site Web
+                {t("school_website_label")}
               </a>
             )}
             {school.email && (
@@ -172,7 +178,7 @@ export default function SchoolDetail() {
           {/* About Section */}
           <section>
             <h2 className="font-display text-lg font-bold mb-3 flex items-center">
-              <Building2 className="w-5 h-5 mr-2 text-primary" /> À propos
+              <Building2 className="w-5 h-5 mr-2 text-primary" /> {t("school_about")} {frBadge}
             </h2>
             <div className="bg-card rounded-2xl p-5 border border-border/50 shadow-sm">
               <p className="text-muted-foreground text-sm leading-relaxed">
@@ -183,7 +189,7 @@ export default function SchoolDetail() {
                 <div className="mt-4 pt-4 border-t border-border/50 flex items-start">
                   <Award className="w-5 h-5 mr-3 text-secondary shrink-0" />
                   <div>
-                    <h4 className="text-sm font-semibold text-foreground">Accréditation</h4>
+                    <h4 className="text-sm font-semibold text-foreground">{t("school_accreditation")}</h4>
                     <p className="text-sm text-muted-foreground">{school.accreditation}</p>
                   </div>
                 </div>
@@ -194,7 +200,7 @@ export default function SchoolDetail() {
           {/* Domains Section */}
           <section>
             <h2 className="font-display text-lg font-bold mb-3 flex items-center">
-              <BookOpen className="w-5 h-5 mr-2 text-primary" /> Domaines de formation
+              <BookOpen className="w-5 h-5 mr-2 text-primary" /> {t("school_domains")}
             </h2>
             <div className="flex flex-wrap gap-2">
               {school.domains.map((domain, i) => (
@@ -208,9 +214,9 @@ export default function SchoolDetail() {
           {/* Diplomas Section */}
           <section>
             <h2 className="font-display text-lg font-bold mb-1 flex items-center">
-              <GraduationCap className="w-5 h-5 mr-2 text-primary" /> Diplômes préparés
+              <GraduationCap className="w-5 h-5 mr-2 text-primary" /> {t("school_diplomas")}
             </h2>
-            <p className="text-xs text-muted-foreground mb-3">Appuyez sur un diplôme pour voir les détails</p>
+            <p className="text-xs text-muted-foreground mb-3">{t("school_diploma_hint")}</p>
             <div className="bg-card rounded-2xl border border-border/50 shadow-sm overflow-hidden">
               {school.diplomas.map((diploma, i) => {
                 const hasInfo = !!getDiplomaInfo(diploma);
@@ -223,7 +229,7 @@ export default function SchoolDetail() {
                     <div className="flex items-center gap-2">
                       <span className="font-medium text-sm text-foreground">{diploma}</span>
                       {hasInfo && (
-                        <span className="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded-md font-semibold">Détails</span>
+                        <span className="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded-md font-semibold">{t("school_diploma_details")}</span>
                       )}
                     </div>
                     <ChevronRight className="w-4 h-4 text-primary/60" />
@@ -239,25 +245,25 @@ export default function SchoolDetail() {
             return (
               <section>
                 <h2 className="font-display text-lg font-bold mb-3 flex items-center">
-                  <Banknote className="w-5 h-5 mr-2 text-green-600" /> Coût de la formation
+                  <Banknote className="w-5 h-5 mr-2 text-green-600" /> {t("school_cost")}
                 </h2>
                 <div className="bg-card rounded-2xl border border-border/50 shadow-sm overflow-hidden">
                   {cost.tuitionMin !== undefined && (
                     <div className="flex items-center justify-between p-4 border-b border-border/40">
-                      <span className="text-sm font-medium text-foreground">Frais de scolarité</span>
+                      <span className="text-sm font-medium text-foreground">{t("school_tuition")}</span>
                       <span className="text-sm font-bold text-primary">
-                        {cost.tuitionMin === 0 ? "Gratuit" : cost.tuitionMin === cost.tuitionMax
+                        {cost.tuitionMin === 0 ? t("school_free") : cost.tuitionMin === cost.tuitionMax
                           ? formatCFA(cost.tuitionMin)
                           : `${formatCFA(cost.tuitionMin)} – ${formatCFA(cost.tuitionMax!)}`}
-                        <span className="text-xs font-normal text-muted-foreground">/an</span>
+                        <span className="text-xs font-normal text-muted-foreground">{t("school_per_year")}</span>
                       </span>
                     </div>
                   )}
                   {cost.registrationFee !== undefined && (
                     <div className="flex items-center justify-between p-4 border-b border-border/40">
-                      <span className="text-sm font-medium text-foreground">Frais d'inscription</span>
+                      <span className="text-sm font-medium text-foreground">{t("school_registration")}</span>
                       <span className="text-sm font-bold text-foreground">
-                        {cost.registrationFee === 0 ? "Gratuit" : formatCFA(cost.registrationFee)}
+                        {cost.registrationFee === 0 ? t("school_free") : formatCFA(cost.registrationFee)}
                       </span>
                     </div>
                   )}
@@ -275,10 +281,10 @@ export default function SchoolDetail() {
           {/* Reviews Section */}
           <section>
             <h2 className="font-display text-lg font-bold mb-3 flex items-center">
-              <Star className="w-5 h-5 mr-2 text-yellow-500" /> Avis des étudiants
+              <Star className="w-5 h-5 mr-2 text-yellow-500" /> {t("school_reviews")}
               {reviews.length > 0 && (
                 <span className="ml-2 text-sm font-normal text-muted-foreground">
-                  ({(reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1)}/5 · {reviews.length} avis)
+                  ({(reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1)}/5 · {reviews.length} {t("school_reviews_count")})
                 </span>
               )}
             </h2>
@@ -303,7 +309,7 @@ export default function SchoolDetail() {
               </div>
             ) : (
               <div className="bg-muted/40 border border-border/30 rounded-2xl p-4 text-center mb-3">
-                <p className="text-sm text-muted-foreground">Aucun avis pour cet établissement. Soyez le premier !</p>
+                <p className="text-sm text-muted-foreground">{t("school_no_reviews")}</p>
               </div>
             )}
 
@@ -311,7 +317,7 @@ export default function SchoolDetail() {
               onClick={() => setShowReviewForm(v => !v)}
               className="w-full py-3 rounded-2xl border-2 border-primary/30 text-primary font-semibold text-sm active:scale-[0.98] transition-all"
             >
-              {showReviewForm ? "Annuler" : "Laisser un avis"}
+              {showReviewForm ? t("cancel") : t("school_leave_review")}
             </button>
 
             <AnimatePresence>
@@ -319,14 +325,14 @@ export default function SchoolDetail() {
                 <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
                   <div className="pt-4 space-y-3">
                     <div>
-                      <p className="text-sm font-semibold mb-2">Votre note</p>
+                      <p className="text-sm font-semibold mb-2">{t("school_your_rating")}</p>
                       <StarRating value={myRating} onChange={setMyRating} />
                     </div>
                     <textarea
                       value={myComment}
                       onChange={e => setMyComment(e.target.value)}
                       rows={3}
-                      placeholder="Partagez votre expérience (optionnel)..."
+                      placeholder={t("school_review_placeholder")}
                       className="w-full px-4 py-3 rounded-2xl bg-muted/50 border border-border text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 resize-none"
                     />
                     <button
@@ -334,7 +340,7 @@ export default function SchoolDetail() {
                       disabled={myRating === 0}
                       className="w-full py-3.5 rounded-2xl bg-primary text-white font-semibold text-sm disabled:opacity-40 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
                     >
-                      <Send className="w-4 h-4" /> Publier mon avis
+                      <Send className="w-4 h-4" /> {t("school_publish_review")}
                     </button>
                   </div>
                 </motion.div>
@@ -353,7 +359,7 @@ export default function SchoolDetail() {
             )}
           >
             <Heart className={cn("w-5 h-5", isFav && "fill-red-500 text-red-500")} />
-            {isFav ? "Retirer des favoris" : "Ajouter aux favoris"}
+            {isFav ? t("remove_favorite") : t("add_favorite")}
           </button>
 
         </div>
