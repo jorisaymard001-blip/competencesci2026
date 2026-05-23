@@ -24,6 +24,7 @@ import DiplomaDetail from "@/pages/DiplomaDetail";
 import Orientation from "@/pages/Orientation";
 import Candidatures from "@/pages/Candidatures";
 import Conseils from "@/pages/Conseils";
+import Contact from "@/pages/Contact";
 import Login from "@/pages/Login";
 import Register from "@/pages/Register";
 import NotFound from "@/pages/not-found";
@@ -70,6 +71,7 @@ function Router() {
       <Route path="/orientation"><ProtectedRoute component={Orientation} /></Route>
       <Route path="/candidatures"><ProtectedRoute component={Candidatures} /></Route>
       <Route path="/conseils"><ProtectedRoute component={Conseils} /></Route>
+      <Route path="/contact"><ProtectedRoute component={Contact} /></Route>
 
       <Route component={NotFound} />
     </Switch>

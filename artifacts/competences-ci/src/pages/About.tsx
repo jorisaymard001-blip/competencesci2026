@@ -63,13 +63,14 @@ export default function About() {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15 }}
-            className="bg-gradient-to-br from-orange-50 to-green-50 border border-orange-100 rounded-2xl p-5"
+            className="bg-card border border-border/50 rounded-2xl p-5 shadow-sm"
           >
-            <div className="flex items-center gap-3 mb-2">
-              <Heart className="w-5 h-5 text-primary" />
-              <h2 className="font-display text-base font-bold text-foreground">{t("about_creator_label")}</h2>
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-xl">🧡</span>
+              <h2 className="font-display text-base font-bold text-primary">{t("about_creator_label")}</h2>
             </div>
-            <p className="text-sm text-muted-foreground leading-relaxed">{t("about_creator")}</p>
+            <p className="text-sm text-foreground font-medium leading-relaxed">{t("about_creator")}</p>
+            <p className="text-xs text-muted-foreground mt-1">{t("about_made_with")}</p>
           </motion.section>
 
           {/* Contact reference */}

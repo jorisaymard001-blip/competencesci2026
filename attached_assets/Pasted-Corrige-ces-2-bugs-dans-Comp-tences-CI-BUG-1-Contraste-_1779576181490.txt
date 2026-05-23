@@ -1,0 +1,248 @@
+Corrige ces 2 bugs dans Compétences CI :
+
+## BUG 1 — Contraste insuffisant sur la card "Créateur"
+
+La card "Créateur" dans la page À propos a un fond 
+beige/crème clair (#FAF5EB ou similaire) avec du texte 
+gris clair, ce qui rend la lecture très difficile.
+
+Corrige le contraste ainsi :
+
+/* Trouve la card Créateur et applique ces styles */
+
+/* Option A — Garde le fond clair mais assombris le texte */
+.card-createur {
+  background-color: #FEF3E2;
+}
+
+.card-createur .titre {
+  color: #92400E; /* orange foncé, bien lisible */
+  font-weight: 700;
+}
+
+.card-createur .texte {
+  color: #1F2937; /* gris très foncé, presque noir */
+  font-weight: 500;
+}
+
+/* Option B — Passe la card en dark comme le reste de l'app */
+.card-createur {
+  background-color: #1C2333;
+  border: 1px solid #374151;
+}
+
+.card-createur .titre {
+  color: #F97316; /* orange accent */
+  font-weight: 700;
+}
+
+.card-createur .texte {
+  color: #F9FAFB; /* blanc cassé */
+  font-weight: 400;
+}
+
+Applique l'Option B pour rester cohérent avec 
+le design sombre de l'app.
+
+En JSX, la card doit ressembler à :
+<div className="bg-gray-800 border border-gray-700 
+  rounded-2xl p-4">
+  <div className="flex items-center gap-2 mb-3">
+    <span className="text-orange-500 text-xl">🧡</span>
+    <p className="text-orange-500 font-bold text-base">
+      Créateur
+    </p>
+  </div>
+  <p className="text-white font-medium text-base">
+    Application créée par Yao Brou Joris Aymard.
+  </p>
+</div>
+
+
+## BUG 2 — Page Contact → Erreur 404 "Page Not Found"
+
+Quand l'utilisateur clique sur "Contact" dans le menu 
+latéral, il obtient une erreur 404 car la route 
+n'existe pas dans le router.
+
+### Correction 1 — Ajoute la route manquante
+
+Dans ton fichier de routing principal 
+(App.jsx ou Router.jsx), ajoute :
+
+import ContactPage from './pages/ContactPage';
+// ou selon ton arborescence :
+import ContactPage from './components/Contact';
+
+// Dans les routes :
+<Route path="/contact" element={<ContactPage />} />
+
+
+### Correction 2 — Crée la page Contact complète
+
+Crée le fichier src/pages/ContactPage.jsx :
+
+import { useTranslation } from 'react-i18next';
+
+export default function ContactPage() {
+  const { t } = useTranslation();
+
+  return (
+    <div className="min-h-screen bg-gray-950 px-4 py-6">
+      
+      {/* Header */}
+      <div className="flex items-center gap-3 mb-6">
+        <button 
+          onClick={() => window.history.back()}
+          className="text-white text-xl"
+        >
+          ←
+        </button>
+        <h1 className="text-white text-2xl font-bold">
+          Contact
+        </h1>
+      </div>
+
+      {/* Intro */}
+      <p className="text-gray-400 mb-6">
+        Une question, une suggestion ou un problème ? 
+        Contacte-nous directement.
+      </p>
+
+      {/* Cards de contact */}
+      
+      {/* Email */}
+      <a 
+        href="mailto:contact@competences-ci.com"
+        className="flex items-center gap-4 bg-gray-800 
+          rounded-2xl p-4 mb-3"
+      >
+        <div className="w-12 h-12 bg-orange-900 rounded-xl 
+          flex items-center justify-center text-2xl">
+          ✉️
+        </div>
+        <div>
+          <p className="text-white font-semibold">Email</p>
+          <p className="text-gray-400 text-sm">
+            contact@competences-ci.com
+          </p>
+        </div>
+        <span className="ml-auto text-orange-500">›</span>
+      </a>
+
+      {/* WhatsApp */}
+      <a 
+        href="https://wa.me/2250000000000"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex items-center gap-4 bg-gray-800 
+          rounded-2xl p-4 mb-3"
+      >
+        <div className="w-12 h-12 bg-green-900 rounded-xl 
+          flex items-center justify-center text-2xl">
+          💬
+        </div>
+        <div>
+          <p className="text-white font-semibold">WhatsApp</p>
+          <p className="text-gray-400 text-sm">
+            Discuter avec nous
+          </p>
+        </div>
+        <span className="ml-auto text-orange-500">›</span>
+      </a>
+
+      {/* Signaler un bug */}
+      <a 
+        href="mailto:bugs@competences-ci.com?subject=Bug Report"
+        className="flex items-center gap-4 bg-gray-800 
+          rounded-2xl p-4 mb-6"
+      >
+        <div className="w-12 h-12 bg-red-900 rounded-xl 
+          flex items-center justify-center text-2xl">
+          🐛
+        </div>
+        <div>
+          <p className="text-white font-semibold">
+            Signaler un bug
+          </p>
+          <p className="text-gray-400 text-sm">
+            Aide-nous à améliorer l'app
+          </p>
+        </div>
+        <span className="ml-auto text-orange-500">›</span>
+      </a>
+
+      {/* Réseaux sociaux */}
+      <h2 className="text-white font-bold text-lg mb-3">
+        Réseaux sociaux
+      </h2>
+
+      <div className="grid grid-cols-2 gap-3">
+        <a 
+          href="https://instagram.com/competences_ci"
+          target="_blank"
+          className="bg-gray-800 rounded-2xl p-4 text-center"
+        >
+          <p className="text-2xl mb-1">📸</p>
+          <p className="text-white font-semibold text-sm">
+            Instagram
+          </p>
+        </a>
+        <a 
+          href="https://facebook.com/competencesci"
+          target="_blank"
+          className="bg-gray-800 rounded-2xl p-4 text-center"
+        >
+          <p className="text-2xl mb-1">👥</p>
+          <p className="text-white font-semibold text-sm">
+            Facebook
+          </p>
+        </a>
+      </div>
+
+      {/* Signature */}
+      <div className="bg-gray-800 border border-gray-700 
+        rounded-2xl p-4 mt-6 text-center">
+        <p className="text-orange-500 font-bold mb-1">
+          🧡 Créateur
+        </p>
+        <p className="text-white font-medium">
+          Application créée par Yao Brou Joris Aymard.
+        </p>
+        <p className="text-gray-400 text-sm mt-1">
+          Fait avec ❤️ pour la Côte d'Ivoire
+        </p>
+      </div>
+
+    </div>
+  );
+}
+
+
+### Correction 3 — Vérifie le lien dans le menu
+
+Dans le menu latéral, assure-toi que le lien 
+Contact pointe bien vers la bonne route :
+
+// Mauvais :
+<Link to="contact">Contact</Link>
+
+// Correct :
+<Link to="/contact">Contact</Link>
+
+// Vérifie aussi que onClick ferme le menu 
+// avant de naviguer :
+<Link 
+  to="/contact" 
+  onClick={() => setMenuOpen(false)}
+>
+  Contact
+</Link>
+
+
+## REMPLACE LES INFORMATIONS PERSONNELLES
+
+Dans ContactPage.jsx, remplace :
+- L'email par le vrai email de contact de l'app
+- Le numéro WhatsApp par le vrai numéro
+- Les liens Instagram/Facebook par les vrais comptes
