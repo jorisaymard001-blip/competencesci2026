@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "wouter";
 import { Compass, GraduationCap, Briefcase, ChevronRight, RotateCcw, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useT } from "@/lib/useT";
 
 type Step = 0 | 1 | 2 | 3 | 4 | 5;
 
@@ -16,18 +17,10 @@ interface Answers {
   goal: string;
 }
 
-const BAC_SERIES = ["A (Lettres)", "B (Éco)", "C (Maths)", "D (Sciences)", "E (Technique)", "F (Technique)", "G (Gestion)", "Autre"];
-const SUBJECTS = ["Mathématiques", "Sciences", "Informatique", "Droit / Économie", "Lettres / Communication", "Art / Culture", "Commerce / Gestion", "Agriculture"];
-const BUDGET_OPTIONS = [
-  { value: "low", label: "Faible", sub: "< 200 000 FCFA/an" },
-  { value: "medium", label: "Moyen", sub: "200 000 – 600 000 FCFA/an" },
-  { value: "high", label: "Élevé", sub: "> 600 000 FCFA/an" },
-];
-const CITIES = ["Abidjan", "Bouaké", "Daloa", "Korhogo", "San-Pédro", "Yamoussoukro", "Autre"];
-const GOALS = [
-  { value: "fast", label: "🏃 Travailler rapidement", sub: "Études courtes (BTS, DUT, concours)" },
-  { value: "long", label: "📚 Longues études", sub: "Licence, Master, Doctorat, Grande École" },
-];
+// Internal values (French) are used by the scoring engine — do NOT translate these
+const BAC_SERIES_VALUES = ["A (Lettres)", "B (Éco)", "C (Maths)", "D (Sciences)", "E (Technique)", "F (Technique)", "G (Gestion)"];
+const SUBJECT_VALUES = ["Mathématiques", "Sciences", "Informatique", "Droit / Économie", "Lettres / Communication", "Art / Culture", "Commerce / Gestion", "Agriculture"];
+const CITIES = ["Abidjan", "Bouaké", "Daloa", "Korhogo", "San-Pédro", "Yamoussoukro"];
 
 function arr(v: unknown): string[] {
   if (Array.isArray(v)) return v.map(String);
@@ -52,16 +45,13 @@ function scoreSchool(
   if (school.city === answers.city || answers.city === "Autre") score += 2;
   if (school.city === "Abidjan" && answers.city === "Autre") score += 1;
 
-  // Budget
   if (answers.budget === "low" && school.type === "public") score += 4;
   if (answers.budget === "medium") score += 2;
   if (answers.budget === "high" && school.type === "private") score += 2;
 
-  // Goal
   if (answers.goal === "fast" && (diplomas.includes("bts") || diplomas.includes("dut") || diplomas.includes("licence"))) score += 3;
   if (answers.goal === "long" && (diplomas.includes("master") || diplomas.includes("doctorat") || diplomas.includes("ingénieur"))) score += 3;
 
-  // Subject matching (use name + domains)
   if (answers.subjects.includes("Mathématiques") || answers.subjects.includes("Sciences")) {
     if (haystack.includes("polytechnique") || haystack.includes("mines") || haystack.includes("ingéni") || haystack.includes("technique") || haystack.includes("sciences")) score += 3;
   }
@@ -84,7 +74,6 @@ function scoreSchool(
     if (haystack.includes("art") || haystack.includes("culture") || haystack.includes("musique") || haystack.includes("design")) score += 3;
   }
 
-  // BAC series
   if (["C", "D", "E", "F"].some(s => answers.bac.startsWith(s)) && school.type === "public" && (haystack.includes("polytechnique") || haystack.includes("sciences"))) score += 2;
   if (["A", "B"].some(s => answers.bac.startsWith(s)) && (haystack.includes("lettres") || haystack.includes("commerce") || haystack.includes("administration"))) score += 2;
 
@@ -107,11 +96,9 @@ function scoreCompetition(
   if (comp.status === "open") score += 3;
   if (comp.status === "upcoming") score += 1;
 
-  if (answers.goal === "fast") score += 2; // concours always fast track
+  if (answers.goal === "fast") score += 2;
+  if (answers.budget === "low") score += 1;
 
-  if (answers.budget === "low") score += 1; // public competitions are accessible
-
-  // Diploma matching with goal
   if (answers.goal === "fast" && (diploma.includes("bts") || diploma.includes("licence") || diploma.includes("bac"))) score += 2;
   if (answers.goal === "long" && (diploma.includes("master") || diploma.includes("doctorat") || diploma.includes("ingénieur"))) score += 2;
 
@@ -138,12 +125,46 @@ function scoreCompetition(
 }
 
 export default function Orientation() {
+  const { t } = useT();
   const [step, setStep] = useState<Step>(0);
   const [answers, setAnswers] = useState<Answers>({ bac: "", subjects: [], budget: "", city: "", goal: "" });
   const [showResults, setShowResults] = useState(false);
 
   const { data: schools = [] } = useListSchools();
   const { data: competitions = [] } = useListCompetitions();
+
+  // Translated option lists — values stay French for scoring engine
+  const bacOptions = [
+    ...BAC_SERIES_VALUES.map(v => ({ value: v, label: v })),
+    { value: "Autre", label: t("orient_other") },
+  ];
+
+  const subjectOptions = [
+    { value: "Mathématiques", label: t("orient_subject_math") },
+    { value: "Sciences", label: t("orient_subject_sciences") },
+    { value: "Informatique", label: t("orient_subject_cs") },
+    { value: "Droit / Économie", label: t("orient_subject_law") },
+    { value: "Lettres / Communication", label: t("orient_subject_lit") },
+    { value: "Art / Culture", label: t("orient_subject_art") },
+    { value: "Commerce / Gestion", label: t("orient_subject_business") },
+    { value: "Agriculture", label: t("orient_subject_agri") },
+  ];
+
+  const budgetOptions = [
+    { value: "low", label: t("orient_budget_low_label"), sub: t("orient_budget_low_sub") },
+    { value: "medium", label: t("orient_budget_medium_label"), sub: t("orient_budget_medium_sub") },
+    { value: "high", label: t("orient_budget_high_label"), sub: t("orient_budget_high_sub") },
+  ];
+
+  const cityOptions = [
+    ...CITIES.map(v => ({ value: v, label: v })),
+    { value: "Autre", label: t("orient_other") },
+  ];
+
+  const goalOptions = [
+    { value: "fast", label: t("orient_goal_fast"), sub: t("orient_goal_fast_sub") },
+    { value: "long", label: t("orient_goal_long"), sub: t("orient_goal_long_sub") },
+  ];
 
   const handleNext = () => {
     if (step < 5) setStep((s) => (s + 1) as Step);
@@ -179,20 +200,20 @@ export default function Orientation() {
 
   if (showResults) {
     return (
-      <Layout title="Trouver ma voie" showBack noBottomNav onBack={() => setShowResults(false)}>
+      <Layout title={t("orient_title")} showBack noBottomNav onBack={() => setShowResults(false)}>
         <div className="px-4 py-5 pb-12">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-8">
             <div className="w-16 h-16 bg-primary/10 rounded-3xl flex items-center justify-center mx-auto mb-4">
               <Sparkles className="w-8 h-8 text-primary" />
             </div>
-            <h2 className="font-display text-2xl font-bold text-foreground mb-2">Votre profil d'orientation</h2>
-            <p className="text-muted-foreground text-sm">Basé sur vos réponses, voici nos recommandations personnalisées</p>
+            <h2 className="font-display text-2xl font-bold text-foreground mb-2">{t("orient_results_title")}</h2>
+            <p className="text-muted-foreground text-sm">{t("orient_results_sub")}</p>
           </motion.div>
 
           {recommendedSchools.length > 0 && (
             <section className="mb-6">
               <h3 className="font-display text-lg font-bold mb-3 flex items-center gap-2">
-                <GraduationCap className="w-5 h-5 text-primary" /> Établissements recommandés
+                <GraduationCap className="w-5 h-5 text-primary" /> {t("orient_recommended_schools")}
               </h3>
               <div className="space-y-2">
                 {recommendedSchools.map((s, i) => (
@@ -204,7 +225,9 @@ export default function Orientation() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="font-semibold text-sm text-foreground leading-tight">{s.name}</p>
-                          <p className="text-xs text-muted-foreground mt-0.5">{s.city} · {s.type === "public" ? "Public" : "Privé"}</p>
+                          <p className="text-xs text-muted-foreground mt-0.5">
+                            {s.city} · {s.type === "public" ? t("orient_results_school_public") : t("orient_results_school_private")}
+                          </p>
                         </div>
                         <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
                       </div>
@@ -218,7 +241,7 @@ export default function Orientation() {
           {recommendedCompetitions.length > 0 && (
             <section className="mb-6">
               <h3 className="font-display text-lg font-bold mb-3 flex items-center gap-2">
-                <Briefcase className="w-5 h-5 text-secondary" /> Concours correspondants
+                <Briefcase className="w-5 h-5 text-secondary" /> {t("orient_recommended_comps")}
               </h3>
               <div className="space-y-2">
                 {recommendedCompetitions.map((c, i) => (
@@ -226,7 +249,7 @@ export default function Orientation() {
                     <Link href={`/competitions/${c.id}`}>
                       <div className="flex items-center gap-3 bg-card border border-border/50 rounded-2xl p-4 shadow-sm active:scale-[0.98] transition-all">
                         <div className={`px-2 py-1 rounded-lg text-[10px] font-bold uppercase shrink-0 ${c.status === "open" ? "bg-green-100 text-green-700" : "bg-blue-100 text-blue-700"}`}>
-                          {c.status === "open" ? "Ouvert" : "À venir"}
+                          {c.status === "open" ? t("competitions_open") : t("competitions_upcoming")}
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="font-semibold text-sm text-foreground leading-tight">{c.title}</p>
@@ -243,13 +266,17 @@ export default function Orientation() {
 
           {recommendedSchools.length === 0 && recommendedCompetitions.length === 0 && (
             <div className="text-center py-10 text-muted-foreground">
-              <p className="mb-4">Aucune recommandation spécifique trouvée. Explorez toutes les options disponibles.</p>
-              <Link href="/schools"><div className="inline-block bg-primary text-white px-6 py-3 rounded-2xl font-semibold text-sm">Voir toutes les écoles</div></Link>
+              <p className="mb-4">{t("orient_no_match")}</p>
+              <Link href="/schools">
+                <div className="inline-block bg-primary text-white px-6 py-3 rounded-2xl font-semibold text-sm">
+                  {t("orient_see_all_schools")}
+                </div>
+              </Link>
             </div>
           )}
 
           <button onClick={handleReset} className="w-full mt-4 py-4 rounded-2xl border-2 border-border text-foreground font-semibold text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition-all">
-            <RotateCcw className="w-4 h-4" /> Recommencer le quiz
+            <RotateCcw className="w-4 h-4" /> {t("orient_restart")}
           </button>
         </div>
       </Layout>
@@ -257,19 +284,19 @@ export default function Orientation() {
   }
 
   return (
-    <Layout title="Trouver ma voie" showBack noBottomNav>
+    <Layout title={t("orient_title")} showBack noBottomNav>
       <div className="px-4 pt-5 pb-12">
         {/* Progress bar */}
         {step > 0 && (
           <div className="mb-6">
             <div className="flex justify-between text-xs text-muted-foreground mb-2">
-              <span>Question {step}/5</span>
-              <span>{Math.round((step / 5) * 100)}%</span>
+              <span>{t("orient_question")} {step}/5</span>
+              <span>{Math.round((Math.min(step, 5) / 5) * 100)}%</span>
             </div>
             <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
               <motion.div
                 className="h-full bg-gradient-to-r from-primary to-orange-400 rounded-full"
-                animate={{ width: `${(step / 5) * 100}%` }}
+                animate={{ width: `${(Math.min(step, 5) / 5) * 100}%` }}
                 transition={{ duration: 0.4 }}
               />
             </div>
@@ -282,48 +309,90 @@ export default function Orientation() {
               <div className="w-20 h-20 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-3xl flex items-center justify-center mx-auto mb-6">
                 <Compass className="w-10 h-10 text-primary" />
               </div>
-              <h2 className="font-display text-2xl font-bold text-foreground mb-3">Trouvez votre voie idéale</h2>
+              <h2 className="font-display text-2xl font-bold text-foreground mb-3">{t("orient_intro_title")}</h2>
               <p className="text-muted-foreground text-sm leading-relaxed mb-8 px-4">
-                Répondez à 5 questions courtes et nous vous recommandons les meilleures écoles et concours selon votre profil en Côte d'Ivoire.
+                {t("orient_intro_text")}
               </p>
               <button
                 onClick={() => setStep(1)}
                 className="w-full py-4 rounded-2xl bg-primary text-white font-bold text-base shadow-lg shadow-primary/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
               >
-                <Sparkles className="w-5 h-5" /> Commencer le quiz
+                <Sparkles className="w-5 h-5" /> {t("orient_start")}
               </button>
             </motion.div>
           )}
 
           {step === 1 && (
-            <QuizStep key="step1" question="Quelle est votre série au Bac ?" options={BAC_SERIES.map(v => ({ value: v, label: v }))}
+            <QuizStep
+              key="step1"
+              question={t("orient_q_bac")}
+              options={bacOptions}
               selected={[answers.bac]}
               onSelect={(v) => setAnswers({ ...answers, bac: v })}
-              multi={false} onNext={handleNext} canContinue={canContinue()} />
+              multi={false}
+              onNext={handleNext}
+              canContinue={canContinue()}
+              continueLabel={t("orient_continue")}
+              multiHint={t("orient_multi_hint")}
+            />
           )}
           {step === 2 && (
-            <QuizStep key="step2" question="Quelles sont vos matières préférées ?" options={SUBJECTS.map(v => ({ value: v, label: v }))}
+            <QuizStep
+              key="step2"
+              question={t("orient_q_subjects")}
+              options={subjectOptions}
               selected={answers.subjects}
               onSelect={(v) => setAnswers({ ...answers, subjects: answers.subjects.includes(v) ? answers.subjects.filter(s => s !== v) : [...answers.subjects, v] })}
-              multi={true} onNext={handleNext} canContinue={canContinue()} />
+              multi={true}
+              onNext={handleNext}
+              canContinue={canContinue()}
+              continueLabel={t("orient_continue")}
+              multiHint={t("orient_multi_hint")}
+            />
           )}
           {step === 3 && (
-            <QuizStep key="step3" question="Quel est votre budget annuel pour les études ?" options={BUDGET_OPTIONS}
+            <QuizStep
+              key="step3"
+              question={t("orient_q_budget")}
+              options={budgetOptions}
               selected={[answers.budget]}
               onSelect={(v) => setAnswers({ ...answers, budget: v })}
-              multi={false} onNext={handleNext} canContinue={canContinue()} />
+              multi={false}
+              onNext={handleNext}
+              canContinue={canContinue()}
+              continueLabel={t("orient_continue")}
+              multiHint={t("orient_multi_hint")}
+            />
           )}
           {step === 4 && (
-            <QuizStep key="step4" question="Dans quelle ville souhaitez-vous étudier ?" options={CITIES.map(v => ({ value: v, label: v }))}
+            <QuizStep
+              key="step4"
+              question={t("orient_q_city")}
+              options={cityOptions}
               selected={[answers.city]}
               onSelect={(v) => setAnswers({ ...answers, city: v })}
-              multi={false} onNext={handleNext} canContinue={canContinue()} />
+              multi={false}
+              onNext={handleNext}
+              canContinue={canContinue()}
+              continueLabel={t("orient_continue")}
+              multiHint={t("orient_multi_hint")}
+            />
           )}
           {step === 5 && (
-            <QuizStep key="step5" question="Quel est votre objectif ?" options={GOALS}
+            <QuizStep
+              key="step5"
+              question={t("orient_q_goal")}
+              options={goalOptions}
               selected={[answers.goal]}
               onSelect={(v) => setAnswers({ ...answers, goal: v })}
-              multi={false} onNext={handleNext} canContinue={canContinue()} isLast />
+              multi={false}
+              onNext={handleNext}
+              canContinue={canContinue()}
+              isLast
+              continueLabel={t("orient_continue")}
+              lastLabel={t("orient_see_results")}
+              multiHint={t("orient_multi_hint")}
+            />
           )}
         </AnimatePresence>
       </div>
@@ -332,7 +401,8 @@ export default function Orientation() {
 }
 
 function QuizStep({
-  question, options, selected, onSelect, multi, onNext, canContinue, isLast = false
+  question, options, selected, onSelect, multi, onNext, canContinue, isLast = false,
+  continueLabel, lastLabel, multiHint,
 }: {
   question: string;
   options: { value: string; label: string; sub?: string }[];
@@ -342,11 +412,14 @@ function QuizStep({
   onNext: () => void;
   canContinue: boolean;
   isLast?: boolean;
+  continueLabel: string;
+  lastLabel?: string;
+  multiHint: string;
 }) {
   return (
     <motion.div initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -40 }}>
       <h2 className="font-display text-xl font-bold text-foreground mb-5">{question}</h2>
-      {multi && <p className="text-xs text-muted-foreground mb-4">Sélectionnez une ou plusieurs options</p>}
+      {multi && <p className="text-xs text-muted-foreground mb-4">{multiHint}</p>}
       <div className="space-y-2 mb-8">
         {options.map(opt => {
           const isSelected = selected.includes(opt.value);
@@ -375,7 +448,7 @@ function QuizStep({
         disabled={!canContinue}
         className="w-full py-4 rounded-2xl bg-primary text-white font-bold shadow-lg shadow-primary/20 active:scale-[0.98] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
       >
-        {isLast ? "✨ Voir mes recommandations" : "Continuer →"}
+        {isLast ? (lastLabel ?? continueLabel) : continueLabel}
       </button>
     </motion.div>
   );
