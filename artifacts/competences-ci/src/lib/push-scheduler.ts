@@ -21,17 +21,31 @@ function notifsAllowedBySettings(): boolean {
 }
 
 // Strategic times of day (24h format) — when daily reminders fire
-const STRATEGIC_HOURS = [8, 12, 18, 20];
+const STRATEGIC_HOURS = [8, 12, 16, 20];
 
-// Pool of motivational/reminder messages for daily strategic alerts
-const DAILY_MESSAGES = [
-  { title: "🎓 Compétences CI", body: "Découvre les concours ouverts aujourd'hui — ton avenir n'attend pas !" },
-  { title: "📚 Préparez votre dossier", body: "Pensez à certifier vos documents avant les dates de clôture." },
-  { title: "🇨🇮 Une nouvelle école ?", body: "De nouveaux établissements ont été ajoutés. Explore l'annuaire !" },
-  { title: "🚀 Trouve ta voie", body: "Fais le quiz d'orientation et reçois des recommandations personnalisées." },
-  { title: "📋 Concours en cours", body: "Vérifie les dates limites des concours et soumets ton dossier à temps." },
-  { title: "💡 Conseils du jour", body: "Découvre nos articles pour bien préparer ton concours." },
-];
+// Hour-specific motivational messages (3 per slot, picked randomly)
+const MESSAGES_BY_HOUR: Record<number, { title: string; body: string }[]> = {
+  8: [
+    { title: "🌅 Bonne journée !", body: "Chaque matin est une nouvelle chance de construire ton avenir. Consulte les concours ouverts aujourd'hui !" },
+    { title: "☀️ Démarre fort !", body: "Les grandes réussites commencent par de petites actions. Explore une nouvelle école ce matin." },
+    { title: "🎯 Objectif du jour", body: "Tu es à un concours de changer ta vie. Vérifie les dates de clôture des candidatures !" },
+  ],
+  12: [
+    { title: "🍽️ Pause méridienne", body: "Profite de ta pause pour découvrir les filières disponibles. Ton futur se construit maintenant." },
+    { title: "💡 Le saviez-vous ?", body: "Il y a 40 écoles référencées en Côte d'Ivoire. As-tu trouvé celle qui te correspond ?" },
+    { title: "📚 Conseil du midi", body: "Prépare tes documents à l'avance. Un dossier complet, c'est 50% du chemin vers la réussite." },
+  ],
+  16: [
+    { title: "⚡ Boost de l'après-midi", body: "Ne laisse pas passer les opportunités ! Vérifie les nouveaux concours ajoutés cette semaine." },
+    { title: "🏆 Tu peux le faire !", body: "Des milliers d'Ivoiriens ont réussi leur concours en étant bien préparés. C'est ton tour !" },
+    { title: "🔔 Rappel important", body: "As-tu consulté les conditions d'inscription aux concours qui t'intéressent ? Agis maintenant." },
+  ],
+  20: [
+    { title: "🌙 Bilan du soir", body: "Qu'as-tu fait aujourd'hui pour ton avenir ? Il n'est jamais trop tard pour explorer les écoles CI." },
+    { title: "✨ Prépare demain", body: "Avant de dormir, note 3 écoles ou concours à explorer demain. La préparation, c'est la clé !" },
+    { title: "💪 Tu progresses !", body: "Chaque jour passé sur Compétences CI te rapproche de ta voie idéale. Continue comme ça !" },
+  ],
+};
 
 // ── Permission ───────────────────────────────────────────────────────────────
 
@@ -145,9 +159,11 @@ export async function notifyOnAppOpen(unreadCount: number, latestTitle?: string)
 
 // ── Strategic daily reminders ────────────────────────────────────────────────
 
-function pickDailyMessage(): { title: string; body: string } {
-  const idx = Math.floor(Math.random() * DAILY_MESSAGES.length);
-  return DAILY_MESSAGES[idx];
+function pickDailyMessage(hour?: number): { title: string; body: string } {
+  const pool = hour !== undefined && MESSAGES_BY_HOUR[hour]
+    ? MESSAGES_BY_HOUR[hour]
+    : Object.values(MESSAGES_BY_HOUR).flat();
+  return pool[Math.floor(Math.random() * pool.length)];
 }
 
 function nextStrategicTime(now: Date): Date {
@@ -176,10 +192,11 @@ function scheduleNextDailyReminder(): void {
     const lastReminder = parseInt(localStorage.getItem(LAST_REMINDER_KEY) || "0", 10);
     // Avoid duplicate reminders in the same hour window
     if (Date.now() - lastReminder > 60 * 60 * 1000) {
-      const msg = pickDailyMessage();
+      const currentHour = new Date().getHours();
+      const msg = pickDailyMessage(currentHour);
       await showLocalNotification({
         ...msg,
-        tag: `daily-${new Date().getHours()}`,
+        tag: `daily-${currentHour}`,
         url: "/",
       });
       localStorage.setItem(LAST_REMINDER_KEY, String(Date.now()));
