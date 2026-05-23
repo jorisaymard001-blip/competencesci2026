@@ -42,8 +42,14 @@ function scoreSchool(
   const domains = joinLower(school.domains);
   const haystack = `${name} ${domains}`;
 
-  if (school.city === answers.city || answers.city === "Autre") score += 2;
-  if (school.city === "Abidjan" && answers.city === "Autre") score += 1;
+  // City: heavy weight so it always dominates
+  if (answers.city && answers.city !== "Autre") {
+    if (school.city === answers.city) score += 10;
+    else score -= 5; // penalize wrong city
+  } else {
+    // "Autre" → slight bonus for Abidjan (most schools there)
+    if (school.city === "Abidjan") score += 1;
+  }
 
   if (answers.budget === "low" && school.type === "public") score += 4;
   if (answers.budget === "medium") score += 2;
@@ -76,9 +82,6 @@ function scoreSchool(
 
   if (["C", "D", "E", "F"].some(s => answers.bac.startsWith(s)) && school.type === "public" && (haystack.includes("polytechnique") || haystack.includes("sciences"))) score += 2;
   if (["A", "B"].some(s => answers.bac.startsWith(s)) && (haystack.includes("lettres") || haystack.includes("commerce") || haystack.includes("administration"))) score += 2;
-
-  // Floor: every school gets at least 1 if city matches → ensures non-empty results
-  if (score === 0 && (school.city === answers.city || answers.city === "Autre")) score = 1;
 
   return score;
 }
@@ -186,11 +189,20 @@ export default function Orientation() {
     return true;
   };
 
-  const recommendedSchools = schools
-    .map(s => ({ ...s, score: scoreSchool(s as any, answers) }))
-    .filter(s => s.score > 0)
-    .sort((a, b) => b.score - a.score)
-    .slice(0, 5);
+  const recommendedSchools = (() => {
+    const scored = schools
+      .map(s => ({ ...s, score: scoreSchool(s as any, answers) }))
+      .sort((a, b) => b.score - a.score);
+
+    if (answers.city && answers.city !== "Autre") {
+      // Hard filter: only schools in the chosen city
+      const inCity = scored.filter(s => s.city === answers.city && s.score > 0);
+      if (inCity.length > 0) return inCity.slice(0, 5);
+      // Fallback: no schools in that city — show best overall
+      return scored.filter(s => s.score > 0).slice(0, 5);
+    }
+    return scored.filter(s => s.score > 0).slice(0, 5);
+  })();
 
   const recommendedCompetitions = competitions
     .map(c => ({ ...c, score: scoreCompetition(c as any, answers) }))
