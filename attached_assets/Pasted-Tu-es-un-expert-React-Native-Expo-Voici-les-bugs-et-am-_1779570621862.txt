@@ -1,0 +1,59 @@
+Tu es un expert React Native / Expo. Voici les bugs et améliorations 
+à apporter à mon app "Compétences CI" :
+
+## BUGS CRITIQUES À CORRIGER
+
+### 1. Page Profil — Écran noir
+La page Profil affiche un écran complètement noir quand on clique 
+dessus. Vérifie et corrige :
+- Les imports manquants dans ProfileScreen
+- Les hooks appelés conditionnellement (violation rules of hooks)
+- Les données user null/undefined non gérées (ajoute des valeurs par défaut)
+- Ajoute un état de chargement avec un ActivityIndicator pendant 
+  que les données se chargent
+
+### 2. Quiz "Trouver ma voie" — Compteur cassé
+Le quiz affiche "Question 6/5" et "120%" alors qu'il n'y a que 
+5 questions. Corrige la logique :
+- Le progress ne doit jamais dépasser 100%
+- currentQuestion ne doit jamais dépasser totalQuestions
+- Après la question 5, naviguer directement vers les résultats
+- Ajoute une navigation automatique vers ResultsScreen quand 
+  currentQuestion > totalQuestions
+
+Logique correcte :
+const progress = Math.min((currentQuestion / totalQuestions) * 100, 100)
+const displayQuestion = Math.min(currentQuestion, totalQuestions)
+
+## AMÉLIORATIONS FLUIDITÉ & UX
+
+### 3. Animations et transitions
+- Ajoute des transitions animées entre les écrans avec 
+  react-native-reanimated (FadeIn, SlideInRight)
+- Ajoute un retour haptique (Haptics.impact) sur chaque bouton principal
+- Anime les cards de la liste écoles avec FlatList + animation d'entrée
+
+### 4. Cards Écoles — Noms tronqués
+Les noms d'écoles sont coupés avec "...". Fixe :
+- numberOfLines={2} sur le titre avec ellipsizeMode="tail"
+- Hauteur minimale fixe pour chaque card : minHeight: 120
+- Assure-toi que le badge PUBLIC/PRIVÉ ne chevauche pas le texte
+
+### 5. Page d'accueil — Amélioration générale
+- Les stats (40 écoles, 1 concours) doivent s'animer au chargement 
+  avec un compteur animé (de 0 jusqu'à la valeur réelle en 1 seconde)
+- Ajoute un skeleton loader sur les cards pendant le chargement
+- Le bouton de recherche doit avoir un effet de pression (scale 0.97)
+
+### 6. Navigation globale
+- Ajoute un ScrollView avec keyboardShouldPersistTaps="handled" 
+  sur tous les écrans avec formulaires
+- Assure-toi que le back button Android fonctionne correctement
+- Ajoute SafeAreaView sur tous les écrans
+
+## STYLE À CONSERVER
+- Background principal : #0D1117 ou #111827
+- Couleur accent : #F97316 (orange)
+- Cards : #1C2333 avec border-radius 16
+- Texte principal : blanc, texte secondaire : #9CA3AF
+- Police : garder la même, juste améliorer les espacements
