@@ -54,9 +54,9 @@ const translations = {
     home_orientation_sub: "Quiz d'orientation personnalisé",
     home_conseils_card: "Conseils & Articles",
     home_conseils_sub: "Guides pour réussir",
-    home_promo_title: "Préparez votre dossier",
-    home_promo_sub: "Assurez-vous d'avoir tous vos documents certifiés avant l'ouverture des concours.",
-    home_promo_btn: "Voir les conseils",
+    home_promo_title: "Mes candidatures",
+    home_promo_sub: "Suivez toutes vos candidatures aux écoles et concours en un seul endroit.",
+    home_promo_btn: "Accéder à mes candidatures",
 
     // ── Search
     search_global_placeholder: "Écoles, concours, diplômes...",
@@ -253,6 +253,18 @@ const translations = {
     cand_subtitle: "Ministère / Ville (optionnel)",
     cand_ref_id: "ID de référence (optionnel, pour lien vers la fiche)",
     cand_add_btn: "Ajouter",
+    cand_stats_rejected: "Refusé(e)",
+    cand_search_placeholder: "Rechercher...",
+    cand_no_results: "Aucun résultat",
+    cand_select_prompt: "Sélectionnez parmi les résultats ci-dessous",
+    cand_notes_placeholder: "Notes (deadline, documents requis...)",
+    cand_notes_label: "Notes",
+    cand_delete_confirm: "Supprimer cette candidature ?",
+    cand_delete_yes: "Supprimer",
+    cand_delete_no: "Annuler",
+    cand_edit_notes: "Modifier les notes",
+    cand_save_notes: "Enregistrer",
+    cand_type_label: "Type",
 
     // ── Orientation
     orient_title: "Trouver ma voie",
@@ -422,9 +434,9 @@ const translations = {
     home_orientation_sub: "Personalized orientation quiz",
     home_conseils_card: "Tips & Articles",
     home_conseils_sub: "Guides to succeed",
-    home_promo_title: "Prepare your file",
-    home_promo_sub: "Make sure you have all certified documents before competitions open.",
-    home_promo_btn: "View tips",
+    home_promo_title: "My applications",
+    home_promo_sub: "Track all your school and contest applications in one place.",
+    home_promo_btn: "Go to my applications",
 
     // ── Search
     search_global_placeholder: "Schools, contests, diplomas...",
@@ -621,6 +633,18 @@ const translations = {
     cand_subtitle: "Ministry / City (optional)",
     cand_ref_id: "Reference ID (optional, to link to details)",
     cand_add_btn: "Add",
+    cand_stats_rejected: "Rejected",
+    cand_search_placeholder: "Search...",
+    cand_no_results: "No results",
+    cand_select_prompt: "Select from the results below",
+    cand_notes_placeholder: "Notes (deadline, required documents...)",
+    cand_notes_label: "Notes",
+    cand_delete_confirm: "Delete this application?",
+    cand_delete_yes: "Delete",
+    cand_delete_no: "Cancel",
+    cand_edit_notes: "Edit notes",
+    cand_save_notes: "Save",
+    cand_type_label: "Type",
 
     // ── Orientation
     orient_title: "Find my path",
