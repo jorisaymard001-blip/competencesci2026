@@ -1,0 +1,357 @@
+Crée un système complet de gestion et mise à jour
+automatique des données pour Compétences CI.
+
+PARTIE 1 — TABLEAU DE BORD ADMIN
+
+Crée une page /admin accessible uniquement
+avec un mot de passe admin.
+
+Mot de passe admin :
+Jorisaymard@225
+
+IMPORTANT :
+Le mot de passe doit être stocké dans un fichier .env
+et non directement dans le frontend.
+
+Crée un système sécurisé avec :
+
+* JWT Authentication
+* API login backend
+* token admin
+* route protégée
+* logout admin
+
+Crée api/auth.js :
+
+Fonction :
+
+* vérifier le mot de passe admin
+* générer un token JWT
+* retourner le token
+
+Protection de la route admin :
+
+Créer :
+src/pages/AdminPage.jsx
+
+Créer une interface login moderne sombre premium :
+
+* fond noir/gris foncé
+* accents orange
+* cartes arrondies
+* responsive mobile
+* animation fluide
+
+Après connexion :
+
+* sauvegarder le token admin
+* accéder au dashboard admin
+
+Interface Admin principale :
+
+Créer un dashboard avec :
+
+HEADER :
+
+* titre ⚙️ Admin Panel
+* bouton déconnexion
+
+STATS RAPIDES :
+
+* nombre écoles
+* nombre concours
+* nombre articles
+
+ONGLETS :
+
+* Concours
+* Écoles
+* Articles
+* Scraping
+
+================================================
+
+TAB CONCOURS
+
+Créer un CRUD complet :
+
+* Ajouter concours
+* Modifier concours
+* Supprimer concours
+
+Structure concours :
+
+{
+id,
+nom,
+ministere,
+description,
+dateOuverture,
+dateCloture,
+statut,
+niveau,
+ville,
+source,
+url,
+createdAt
+}
+
+Statuts :
+
+* ouvert
+* a_venir
+* ferme
+
+Créer :
+src/services/concoursService.js
+
+Créer une interface avec :
+
+* cartes modernes
+* badge statut coloré
+* boutons modifier/supprimer
+* modal ajout/modification
+
+================================================
+
+TAB ÉCOLES
+
+Créer CRUD complet écoles :
+
+{
+id,
+nom,
+ville,
+type,
+description,
+image
+}
+
+Créer :
+
+* ajout école
+* modification école
+* suppression école
+
+================================================
+
+TAB ARTICLES
+
+Créer CRUD complet articles :
+
+{
+id,
+titre,
+contenu,
+categorie,
+image,
+tempsLecture,
+createdAt
+}
+
+Créer :
+
+* éditeur article
+* ajout image
+* suppression article
+* modification article
+
+================================================
+
+TAB SCRAPING AUTOMATIQUE
+
+Créer une interface Scraping moderne.
+
+Afficher :
+
+🤖 Surveillance automatique
+
+Sites surveillés :
+
+* https://fonctionpublique.ci
+* https://mesrs.ci
+* https://infrastructure.ci
+
+Afficher :
+
+* statut actif
+* dernière vérification
+* nouveaux concours détectés
+
+Créer :
+
+* bouton “Lancer la vérification”
+* bouton “Valider et publier”
+* bouton “Ignorer”
+
+================================================
+
+PARTIE 2 — SCRAPING AUTOMATIQUE
+
+Créer :
+api/scrape-concours.js
+
+Utiliser :
+
+* node-fetch
+* cheerio
+
+Fonctionnalités :
+
+* surveiller automatiquement les sites
+* détecter nouveaux concours
+* éviter doublons
+* détecter mots-clés :
+
+mots-clés :
+
+* concours
+* recrutement
+* candidature
+* inscription
+* avis
+
+Créer un système intelligent :
+
+* score de confiance
+* détection automatique des concours
+* filtrage des faux résultats
+
+Structure résultat :
+
+{
+id,
+nom,
+source,
+url,
+dateDetection,
+statut
+}
+
+Statut :
+en_attente_validation
+
+================================================
+
+PARTIE 3 — SCRAPING AUTOMATIQUE QUOTIDIEN
+
+Créer :
+api/cron-daily.js
+
+Fonction :
+
+* exécution automatique chaque jour à 6h
+* lancement scraping
+* mise à jour statuts
+* notification admin
+
+Créer :
+vercel.json
+
+avec cron automatique.
+
+================================================
+
+PARTIE 4 — MISE À JOUR AUTOMATIQUE DES STATUTS
+
+Créer :
+src/services/updateService.js
+
+Fonction :
+
+* concours futur → a_venir
+* concours ouvert → ouvert
+* concours expiré → ferme
+
+Mise à jour automatique :
+
+* toutes les heures
+
+================================================
+
+PARTIE 5 — BASE DE DONNÉES
+
+Utiliser Supabase.
+
+Créer tables :
+
+* concours
+* ecoles
+* articles
+* admins
+
+Créer configuration Supabase complète.
+
+Créer services centralisés :
+
+* concoursService.js
+* articleService.js
+* ecoleService.js
+
+================================================
+
+PARTIE 6 — UI / UX
+
+Créer un design premium SaaS moderne :
+
+* animations fluides
+* responsive mobile
+* sidebar admin
+* loading states
+* toast notifications
+* transitions modernes
+* cartes premium
+* dark mode élégant
+
+================================================
+
+PARTIE 7 — STRUCTURE PROPRE
+
+Organiser le projet proprement :
+
+src/
+├── pages/
+├── components/
+├── services/
+├── context/
+├── hooks/
+├── utils/
+
+Créer composants séparés :
+
+* AdminStats
+* ConcoursTab
+* EcolesTab
+* ArticlesTab
+* ScrapingTab
+
+================================================
+
+PARTIE 8 — SÉCURITÉ
+
+Ajouter :
+
+* JWT auth
+* middleware auth
+* validation des données
+* protection API
+* variables d’environnement
+* sécurisation admin
+
+================================================
+
+PARTIE 9 — FINALISATION
+
+Le système final doit être :
+
+* entièrement fonctionnel
+* professionnel
+* scalable
+* optimisé Replit
+* production-ready
+* mobile responsive
+* moderne
+* propre et maintenable
+
+Installer automatiquement toutes les dépendances nécessaires.
+Générer automatiquement tous les fichiers et composants nécessaires.

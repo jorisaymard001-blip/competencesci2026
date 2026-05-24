@@ -27,6 +27,7 @@ import Conseils from "@/pages/Conseils";
 import Contact from "@/pages/Contact";
 import Login from "@/pages/Login";
 import Register from "@/pages/Register";
+import Admin from "@/pages/Admin";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient({
@@ -53,6 +54,7 @@ function PublicOnlyRoute({ component: Component }: { component: React.ComponentT
 function Router() {
   return (
     <Switch>
+      <Route path="/admin"><Admin /></Route>
       <Route path="/login"><PublicOnlyRoute component={Login} /></Route>
       <Route path="/register"><PublicOnlyRoute component={Register} /></Route>
 
