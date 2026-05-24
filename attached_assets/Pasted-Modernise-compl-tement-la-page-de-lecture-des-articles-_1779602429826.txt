@@ -1,0 +1,521 @@
+Modernise complètement la page de lecture des articles 
+dans la section Conseils & Articles de Compétences CI.
+Les textes doivent donner envie d'être lus et être 
+agréables à parcourir.
+
+## PROBLÈME ACTUEL
+- Texte brut sans mise en forme engageante
+- Titres de sections trop simples
+- Pas de visuels ou d'éléments interactifs
+- Lecture monotone et peu attractive
+
+## NOUVELLE STRUCTURE D'UN ARTICLE
+
+### Header article :
+<div className="min-h-screen bg-gray-950">
+
+  {/* Barre de progression de lecture */}
+  <div className="fixed top-0 left-0 z-50 h-1 
+    bg-orange-500 transition-all duration-150"
+    style={{ width: `${readingProgress}%` }}
+  />
+
+  {/* Calcul de la progression */}
+  useEffect(() => {
+    const handleScroll = () => {
+      const element = document.documentElement;
+      const scrolled = element.scrollTop;
+      const total = element.scrollHeight - 
+        element.clientHeight;
+      setReadingProgress((scrolled / total) * 100);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener(
+      'scroll', handleScroll
+    );
+  }, []);
+
+  {/* Header sticky */}
+  <div className="sticky top-1 z-40 px-4 pt-3 pb-2
+    bg-gray-950/90 backdrop-blur-md 
+    border-b border-gray-800">
+    <div className="flex items-center justify-between">
+      <button onClick={() => navigate(-1)}
+        className="w-9 h-9 bg-gray-800 rounded-xl 
+          flex items-center justify-center press">
+        ←
+      </button>
+      <p className="text-gray-400 text-xs">
+        {readingProgress < 100 
+          ? `${Math.round(readingProgress)}% lu`
+          : '✅ Article terminé'}
+      </p>
+      <button
+        onClick={() => toggleSaved(article.id)}
+        className="w-9 h-9 bg-gray-800 rounded-xl 
+          flex items-center justify-center press">
+        {saved ? '🔖' : '📄'}
+      </button>
+    </div>
+  </div>
+
+
+  <div className="px-4 py-6">
+
+    {/* Meta infos */}
+    <div className="flex items-center gap-3 mb-4
+      animate-fade-in">
+      <span className="text-4xl">{article.emoji}</span>
+      <div>
+        <span className={`px-3 py-1 rounded-full 
+          text-xs font-black
+          ${article.categorie === 'Orientation'
+            ? 'bg-orange-950 text-orange-400'
+            : article.categorie === 'Études'
+            ? 'bg-blue-950 text-blue-400'
+            : article.categorie === 'Concours'
+            ? 'bg-green-950 text-green-400'
+            : 'bg-purple-950 text-purple-400'}`}>
+          {article.categorie}
+        </span>
+        <p className="text-gray-500 text-xs mt-1">
+          ⏱ {article.tempsLecture} min de lecture
+        </p>
+      </div>
+    </div>
+
+    {/* Titre principal */}
+    <h1 className="text-white font-black text-3xl 
+      leading-tight mb-4 animate-fade-in-up">
+      {article.titre}
+    </h1>
+
+    {/* Citation intro — remplace le texte italique */}
+    <div className="border-l-4 border-orange-500 
+      bg-orange-950/30 rounded-r-2xl px-4 py-4 
+      mb-6 animate-fade-in-up delay-1">
+      <p className="text-orange-200 text-base 
+        italic leading-relaxed font-medium">
+        "{article.intro}"
+      </p>
+    </div>
+
+
+    {/* RENDU DU CONTENU — Nouveau format */}
+    {article.sections.map((section, i) => (
+      <div key={i} 
+        className={`mb-6 animate-fade-in-up 
+          delay-${Math.min(i+2, 5)}`}>
+        
+        {/* Titre de section modernisé */}
+        {section.type === 'heading' && (
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-8 h-8 bg-orange-500 
+              rounded-xl flex items-center justify-center
+              text-white font-black text-sm flex-shrink-0">
+              {i + 1}
+            </div>
+            <h2 className="text-white font-black 
+              text-xl leading-tight">
+              {section.titre}
+            </h2>
+          </div>
+        )}
+
+        {/* Texte paragraphe */}
+        {section.type === 'paragraph' && (
+          <p className="text-gray-300 text-base 
+            leading-relaxed">
+            {section.contenu}
+          </p>
+        )}
+
+        {/* Card info mise en avant */}
+        {section.type === 'info' && (
+          <div className="bg-blue-950 border 
+            border-blue-800 rounded-2xl p-4">
+            <div className="flex items-start gap-3">
+              <span className="text-2xl flex-shrink-0">
+                💡
+              </span>
+              <p className="text-blue-200 text-sm 
+                leading-relaxed">
+                {section.contenu}
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Card astuce/conseil */}
+        {section.type === 'tip' && (
+          <div className="bg-green-950 border 
+            border-green-800 rounded-2xl p-4">
+            <p className="text-green-400 font-bold 
+              text-xs uppercase tracking-wider mb-2">
+              ✅ Conseil pratique
+            </p>
+            <p className="text-green-200 text-sm 
+              leading-relaxed">
+              {section.contenu}
+            </p>
+          </div>
+        )}
+
+        {/* Card avertissement */}
+        {section.type === 'warning' && (
+          <div className="bg-red-950 border 
+            border-red-800 rounded-2xl p-4">
+            <div className="flex items-start gap-3">
+              <span className="text-2xl flex-shrink-0">
+                ⚠️
+              </span>
+              <p className="text-red-200 text-sm 
+                leading-relaxed">
+                {section.contenu}
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Liste à puces modernisée */}
+        {section.type === 'list' && (
+          <div className="space-y-2">
+            {section.items.map((item, j) => (
+              <div key={j} 
+                className="flex items-start gap-3 
+                  bg-gray-800 border border-gray-700 
+                  rounded-xl p-3">
+                <div className="w-6 h-6 bg-orange-950 
+                  border border-orange-800 rounded-lg 
+                  flex items-center justify-center 
+                  flex-shrink-0 mt-0.5">
+                  <span className="text-orange-400 
+                    text-xs font-black">
+                    {j + 1}
+                  </span>
+                </div>
+                <p className="text-gray-300 text-sm 
+                  leading-relaxed">
+                  {item}
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Chiffres clés / Stats */}
+        {section.type === 'stats' && (
+          <div className="grid grid-cols-2 gap-3">
+            {section.stats.map((stat, j) => (
+              <div key={j}
+                className="bg-gray-800 border 
+                  border-gray-700 rounded-2xl p-4 
+                  text-center">
+                <p className="text-orange-500 
+                  font-black text-2xl mb-1">
+                  {stat.valeur}
+                </p>
+                <p className="text-gray-400 text-xs">
+                  {stat.label}
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Citation mise en avant */}
+        {section.type === 'quote' && (
+          <div className="bg-gray-800 border-l-4 
+            border-orange-500 rounded-r-2xl px-4 
+            py-4">
+            <p className="text-gray-200 text-base 
+              italic leading-relaxed">
+              "{section.contenu}"
+            </p>
+            {section.auteur && (
+              <p className="text-orange-500 text-xs 
+                font-bold mt-2">
+                — {section.auteur}
+              </p>
+            )}
+          </div>
+        )}
+
+      </div>
+    ))}
+
+
+    {/* EXEMPLE — Article "Comment choisir sa filière ?"
+        Reformate ainsi : */}
+
+    {/* Section 1 */}
+    <div className="mb-6 animate-fade-in-up delay-2">
+      <div className="flex items-center gap-3 mb-3">
+        <div className="w-8 h-8 bg-orange-500 rounded-xl 
+          flex items-center justify-center text-white 
+          font-black text-sm">1</div>
+        <h2 className="text-white font-black text-xl">
+          Connais-toi toi-même
+        </h2>
+      </div>
+      <p className="text-gray-300 text-base 
+        leading-relaxed mb-3">
+        Avant tout, interroge-toi sur tes matières 
+        préférées au lycée, tes centres d'intérêt 
+        et tes aptitudes naturelles.
+      </p>
+      <div className="bg-blue-950 border border-blue-800 
+        rounded-2xl p-4">
+        <div className="flex items-start gap-3">
+          <span className="text-2xl">💡</span>
+          <p className="text-blue-200 text-sm 
+            leading-relaxed">
+            Un élève passionné par les mathématiques 
+            trouvera plus de satisfaction en filière 
+            scientifique. Quelqu'un qui aime rédiger 
+            sera plus épanoui en lettres ou communication.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    {/* Section 2 */}
+    <div className="mb-6 animate-fade-in-up delay-3">
+      <div className="flex items-center gap-3 mb-3">
+        <div className="w-8 h-8 bg-orange-500 rounded-xl 
+          flex items-center justify-center text-white 
+          font-black text-sm">2</div>
+        <h2 className="text-white font-black text-xl">
+          Pense à tes débouchés
+        </h2>
+      </div>
+      <p className="text-gray-300 text-base 
+        leading-relaxed mb-3">
+        La filière que tu choisis doit déboucher sur 
+        des métiers qui t'intéressent ET qui offrent 
+        des opportunités réelles en Côte d'Ivoire.
+      </p>
+      
+      {/* Secteurs porteurs en liste stylée */}
+      <p className="text-gray-400 text-sm font-bold 
+        mb-2 uppercase tracking-wider">
+        Secteurs porteurs en CI :
+      </p>
+      <div className="space-y-2">
+        {[
+          '💻 Numérique & Informatique',
+          '🏥 Santé',
+          '🏗️ Génie Civil & BTP',
+          '💰 Finance & Comptabilité',
+          '🌾 Agriculture modernisée',
+          '🏛️ Métiers de l\'État'
+        ].map((secteur, i) => (
+          <div key={i}
+            className="flex items-center gap-3 
+              bg-gray-800 border border-gray-700 
+              rounded-xl px-3 py-2.5">
+            <p className="text-gray-300 text-sm 
+              font-medium">{secteur}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    {/* Section 3 */}
+    <div className="mb-6 animate-fade-in-up delay-4">
+      <div className="flex items-center gap-3 mb-3">
+        <div className="w-8 h-8 bg-orange-500 rounded-xl 
+          flex items-center justify-center text-white 
+          font-black text-sm">3</div>
+        <h2 className="text-white font-black text-xl">
+          Tiens compte de tes moyens
+        </h2>
+      </div>
+
+      {/* Stats coûts */}
+      <div className="grid grid-cols-2 gap-3 mb-3">
+        <div className="bg-green-950 border 
+          border-green-800 rounded-2xl p-4 text-center">
+          <p className="text-green-400 font-black 
+            text-lg mb-1">
+            50K–200K
+          </p>
+          <p className="text-green-300 text-xs">
+            FCFA/an — Universités publiques
+          </p>
+        </div>
+        <div className="bg-orange-950 border 
+          border-orange-800 rounded-2xl p-4 text-center">
+          <p className="text-orange-400 font-black 
+            text-lg mb-1">
+            500K–2M
+          </p>
+          <p className="text-orange-300 text-xs">
+            FCFA/an — Écoles privées
+          </p>
+        </div>
+      </div>
+
+      <div className="bg-blue-950 border border-blue-800 
+        rounded-2xl p-4">
+        <div className="flex items-start gap-3">
+          <span className="text-2xl">💡</span>
+          <p className="text-blue-200 text-sm 
+            leading-relaxed">
+            Renseigne-toi sur les bourses disponibles 
+            auprès du MESRS. Elles peuvent couvrir 
+            une partie de tes frais.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    {/* Section 4 */}
+    <div className="mb-6 animate-fade-in-up delay-5">
+      <div className="flex items-center gap-3 mb-3">
+        <div className="w-8 h-8 bg-orange-500 rounded-xl 
+          flex items-center justify-center text-white 
+          font-black text-sm">4</div>
+        <h2 className="text-white font-black text-xl">
+          Renseigne-toi auprès de professionnels
+        </h2>
+      </div>
+      <p className="text-gray-300 text-base 
+        leading-relaxed mb-3">
+        Parle à des personnes qui exercent le métier 
+        qui t'intéresse. Fais des stages courts 
+        ou des visites d'entreprise.
+      </p>
+      <div className="bg-green-950 border 
+        border-green-800 rounded-2xl p-4">
+        <p className="text-green-400 font-bold text-xs 
+          uppercase tracking-wider mb-2">
+          ✅ Conseil pratique
+        </p>
+        <p className="text-green-200 text-sm 
+          leading-relaxed">
+          Utilise Compétences CI pour explorer les 
+          établissements et les filières disponibles 
+          dans ta ville !
+        </p>
+      </div>
+    </div>
+
+    {/* Section 5 */}
+    <div className="mb-8 animate-fade-in-up delay-5">
+      <div className="flex items-center gap-3 mb-3">
+        <div className="w-8 h-8 bg-orange-500 rounded-xl 
+          flex items-center justify-center text-white 
+          font-black text-sm">5</div>
+        <h2 className="text-white font-black text-xl">
+          Ne te précipite pas
+        </h2>
+      </div>
+      <div className="bg-red-950 border border-red-800 
+        rounded-2xl p-4">
+        <div className="flex items-start gap-3">
+          <span className="text-2xl">⚠️</span>
+          <p className="text-red-200 text-sm 
+            leading-relaxed">
+            Si tu n'es pas sûr(e), certaines universités 
+            permettent une réorientation en fin de 
+            première année. Ne choisis jamais une filière 
+            par défaut ou par pression sociale.
+          </p>
+        </div>
+      </div>
+    </div>
+
+
+    {/* Footer article */}
+    <div className="border-t border-gray-800 
+      pt-6 mb-6">
+      
+      {/* Message fin de lecture */}
+      <div className="bg-gradient-to-r from-orange-950 
+        to-gray-900 border border-orange-800 
+        rounded-2xl p-4 mb-4 text-center">
+        <span className="text-3xl mb-2 block">🎉</span>
+        <p className="text-white font-bold mb-1">
+          Article terminé !
+        </p>
+        <p className="text-gray-400 text-sm">
+          Tu as lu "{article.titre}" en 
+          {article.tempsLecture} minutes.
+        </p>
+      </div>
+
+      {/* Actions */}
+      <div className="grid grid-cols-2 gap-3 mb-4">
+        <button
+          onClick={() => window.open(
+            `https://wa.me/?text=Article utile sur ` +
+            `Compétences CI : ${article.titre}`, 
+            '_blank'
+          )}
+          className="bg-green-600 text-white 
+            rounded-2xl py-3 font-bold text-sm 
+            flex items-center justify-center 
+            gap-2 press">
+          💬 Partager
+        </button>
+        <button
+          onClick={() => toggleSaved(article.id)}
+          className="bg-gray-800 border border-gray-700 
+            text-white rounded-2xl py-3 font-bold 
+            text-sm flex items-center justify-center 
+            gap-2 press">
+          {saved ? '🔖 Sauvegardé' : '📄 Sauvegarder'}
+        </button>
+      </div>
+
+      {/* Articles similaires */}
+      <h3 className="text-white font-bold mb-3">
+        📚 Articles similaires
+      </h3>
+      {articlesSimilaires.map(a => (
+        <button key={a.id}
+          onClick={() => navigate(`/conseils/${a.id}`)}
+          className="w-full bg-gray-800 border 
+            border-gray-700 rounded-2xl p-3 mb-2 
+            flex items-center gap-3 text-left press">
+          <span className="text-2xl">{a.emoji}</span>
+          <div>
+            <p className="text-white font-bold text-sm">
+              {a.titre}
+            </p>
+            <p className="text-gray-500 text-xs">
+              ⏱ {a.tempsLecture} min
+            </p>
+          </div>
+          <span className="ml-auto text-orange-500">›</span>
+        </button>
+      ))}
+    </div>
+
+  </div>
+</div>
+
+
+## APPLIQUE CE FORMAT À TOUS LES ARTICLES
+
+Pour chaque article existant dans Conseils & Articles,
+reformate le contenu avec ces règles :
+
+1. INTRO → toujours en citation orange
+2. CHAQUE SECTION → numéro orange + titre bold
+3. TEXTE LONG → découpe en paragraphes courts 
+   de max 3 lignes
+4. CONSEIL PRATIQUE → card verte avec ✅
+5. INFORMATION → card bleue avec 💡
+6. AVERTISSEMENT → card rouge avec ⚠️
+7. LISTE D'ÉLÉMENTS → items stylés avec numéros
+8. CHIFFRES/STATS → grid de cards colorées
+9. FIN D'ARTICLE → card de félicitations + 
+   partage + articles similaires
+
+## BARRE DE PROGRESSION
+La barre orange en haut qui progresse 
+pendant la lecture est OBLIGATOIRE sur 
+tous les articles — c'est ce qui donne 
+envie de finir l'article.
