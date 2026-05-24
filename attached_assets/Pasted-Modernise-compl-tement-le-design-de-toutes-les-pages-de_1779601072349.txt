@@ -1,0 +1,1505 @@
+Modernise complètement le design de toutes les pages 
+de Compétences CI SAUF la page d'accueil.
+Style : professionnel, moderne, cohérent avec 
+l'accueil existant. Dark/Light mode avec vrai toggle.
+Animations fluides partout.
+
+## DESIGN SYSTEM — BASE GLOBALE
+
+### Couleurs Dark Mode (défaut) :
+--bg-primary: #0D1117
+--bg-secondary: #161B22
+--bg-card: #1C2333
+--bg-card-hover: #212936
+--border: #30363D
+--text-primary: #F0F6FC
+--text-secondary: #8B949E
+--accent-orange: #F97316
+--accent-orange-light: #FB923C
+--accent-orange-dark: #EA6C0A
+--accent-green: #3FB950
+--accent-red: #F85149
+--accent-blue: #58A6FF
+--accent-purple: #BC8CFF
+
+### Couleurs Light Mode :
+--bg-primary: #FFFFFF
+--bg-secondary: #F6F8FA
+--bg-card: #FFFFFF
+--bg-card-hover: #F6F8FA
+--border: #D0D7DE
+--text-primary: #1F2328
+--text-secondary: #656D76
+--accent-orange: #F97316
+(autres accents identiques)
+
+### Typographie :
+- Titres : font-black, tracking-tight
+- Sous-titres : font-bold
+- Corps : font-medium
+- Labels : font-semibold, text-xs uppercase tracking-wider
+
+### Border radius :
+- Cards : rounded-2xl (16px)
+- Boutons : rounded-xl (12px)
+- Pills/badges : rounded-full
+- Inputs : rounded-xl
+
+### Ombres Dark :
+box-shadow: 0 4px 24px rgba(0,0,0,0.4)
+
+### Ombres Light :
+box-shadow: 0 4px 24px rgba(0,0,0,0.08)
+
+
+## TOGGLE DARK/LIGHT MODE
+
+### Crée src/contexts/ThemeContext.jsx :
+import { createContext, useContext, useState, useEffect } 
+  from 'react';
+
+const ThemeContext = createContext();
+
+export function ThemeProvider({ children }) {
+  const [isDark, setIsDark] = useState(
+    localStorage.getItem('theme') !== 'light'
+  );
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', isDark);
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+  }, [isDark]);
+
+  return (
+    <ThemeContext.Provider value={{ isDark, setIsDark }}>
+      {children}
+    </ThemeContext.Provider>
+  );
+}
+
+export const useTheme = () => useContext(ThemeContext);
+
+### Composant Toggle réutilisable :
+export function ThemeToggle() {
+  const { isDark, setIsDark } = useTheme();
+  
+  return (
+    <button
+      onClick={() => setIsDark(!isDark)}
+      className={`relative w-14 h-7 rounded-full 
+        transition-all duration-300 
+        ${isDark ? 'bg-orange-500' : 'bg-gray-200'}`}
+    >
+      <div className={`absolute top-0.5 w-6 h-6 
+        bg-white rounded-full shadow-md
+        transition-all duration-300 flex items-center 
+        justify-center text-sm
+        ${isDark ? 'left-7' : 'left-0.5'}`}>
+        {isDark ? '🌙' : '☀️'}
+      </div>
+    </button>
+  );
+}
+
+
+## ANIMATIONS GLOBALES
+
+### Crée src/styles/animations.css :
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes pulse-orange {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(249,115,22,0.4); }
+  50% { box-shadow: 0 0 0 8px rgba(249,115,22,0); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* Classes utilitaires */
+.animate-fade-in-up {
+  animation: fadeInUp 0.4s ease forwards;
+}
+.animate-fade-in {
+  animation: fadeIn 0.3s ease forwards;
+}
+.animate-scale-in {
+  animation: scaleIn 0.3s ease forwards;
+}
+.animate-slide-right {
+  animation: slideInRight 0.3s ease forwards;
+}
+
+/* Délais */
+.delay-1 { animation-delay: 0.05s; }
+.delay-2 { animation-delay: 0.1s; }
+.delay-3 { animation-delay: 0.15s; }
+.delay-4 { animation-delay: 0.2s; }
+.delay-5 { animation-delay: 0.25s; }
+
+/* Skeleton loader */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    #1C2333 25%,
+    #212936 50%,
+    #1C2333 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* Pression bouton */
+.press:active {
+  transform: scale(0.96);
+  transition: transform 0.1s ease;
+}
+
+
+## PAGE ÉCOLES & INSTITUTS
+
+### Header :
+<div className="sticky top-0 z-10 
+  bg-gray-950/90 dark:bg-gray-950/90 
+  backdrop-blur-md border-b border-gray-800 
+  dark:border-gray-800 px-4 py-3">
+  <div className="flex items-center gap-3 mb-3">
+    <button onClick={() => navigate(-1)}
+      className="w-9 h-9 bg-gray-800 rounded-xl 
+        flex items-center justify-center press">
+      ←
+    </button>
+    <h1 className="text-white dark:text-white 
+      font-black text-xl flex-1">
+      Écoles & Instituts
+    </h1>
+    <button className="w-9 h-9 bg-gray-800 
+      rounded-xl flex items-center justify-center press">
+      ⚙️
+    </button>
+  </div>
+
+  {/* Barre de recherche sticky */}
+  <div className="flex gap-2">
+    <div className="flex-1 flex items-center gap-2 
+      bg-gray-800 rounded-xl px-3 py-2.5">
+      <span className="text-gray-400 text-sm">🔍</span>
+      <input
+        placeholder="Rechercher une école..."
+        className="flex-1 bg-transparent text-white 
+          text-sm outline-none placeholder-gray-500"
+      />
+    </div>
+    <button className="bg-gray-800 rounded-xl px-3 
+      flex items-center gap-1 press">
+      <span className="text-sm">⚙️</span>
+    </button>
+  </div>
+</div>
+
+### Filtres pills :
+<div className="flex gap-2 px-4 py-3 
+  overflow-x-auto scrollbar-hide">
+  {['Tous', 'Public', 'Privé', 'Abidjan', 
+    'Bouaké', 'Yamoussoukro'].map((f, i) => (
+    <button key={f}
+      onClick={() => setFiltre(f)}
+      className={`flex-shrink-0 px-4 py-1.5 
+        rounded-full text-sm font-semibold 
+        transition-all duration-200 press
+        animate-fade-in delay-${i + 1}
+        ${filtre === f
+          ? 'bg-orange-500 text-white'
+          : 'bg-gray-800 text-gray-400 ' +
+            'hover:bg-gray-700'}`}>
+      {f}
+    </button>
+  ))}
+</div>
+
+### Card École modernisée :
+<div className="px-4">
+  {ecoles.map((ecole, i) => (
+    <button
+      key={ecole.id}
+      onClick={() => navigate(`/ecoles/${ecole.id}`)}
+      className={`w-full bg-gray-800 border border-gray-700
+        rounded-2xl p-4 mb-3 text-left press
+        hover:border-orange-500/30
+        transition-all duration-200
+        animate-fade-in-up delay-${Math.min(i+1, 5)}`}
+    >
+      <div className="flex justify-between 
+        items-start mb-2">
+        <div className="flex-1 pr-2">
+          <h3 className="text-white font-bold 
+            text-base leading-tight">
+            {ecole.nom}
+          </h3>
+          <p className="text-gray-400 text-sm mt-0.5 
+            flex items-center gap-1">
+            <span>📍</span> {ecole.ville}
+          </p>
+        </div>
+        <span className={`px-2.5 py-1 rounded-full 
+          text-xs font-black flex-shrink-0
+          ${ecole.type === 'PUBLIC'
+            ? 'bg-green-950 text-green-400 ' +
+              'border border-green-800'
+            : 'bg-orange-950 text-orange-400 ' +
+              'border border-orange-800'}`}>
+          {ecole.type}
+        </span>
+      </div>
+
+      {/* Filières pills */}
+      <div className="flex flex-wrap gap-1.5 mt-3">
+        {ecole.filieres.slice(0,3).map(f => (
+          <span key={f}
+            className="bg-gray-700 text-gray-300 
+              px-2.5 py-1 rounded-full text-xs 
+              font-medium">
+            {f}
+          </span>
+        ))}
+        {ecole.filieres.length > 3 && (
+          <span className="bg-orange-950 
+            text-orange-400 px-2.5 py-1 
+            rounded-full text-xs font-medium">
+            +{ecole.filieres.length - 3}
+          </span>
+        )}
+      </div>
+
+      {/* Footer card */}
+      <div className="flex justify-between 
+        items-center mt-3 pt-3 
+        border-t border-gray-700">
+        <span className="text-gray-500 text-xs">
+          Fondé en {ecole.annee}
+        </span>
+        <span className="text-orange-500 
+          font-bold text-sm">
+          Voir →
+        </span>
+      </div>
+    </button>
+  ))}
+</div>
+
+
+## PAGE DÉTAIL ÉCOLE
+
+<div className="min-h-screen bg-gray-950">
+  
+  {/* Hero avec dégradé */}
+  <div className="relative h-48 bg-gradient-to-br 
+    from-orange-950 via-gray-900 to-gray-950 
+    flex items-end px-4 pb-4">
+    
+    <button onClick={() => navigate(-1)}
+      className="absolute top-4 left-4 w-9 h-9 
+        bg-black/40 backdrop-blur rounded-xl 
+        flex items-center justify-center text-white press">
+      ←
+    </button>
+    
+    <button className="absolute top-4 right-4 w-9 h-9 
+      bg-black/40 backdrop-blur rounded-xl 
+      flex items-center justify-center press">
+      ❤️
+    </button>
+
+    <div className="animate-fade-in-up">
+      <div className="flex gap-2 mb-2">
+        <span className="bg-green-950 border 
+          border-green-800 text-green-400 px-2.5 
+          py-1 rounded-full text-xs font-black">
+          ÉTABLISSEMENT PUBLIC
+        </span>
+        <span className="bg-gray-800/80 text-gray-300 
+          px-2.5 py-1 rounded-full text-xs">
+          Fondé en {ecole.annee}
+        </span>
+      </div>
+      <h1 className="text-white font-black text-2xl 
+        leading-tight">
+        {ecole.nom}
+      </h1>
+      <p className="text-gray-400 text-sm mt-1 
+        flex items-center gap-1">
+        <span>📍</span> {ecole.adresse}
+      </p>
+    </div>
+  </div>
+
+  <div className="px-4 py-4">
+
+    {/* Actions rapides */}
+    <div className="grid grid-cols-3 gap-3 mb-4 
+      animate-fade-in-up delay-1">
+      <a href={`tel:${ecole.telephone}`}
+        className="bg-gray-800 rounded-2xl p-3 
+          text-center press">
+        <span className="text-xl block mb-1">📞</span>
+        <span className="text-white text-xs font-semibold">
+          Appeler
+        </span>
+      </a>
+      <a href={ecole.siteWeb} target="_blank"
+        className="bg-gray-800 rounded-2xl p-3 
+          text-center press">
+        <span className="text-xl block mb-1">🌐</span>
+        <span className="text-white text-xs font-semibold">
+          Site Web
+        </span>
+      </a>
+      <a href={`https://maps.google.com/?q=${ecole.adresse}`}
+        target="_blank"
+        className="bg-gray-800 rounded-2xl p-3 
+          text-center press">
+        <span className="text-xl block mb-1">🗺️</span>
+        <span className="text-white text-xs font-semibold">
+          Itinéraire
+        </span>
+      </a>
+    </div>
+
+    {/* À propos */}
+    <div className="bg-gray-800 border border-gray-700 
+      rounded-2xl p-4 mb-3 animate-fade-in-up delay-2">
+      <h2 className="text-orange-500 font-bold 
+        flex items-center gap-2 mb-2">
+        <span>🏛️</span> À propos
+      </h2>
+      <p className="text-gray-300 text-sm leading-relaxed">
+        {ecole.description}
+      </p>
+      <div className="flex items-start gap-2 mt-3 
+        pt-3 border-t border-gray-700">
+        <span className="text-green-400 text-lg">🏅</span>
+        <div>
+          <p className="text-white text-xs font-bold">
+            Accréditation
+          </p>
+          <p className="text-gray-400 text-xs">
+            {ecole.accreditation}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    {/* Filières */}
+    <div className="bg-gray-800 border border-gray-700 
+      rounded-2xl p-4 mb-3 animate-fade-in-up delay-3">
+      <h2 className="text-orange-500 font-bold 
+        flex items-center gap-2 mb-3">
+        <span>📚</span> Domaines de formation
+      </h2>
+      <div className="flex flex-wrap gap-2">
+        {ecole.filieres.map(f => (
+          <span key={f}
+            className="bg-orange-950 border 
+              border-orange-900 text-orange-400 
+              px-3 py-1.5 rounded-full text-sm 
+              font-medium">
+            {f}
+          </span>
+        ))}
+      </div>
+    </div>
+
+    {/* Diplômes */}
+    <div className="bg-gray-800 border border-gray-700 
+      rounded-2xl p-4 mb-3 animate-fade-in-up delay-4">
+      <h2 className="text-orange-500 font-bold 
+        flex items-center gap-2 mb-3">
+        <span>🎓</span> Diplômes préparés
+      </h2>
+      {ecole.diplomes.map(d => (
+        <button key={d}
+          className="w-full flex justify-between 
+            items-center py-3 border-b 
+            border-gray-700 last:border-0 press">
+          <span className="text-white font-medium">
+            {d}
+          </span>
+          <div className="flex items-center gap-2">
+            <span className="bg-orange-950 text-orange-400 
+              text-xs px-2 py-0.5 rounded-full font-bold">
+              Détails
+            </span>
+            <span className="text-orange-500">›</span>
+          </div>
+        </button>
+      ))}
+    </div>
+
+    {/* Coût */}
+    <div className="bg-gray-800 border border-gray-700 
+      rounded-2xl p-4 mb-3 animate-fade-in-up delay-5">
+      <h2 className="text-orange-500 font-bold 
+        flex items-center gap-2 mb-3">
+        <span>💰</span> Coût de la formation
+      </h2>
+      <div className="flex justify-between items-center 
+        py-2 border-b border-gray-700">
+        <span className="text-gray-300 text-sm">
+          Frais de scolarité
+        </span>
+        <span className="text-orange-500 font-black 
+          text-sm">
+          {ecole.fraisScolarite}
+        </span>
+      </div>
+      <div className="flex justify-between items-center 
+        py-2">
+        <span className="text-gray-300 text-sm">
+          Frais d'inscription
+        </span>
+        <span className="text-white font-bold text-sm">
+          {ecole.fraisInscription}
+        </span>
+      </div>
+    </div>
+
+    {/* Partager */}
+    <button
+      onClick={() => window.open(
+        `https://wa.me/?text=Découvre ${ecole.nom} ` +
+        `sur Compétences CI !`, '_blank'
+      )}
+      className="w-full bg-green-600 text-white 
+        rounded-2xl py-3 font-bold flex items-center 
+        justify-center gap-2 press mb-3">
+      💬 Partager sur WhatsApp
+    </button>
+
+    {/* Ajouter aux favoris */}
+    <button className="w-full bg-gray-800 border 
+      border-gray-700 text-white rounded-2xl py-3 
+      font-bold flex items-center justify-center 
+      gap-2 press mb-6">
+      ❤️ Ajouter aux favoris
+    </button>
+
+  </div>
+</div>
+
+
+## PAGE CONCOURS PUBLICS
+
+### Header + filtres :
+<div className="sticky top-0 z-10 
+  bg-gray-950/90 backdrop-blur-md 
+  border-b border-gray-800 px-4 pt-3 pb-0">
+  
+  <div className="flex items-center gap-3 mb-3">
+    <h1 className="text-white font-black text-xl flex-1">
+      Concours Publics
+    </h1>
+    <button className="bg-gray-800 rounded-xl 
+      px-3 py-2 text-orange-500 text-sm 
+      font-bold press">
+      ⚙️ Filtrer
+    </button>
+  </div>
+
+  <div className="flex gap-2 overflow-x-auto 
+    scrollbar-hide pb-3">
+    {[
+      { label: 'Tous', color: 'orange' },
+      { label: 'Ouverts', color: 'green' },
+      { label: 'À venir', color: 'blue' },
+      { label: 'Fermés', color: 'red' }
+    ].map((f, i) => (
+      <button key={f.label}
+        onClick={() => setFiltre(f.label)}
+        className={`flex-shrink-0 px-4 py-1.5 
+          rounded-full text-sm font-bold 
+          transition-all press
+          ${filtre === f.label
+            ? f.color === 'orange' 
+              ? 'bg-orange-500 text-white'
+              : f.color === 'green'
+              ? 'bg-green-500 text-white'
+              : f.color === 'blue'
+              ? 'bg-blue-500 text-white'
+              : 'bg-red-500 text-white'
+            : 'bg-gray-800 text-gray-400'}`}>
+        {f.label}
+      </button>
+    ))}
+  </div>
+</div>
+
+### Card Concours modernisée :
+{concours.map((c, i) => (
+  <button key={c.id}
+    onClick={() => navigate(`/concours/${c.id}`)}
+    className={`w-full bg-gray-800 border rounded-2xl 
+      p-4 mb-3 text-left press
+      transition-all duration-200
+      animate-fade-in-up delay-${Math.min(i+1,5)}
+      ${c.statut === 'ouvert' 
+        ? 'border-green-800 hover:border-green-600' 
+        : c.statut === 'a_venir'
+        ? 'border-blue-800 hover:border-blue-600'
+        : 'border-gray-700'}`}>
+    
+    <div className="flex justify-between 
+      items-start mb-2">
+      <span className={`px-2.5 py-1 rounded-full 
+        text-xs font-black
+        ${c.statut === 'ouvert'
+          ? 'bg-green-950 text-green-400'
+          : c.statut === 'a_venir'
+          ? 'bg-blue-950 text-blue-400'
+          : 'bg-red-950 text-red-400'}`}>
+        {c.statut === 'ouvert' ? '🟢 OUVERT'
+          : c.statut === 'a_venir' ? '🔵 À VENIR'
+          : '🔴 FERMÉ'}
+      </span>
+      <span className="bg-gray-700 text-gray-300 
+        px-2.5 py-1 rounded-full text-xs font-medium">
+        💼 {c.postes} postes
+      </span>
+    </div>
+
+    <h3 className="text-white font-bold text-base 
+      leading-tight mt-2">
+      {c.nom}
+    </h3>
+    <p className="text-gray-400 text-sm mt-1">
+      {c.ministere}
+    </p>
+
+    <div className="flex justify-between items-center 
+      mt-3 pt-3 border-t border-gray-700">
+      <div className="flex items-center gap-1.5">
+        <span className="text-gray-500 text-xs">🎓</span>
+        <span className="text-gray-400 text-xs">
+          {c.niveau}
+        </span>
+      </div>
+      <span className={`text-xs font-bold
+        ${c.statut === 'ouvert' 
+          ? 'text-green-400'
+          : c.statut === 'a_venir'
+          ? 'text-blue-400'
+          : 'text-gray-500'}`}>
+        {c.statut === 'ferme' 
+          ? 'Clôturé'
+          : `Dès le ${c.dateOuverture}`}
+      </span>
+    </div>
+
+  </button>
+))}
+
+
+## PAGE DÉTAIL CONCOURS
+
+<div className="min-h-screen bg-gray-950">
+
+  {/* Hero */}
+  <div className={`relative px-4 pt-12 pb-6
+    ${c.statut === 'ouvert'
+      ? 'bg-gradient-to-br from-green-950 via-gray-900 to-gray-950'
+      : c.statut === 'a_venir'
+      ? 'bg-gradient-to-br from-blue-950 via-gray-900 to-gray-950'
+      : 'bg-gradient-to-br from-gray-800 via-gray-900 to-gray-950'}`}>
+    
+    <button onClick={() => navigate(-1)}
+      className="absolute top-4 left-4 w-9 h-9 
+        bg-black/40 backdrop-blur rounded-xl 
+        flex items-center justify-center text-white press">
+      ←
+    </button>
+    <button className="absolute top-4 right-4 w-9 h-9 
+      bg-black/40 backdrop-blur rounded-xl 
+      flex items-center justify-center press">
+      ❤️
+    </button>
+
+    <span className={`inline-block px-3 py-1 
+      rounded-full text-xs font-black mb-3
+      ${c.statut === 'ouvert'
+        ? 'bg-green-500 text-white'
+        : c.statut === 'a_venir'
+        ? 'bg-blue-500 text-white'
+        : 'bg-red-500 text-white'}`}>
+      {c.statut === 'ouvert' ? '🟢 OUVERT'
+        : c.statut === 'a_venir' ? '🔵 À VENIR'
+        : '🔴 FERMÉ'}
+    </span>
+
+    <h1 className="text-white font-black text-2xl 
+      leading-tight mb-1 animate-fade-in-up">
+      {c.nom}
+    </h1>
+    <p className="text-gray-400 text-sm">
+      {c.ministere}
+    </p>
+
+    {/* Dates */}
+    <div className="grid grid-cols-2 gap-3 mt-4">
+      <div className="bg-black/30 backdrop-blur 
+        rounded-xl p-3">
+        <p className="text-green-400 text-xs 
+          font-bold uppercase tracking-wider mb-1">
+          Ouverture
+        </p>
+        <p className="text-white font-bold text-sm">
+          {c.dateOuverture}
+        </p>
+      </div>
+      <div className="bg-black/30 backdrop-blur 
+        rounded-xl p-3">
+        <p className="text-orange-400 text-xs 
+          font-bold uppercase tracking-wider mb-1">
+          Clôture
+        </p>
+        <p className="text-white font-bold text-sm">
+          {c.dateCloture}
+        </p>
+      </div>
+    </div>
+  </div>
+
+  {/* Stats bar */}
+  <div className="bg-gray-800 border-y border-gray-700 
+    px-4 py-3 flex justify-around 
+    animate-fade-in-up delay-1">
+    <div className="text-center">
+      <p className="text-white font-black text-xl">
+        {c.postes}
+      </p>
+      <p className="text-gray-400 text-xs uppercase 
+        tracking-wider">Postes</p>
+    </div>
+    <div className="w-px bg-gray-700"/>
+    <div className="text-center">
+      <p className="text-white font-black text-xl">
+        {c.niveau}
+      </p>
+      <p className="text-gray-400 text-xs uppercase 
+        tracking-wider">Niveau</p>
+    </div>
+    <div className="w-px bg-gray-700"/>
+    <div className="text-center">
+      <p className="text-white font-black text-xl">
+        {c.lieu}
+      </p>
+      <p className="text-gray-400 text-xs uppercase 
+        tracking-wider">Lieu</p>
+    </div>
+  </div>
+
+  <div className="px-4 py-4">
+
+    {/* Description */}
+    <div className="bg-gray-800 border border-gray-700 
+      rounded-2xl p-4 mb-3 animate-fade-in-up delay-2">
+      <h2 className="text-white font-bold mb-2">
+        📋 Description
+      </h2>
+      <p className="text-gray-300 text-sm leading-relaxed">
+        {c.description}
+      </p>
+    </div>
+
+    {/* Conditions */}
+    <div className="bg-gray-800 border border-gray-700 
+      rounded-2xl p-4 mb-3 animate-fade-in-up delay-3">
+      <h2 className="text-white font-bold mb-3">
+        ✅ Conditions requises
+      </h2>
+      {c.conditions.map((cond, i) => (
+        <div key={i} 
+          className="flex items-start gap-3 mb-2">
+          <div className="w-5 h-5 bg-green-950 border 
+            border-green-800 rounded-full flex items-center 
+            justify-center flex-shrink-0 mt-0.5">
+            <span className="text-green-400 text-xs">✓</span>
+          </div>
+          <p className="text-gray-300 text-sm">{cond}</p>
+        </div>
+      ))}
+    </div>
+
+    {/* Processus sélection */}
+    <div className="bg-gray-800 border border-gray-700 
+      rounded-2xl p-4 mb-3 animate-fade-in-up delay-4">
+      <h2 className="text-white font-bold mb-4">
+        🏆 Processus de sélection
+      </h2>
+      {c.etapes.map((etape, i) => (
+        <div key={i} className="flex gap-3 mb-4 
+          last:mb-0">
+          <div className="flex flex-col items-center">
+            <div className="w-8 h-8 bg-orange-500 
+              rounded-full flex items-center justify-center 
+              text-white font-black text-sm flex-shrink-0">
+              {i + 1}
+            </div>
+            {i < c.etapes.length - 1 && (
+              <div className="w-0.5 h-8 bg-gray-600 
+                mt-1"/>
+            )}
+          </div>
+          <div className="pt-1">
+            <p className="text-white font-bold text-sm">
+              Étape {i + 1}
+            </p>
+            <p className="text-gray-400 text-sm">
+              {etape}
+            </p>
+          </div>
+        </div>
+      ))}
+    </div>
+
+    {/* Contact */}
+    <div className="bg-green-950 border border-green-800 
+      rounded-2xl p-4 mb-3 animate-fade-in-up delay-5">
+      <h2 className="text-green-400 font-bold mb-2">
+        📞 Plus d'informations
+      </h2>
+      <p className="text-green-300 text-sm">
+        {c.contact}
+      </p>
+    </div>
+
+    {/* Infos pratiques accordéon */}
+    {[
+      { label: 'Documents requis', count: c.documents?.length, icon: '📄' },
+      { label: "Étapes d'inscription", count: c.etapesInscription?.length, icon: '📝' },
+      { label: "Conditions d'accès", count: c.conditionsAcces?.length, icon: '👤' }
+    ].map((item, i) => (
+      <button key={i}
+        onClick={() => toggleAccordion(i)}
+        className="w-full bg-gray-800 border 
+          border-gray-700 rounded-2xl px-4 py-3.5 
+          flex justify-between items-center mb-2 press">
+        <div className="flex items-center gap-2">
+          <span>{item.icon}</span>
+          <span className="text-white font-semibold text-sm">
+            {item.label}
+          </span>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="bg-gray-700 text-gray-300 
+            w-6 h-6 rounded-full flex items-center 
+            justify-center text-xs font-bold">
+            {item.count}
+          </span>
+          <span className="text-orange-500">
+            {openAccordion === i ? '↑' : '↓'}
+          </span>
+        </div>
+      </button>
+    ))}
+
+    {/* Boutons action */}
+    <div className="flex gap-3 mt-4 mb-6">
+      <button
+        onClick={() => window.open(
+          `https://wa.me/?text=Concours: ${c.nom}`, 
+          '_blank'
+        )}
+        className="flex-1 bg-green-600 text-white 
+          rounded-2xl py-3 font-bold text-sm press">
+        💬 Partager
+      </button>
+      <button className="flex-1 bg-gray-800 border 
+        border-gray-700 text-white rounded-2xl py-3 
+        font-bold text-sm press">
+        ❤️ Favoris
+      </button>
+    </div>
+
+  </div>
+</div>
+
+
+## PAGE TROUVER MA VOIE — Quiz
+
+### Page d'intro :
+<div className="min-h-screen bg-gray-950 
+  flex flex-col items-center justify-center px-4">
+  
+  <div className="w-20 h-20 bg-gradient-to-br 
+    from-purple-600 to-purple-900 rounded-3xl 
+    flex items-center justify-center text-4xl mb-6
+    animate-scale-in"
+    style={{animation: 'pulse-orange 2s infinite'}}>
+    🧭
+  </div>
+
+  <h1 className="text-white font-black text-3xl 
+    text-center mb-3 animate-fade-in-up">
+    Trouvez votre voie idéale
+  </h1>
+  
+  <p className="text-gray-400 text-center text-sm 
+    leading-relaxed mb-8 animate-fade-in-up delay-1">
+    Répondez à 5 questions et nous recommandons 
+    les meilleures écoles et concours selon 
+    votre profil en Côte d'Ivoire.
+  </p>
+
+  <button
+    onClick={startQuiz}
+    className="w-full bg-gradient-to-r from-orange-500 
+      to-orange-600 text-white rounded-2xl py-4 
+      font-black text-lg flex items-center 
+      justify-center gap-2 press
+      animate-fade-in-up delay-2"
+    style={{animation: 'pulse-orange 2s infinite'}}>
+    ✨ Commencer le quiz
+  </button>
+</div>
+
+### Page question :
+<div className="min-h-screen bg-gray-950 px-4 py-6">
+  
+  {/* Progress */}
+  <div className="flex items-center gap-3 mb-6">
+    <button onClick={() => navigate(-1)}
+      className="w-9 h-9 bg-gray-800 rounded-xl 
+        flex items-center justify-center press">
+      ←
+    </button>
+    <div className="flex-1">
+      <div className="flex justify-between 
+        text-xs mb-1.5">
+        <span className="text-gray-400">
+          Question {Math.min(current, 5)}/5
+        </span>
+        <span className="text-orange-500 font-bold">
+          {Math.min(Math.round((current/5)*100), 100)}%
+        </span>
+      </div>
+      <div className="h-2 bg-gray-800 rounded-full">
+        <div
+          className="h-2 bg-gradient-to-r from-orange-500 
+            to-orange-400 rounded-full transition-all 
+            duration-500"
+          style={{
+            width: `${Math.min((current/5)*100, 100)}%`
+          }}
+        />
+      </div>
+    </div>
+  </div>
+
+  {/* Question */}
+  <h2 className="text-white font-black text-xl 
+    leading-tight mb-6 animate-fade-in-up">
+    {question.texte}
+  </h2>
+
+  {/* Options */}
+  <div className="space-y-3">
+    {question.options.map((opt, i) => (
+      <button key={opt}
+        onClick={() => selectOption(opt)}
+        className={`w-full flex items-center gap-3 
+          p-4 rounded-2xl border transition-all 
+          duration-200 text-left press
+          animate-fade-in-up delay-${i+1}
+          ${selected === opt
+            ? 'bg-orange-950 border-orange-500'
+            : 'bg-gray-800 border-gray-700 ' +
+              'hover:border-gray-500'}`}>
+        <div className={`w-5 h-5 rounded-full border-2 
+          flex items-center justify-center flex-shrink-0
+          ${selected === opt
+            ? 'border-orange-500 bg-orange-500'
+            : 'border-gray-500'}`}>
+          {selected === opt && (
+            <div className="w-2.5 h-2.5 bg-white 
+              rounded-full"/>
+          )}
+        </div>
+        <span className={`font-semibold text-sm
+          ${selected === opt 
+            ? 'text-orange-400' 
+            : 'text-white'}`}>
+          {opt}
+        </span>
+      </button>
+    ))}
+  </div>
+
+  {/* Bouton continuer */}
+  {selected && (
+    <button
+      onClick={nextQuestion}
+      className="w-full bg-orange-500 text-white 
+        rounded-2xl py-4 font-black text-lg mt-6 
+        press animate-fade-in-up">
+      Continuer →
+    </button>
+  )}
+</div>
+
+
+## PAGE CONSEILS & ARTICLES
+
+<div className="min-h-screen bg-gray-950">
+
+  {/* Header */}
+  <div className="sticky top-0 z-10 
+    bg-gray-950/90 backdrop-blur-md 
+    border-b border-gray-800 px-4 py-3">
+    <h1 className="text-white font-black text-xl mb-3">
+      Conseils & Orientation
+    </h1>
+    <div className="flex gap-2 overflow-x-auto 
+      scrollbar-hide">
+      {['Tous', 'Orientation', 'Études', 
+        'Concours', 'Marché'].map((cat, i) => (
+        <button key={cat}
+          onClick={() => setCategorie(cat)}
+          className={`flex-shrink-0 px-4 py-1.5 
+            rounded-full text-sm font-bold press
+            ${categorie === cat
+              ? 'bg-orange-500 text-white'
+              : 'bg-gray-800 text-gray-400'}`}>
+          {cat}
+        </button>
+      ))}
+    </div>
+  </div>
+
+  <div className="px-4 py-4">
+    {articles.map((article, i) => (
+      <button key={article.id}
+        onClick={() => navigate(`/conseils/${article.id}`)}
+        className={`w-full bg-gray-800 border 
+          border-gray-700 rounded-2xl p-4 mb-3 
+          text-left press hover:border-orange-500/30
+          transition-all animate-fade-in-up 
+          delay-${Math.min(i+1,5)}`}>
+        
+        <div className="flex gap-3 items-start">
+          <div className="text-3xl flex-shrink-0">
+            {article.emoji}
+          </div>
+          <div className="flex-1">
+            <div className="flex items-center 
+              gap-2 mb-1.5">
+              <span className={`px-2 py-0.5 rounded-full 
+                text-xs font-bold
+                ${article.categorie === 'Orientation'
+                  ? 'bg-orange-950 text-orange-400'
+                  : article.categorie === 'Études'
+                  ? 'bg-blue-950 text-blue-400'
+                  : article.categorie === 'Concours'
+                  ? 'bg-green-950 text-green-400'
+                  : 'bg-purple-950 text-purple-400'}`}>
+                {article.categorie}
+              </span>
+              <span className="text-gray-500 text-xs">
+                ⏱ {article.tempsLecture} min
+              </span>
+              {article.isNew && (
+                <span className="bg-red-500 text-white 
+                  text-xs px-2 py-0.5 rounded-full 
+                  font-bold">
+                  NOUVEAU
+                </span>
+              )}
+            </div>
+            <h3 className="text-white font-bold 
+              text-sm leading-tight">
+              {article.titre}
+            </h3>
+            <p className="text-gray-400 text-xs 
+              mt-1 leading-relaxed line-clamp-2">
+              {article.resume}
+            </p>
+          </div>
+          <button 
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleSaved(article.id);
+            }}
+            className="text-gray-500 hover:text-orange-500 
+              transition-colors press ml-1">
+            {saved.includes(article.id) ? '🔖' : '📄'}
+          </button>
+        </div>
+      </button>
+    ))}
+  </div>
+</div>
+
+
+## PAGE PROFIL
+
+<div className="min-h-screen bg-gray-950 px-4 py-6">
+
+  {/* Header profil */}
+  <div className="flex items-center gap-4 mb-6 
+    animate-fade-in-up">
+    <div className="relative">
+      <img 
+        src={user.photo} 
+        className="w-16 h-16 rounded-2xl object-cover"
+      />
+      <div className="absolute -bottom-1 -right-1 
+        w-5 h-5 bg-green-500 rounded-full 
+        border-2 border-gray-950"/>
+    </div>
+    <div className="flex-1">
+      <h1 className="text-white font-black text-xl">
+        {user.nom}
+      </h1>
+      <p className="text-gray-400 text-sm">
+        {user.email}
+      </p>
+    </div>
+    <button className="bg-gray-800 rounded-xl 
+      px-3 py-2 text-white text-sm press">
+      ✏️ Modifier
+    </button>
+  </div>
+
+  {/* Stats profil */}
+  <div className="grid grid-cols-3 gap-3 mb-6 
+    animate-fade-in-up delay-1">
+    <div className="bg-gray-800 rounded-2xl p-3 
+      text-center">
+      <p className="text-orange-500 font-black text-xl">
+        {user.candidatures}
+      </p>
+      <p className="text-gray-400 text-xs">Candidatures</p>
+    </div>
+    <div className="bg-gray-800 rounded-2xl p-3 
+      text-center">
+      <p className="text-green-400 font-black text-xl">
+        {user.favoris}
+      </p>
+      <p className="text-gray-400 text-xs">Favoris</p>
+    </div>
+    <div className="bg-gray-800 rounded-2xl p-3 
+      text-center">
+      <p className="text-blue-400 font-black text-xl">
+        {user.articlesLus}
+      </p>
+      <p className="text-gray-400 text-xs">Articles lus</p>
+    </div>
+  </div>
+
+  {/* Paramètres */}
+  <div className="bg-gray-800 border border-gray-700 
+    rounded-2xl overflow-hidden mb-4 
+    animate-fade-in-up delay-2">
+    
+    {/* Notifications */}
+    <div className="flex items-center justify-between 
+      px-4 py-3.5 border-b border-gray-700">
+      <div className="flex items-center gap-3">
+        <span className="text-xl">🔔</span>
+        <div>
+          <p className="text-white font-semibold text-sm">
+            Notifications
+          </p>
+          <p className="text-gray-500 text-xs">
+            8h · 12h · 16h · 20h
+          </p>
+        </div>
+      </div>
+      <ThemeToggle 
+        value={notifEnabled}
+        onChange={setNotifEnabled}
+      />
+    </div>
+
+    {/* Mode clair */}
+    <div className="flex items-center justify-between 
+      px-4 py-3.5 border-b border-gray-700">
+      <div className="flex items-center gap-3">
+        <span className="text-xl">
+          {isDark ? '🌙' : '☀️'}
+        </span>
+        <p className="text-white font-semibold text-sm">
+          {isDark ? 'Mode sombre' : 'Mode clair'}
+        </p>
+      </div>
+      <ThemeToggle/>
+    </div>
+
+    {/* Langue */}
+    <div className="flex items-center justify-between 
+      px-4 py-3.5">
+      <div className="flex items-center gap-3">
+        <span className="text-xl">🌐</span>
+        <p className="text-white font-semibold text-sm">
+          Langue
+        </p>
+      </div>
+      <div className="flex gap-2">
+        <button
+          onClick={() => changeLanguage('fr')}
+          className={`px-3 py-1 rounded-xl text-sm 
+            font-bold press
+            ${langue === 'fr'
+              ? 'bg-orange-500 text-white'
+              : 'bg-gray-700 text-gray-400'}`}>
+          🇫🇷 FR
+        </button>
+        <button
+          onClick={() => changeLanguage('en')}
+          className={`px-3 py-1 rounded-xl text-sm 
+            font-bold press
+            ${langue === 'en'
+              ? 'bg-orange-500 text-white'
+              : 'bg-gray-700 text-gray-400'}`}>
+          🇬🇧 EN
+        </button>
+      </div>
+    </div>
+  </div>
+
+  {/* Actions */}
+  <div className="bg-gray-800 border border-gray-700 
+    rounded-2xl overflow-hidden mb-4 
+    animate-fade-in-up delay-3">
+    {[
+      { icon: '📋', label: 'Mon Parcours', 
+        path: '/mes-candidatures' },
+      { icon: '❤️', label: 'Mes Favoris', 
+        path: '/favoris' },
+      { icon: '📚', label: 'Articles sauvegardés', 
+        path: '/sauvegardes' },
+      { icon: '📞', label: 'Contact', 
+        path: '/contact' },
+      { icon: 'ℹ️', label: 'À propos', 
+        path: '/a-propos' },
+    ].map((item, i) => (
+      <button key={item.path}
+        onClick={() => navigate(item.path)}
+        className="w-full flex items-center 
+          justify-between px-4 py-3.5 
+          border-b border-gray-700 last:border-0 
+          press hover:bg-gray-700/50 
+          transition-colors text-left">
+        <div className="flex items-center gap-3">
+          <span className="text-xl">{item.icon}</span>
+          <span className="text-white font-semibold 
+            text-sm">{item.label}</span>
+        </div>
+        <span className="text-orange-500">›</span>
+      </button>
+    ))}
+  </div>
+
+  {/* Déconnexion */}
+  <button
+    onClick={handleLogout}
+    className="w-full bg-red-950 border border-red-900 
+      text-red-400 rounded-2xl py-3 font-bold 
+      flex items-center justify-center gap-2 
+      press animate-fade-in-up delay-4 mb-6">
+    🚪 Se déconnecter
+  </button>
+
+</div>
+
+
+## BOTTOM NAVIGATION — Modernisée
+
+<nav className="fixed bottom-0 left-0 right-0 
+  bg-gray-900/95 backdrop-blur-md 
+  border-t border-gray-800 px-4 py-2 z-50">
+  <div className="flex justify-around">
+    {[
+      { icon: '🏠', label: 'Accueil', path: '/' },
+      { icon: '🎓', label: 'Écoles', path: '/ecoles' },
+      { icon: '🏆', label: 'Concours', path: '/concours' },
+      { icon: '👤', label: 'Profil', path: '/profil' },
+    ].map((item) => (
+      <button key={item.path}
+        onClick={() => navigate(item.path)}
+        className={`flex flex-col items-center 
+          py-1 px-4 rounded-xl press
+          transition-all duration-200
+          ${location.pathname === item.path
+            ? 'text-orange-500'
+            : 'text-gray-500'}`}>
+        <span className={`text-xl transition-transform
+          ${location.pathname === item.path
+            ? 'scale-110' : 'scale-100'}`}>
+          {item.icon}
+        </span>
+        <span className={`text-xs font-semibold mt-0.5
+          ${location.pathname === item.path
+            ? 'text-orange-500' : 'text-gray-500'}`}>
+          {item.label}
+        </span>
+        {location.pathname === item.path && (
+          <div className="w-1 h-1 bg-orange-500 
+            rounded-full mt-0.5"/>
+        )}
+      </button>
+    ))}
+  </div>
+</nav>
+
+
+## MENU LATÉRAL — Modernisé
+
+<div className={`fixed inset-0 z-50 
+  transition-all duration-300
+  ${isOpen ? 'visible' : 'invisible'}`}>
+  
+  {/* Overlay */}
+  <div 
+    onClick={() => setIsOpen(false)}
+    className={`absolute inset-0 bg-black 
+      transition-opacity duration-300
+      ${isOpen ? 'opacity-60' : 'opacity-0'}`}
+  />
+
+  {/* Panel */}
+  <div className={`absolute left-0 top-0 bottom-0 
+    w-4/5 max-w-xs bg-gray-900 border-r 
+    border-gray-800 flex flex-col
+    transition-transform duration-300
+    ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+    
+    {/* Header menu */}
+    <div className="p-4 border-b border-gray-800">
+      <div className="flex items-center 
+        justify-between mb-4">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-orange-950 
+            border border-orange-800 rounded-2xl 
+            flex items-center justify-center text-xl">
+            🎓
+          </div>
+          <div>
+            <p className="text-white font-black">
+              Compétences CI
+            </p>
+            <p className="text-gray-400 text-xs">
+              L'orientation en CI
+            </p>
+          </div>
+        </div>
+        <button onClick={() => setIsOpen(false)}
+          className="w-8 h-8 bg-gray-800 rounded-xl 
+            flex items-center justify-center 
+            text-gray-400 press">
+          ✕
+        </button>
+      </div>
+    </div>
+
+    {/* Navigation */}
+    <div className="flex-1 overflow-y-auto p-4">
+      
+      {/* Section DÉCOUVRIR */}
+      <p className="text-gray-600 text-xs font-black 
+        uppercase tracking-widest mb-2">
+        Découvrir
+      </p>
+      {[
+        { icon: '🏠', label: 'Accueil', path: '/' },
+        { icon: '🎓', label: 'Écoles', path: '/ecoles' },
+        { icon: '🏆', label: 'Concours', path: '/concours' },
+      ].map(item => (
+        <button key={item.path}
+          onClick={() => {
+            navigate(item.path);
+            setIsOpen(false);
+          }}
+          className={`w-full flex items-center gap-3 
+            px-3 py-2.5 rounded-xl mb-1 press
+            transition-all
+            ${location.pathname === item.path
+              ? 'bg-orange-950 text-orange-500'
+              : 'text-gray-300 hover:bg-gray-800'}`}>
+          <span className="text-lg">{item.icon}</span>
+          <span className="font-semibold text-sm">
+            {item.label}
+          </span>
+        </button>
+      ))}
+
+      {/* Section MES OUTILS */}
+      <p className="text-gray-600 text-xs font-black 
+        uppercase tracking-widest mt-4 mb-2">
+        Mes outils
+      </p>
+      {[
+        { icon: '🧭', label: 'Trouver ma voie', 
+          path: '/trouver-ma-voie' },
+        { icon: '📋', label: 'Mon Parcours', 
+          path: '/mes-candidatures' },
+        { icon: '❤️', label: 'Mes favoris', 
+          path: '/favoris' },
+        { icon: '📚', label: 'Conseils', 
+          path: '/conseils' },
+        { icon: '🔔', label: 'Notifications', 
+          path: '/notifications' },
+      ].map(item => (
+        <button key={item.path}
+          onClick={() => {
+            navigate(item.path);
+            setIsOpen(false);
+          }}
+          className={`w-full flex items-center gap-3 
+            px-3 py-2.5 rounded-xl mb-1 press
+            ${location.pathname === item.path
+              ? 'bg-orange-950 text-orange-500'
+              : 'text-gray-300 hover:bg-gray-800'}`}>
+          <span className="text-lg">{item.icon}</span>
+          <span className="font-semibold text-sm">
+            {item.label}
+          </span>
+        </button>
+      ))}
+
+      {/* Section AUTRES */}
+      <p className="text-gray-600 text-xs font-black 
+        uppercase tracking-widest mt-4 mb-2">
+        Autres
+      </p>
+      {[
+        { icon: '👤', label: 'Profil', path: '/profil' },
+        { icon: '📞', label: 'Contact', path: '/contact' },
+        { icon: 'ℹ️', label: 'À propos', path: '/a-propos' },
+      ].map(item => (
+        <button key={item.path}
+          onClick={() => {
+            navigate(item.path);
+            setIsOpen(false);
+          }}
+          className={`w-full flex items-center gap-3 
+            px-3 py-2.5 rounded-xl mb-1 press
+            ${location.pathname === item.path
+              ? 'bg-orange-950 text-orange-500'
+              : 'text-gray-300 hover:bg-gray-800'}`}>
+          <span className="text-lg">{item.icon}</span>
+          <span className="font-semibold text-sm">
+            {item.label}
+          </span>
+        </button>
+      ))}
+    </div>
+
+    {/* Footer menu */}
+    <div className="p-4 border-t border-gray-800">
+      
+      {/* Toggle dark/light */}
+      <div className="flex items-center 
+        justify-between mb-3">
+        <span className="text-gray-300 text-sm 
+          font-semibold">
+          {isDark ? '🌙 Mode sombre' : '☀️ Mode clair'}
+        </span>
+        <ThemeToggle/>
+      </div>
+
+      {/* User info */}
+      <div className="flex items-center gap-3 
+        p-3 bg-gray-800 rounded-2xl">
+        <img src={user.photo}
+          className="w-10 h-10 rounded-xl object-cover"/>
+        <div className="flex-1 min-w-0">
+          <p className="text-white font-bold text-sm 
+            truncate">{user.nom}</p>
+          <p className="text-gray-400 text-xs truncate">
+            {user.email}
+          </p>
+        </div>
+      </div>
+
+      {/* Déconnexion */}
+      <button
+        onClick={handleLogout}
+        className="w-full flex items-center gap-2 
+          mt-3 px-3 py-2.5 text-red-400 
+          hover:bg-red-950 rounded-xl press 
+          transition-colors">
+        <span>🚪</span>
+        <span className="font-semibold text-sm">
+          Se déconnecter
+        </span>
+      </button>
+    </div>
+  </div>
+</div>
+
+
+## SKELETON LOADERS — Pour tous les chargements
+
+### Skeleton card école :
+const SkeletonCard = () => (
+  <div className="bg-gray-800 rounded-2xl p-4 mb-3">
+    <div className="flex justify-between mb-3">
+      <div className="skeleton h-5 w-48 rounded-lg"/>
+      <div className="skeleton h-5 w-16 rounded-full"/>
+    </div>
+    <div className="skeleton h-4 w-32 rounded-lg mb-3"/>
+    <div className="flex gap-2">
+      <div className="skeleton h-7 w-20 rounded-full"/>
+      <div className="skeleton h-7 w-24 rounded-full"/>
+      <div className="skeleton h-7 w-16 rounded-full"/>
+    </div>
+  </div>
+);
+
+### Utilisation :
+{isLoading 
+  ? Array(5).fill(0).map((_, i) => <SkeletonCard key={i}/>)
+  : ecoles.map(e => <EcoleCard key={e.id} ecole={e}/>)
+}
+
+
+## IMPORTANT — NE PAS TOUCHER
+La page d'accueil (HomePage.jsx ou index page) 
+ne doit PAS être modifiée. Toutes les autres 
+pages sont à moderniser avec ce design system.
+
+## FICHIERS À MODIFIER
+- src/pages/EcolesPage.jsx
+- src/pages/EcoleDetailPage.jsx
+- src/pages/ConcoursPage.jsx
+- src/pages/ConcoursDetailPage.jsx
+- src/pages/QuizPage.jsx (Trouver ma voie)
+- src/pages/ConseilsPage.jsx
+- src/pages/ProfilePage.jsx
+- src/components/BottomNavigation.jsx
+- src/components/MenuDrawer.jsx (menu latéral)
+- src/styles/animations.css (créer)
+- src/contexts/ThemeContext.jsx (créer)

@@ -113,14 +113,14 @@ export default function Profile() {
           </div>
           <h2 className="font-display text-xl font-bold text-foreground">{user?.name}</h2>
           <p className="text-sm text-muted-foreground mt-0.5">{user?.email}</p>
-          <div className="flex gap-4 mt-4 text-center">
-            <div className="bg-white/60 dark:bg-white/10 rounded-xl px-4 py-2 min-w-[70px]">
-              <div className="text-lg font-bold text-primary">{favoriteSchools.length}</div>
-              <div className="text-[10px] text-muted-foreground">{t("nav_schools")}</div>
+          <div className="flex gap-3 mt-5">
+            <div className="bg-card/80 border border-border/50 rounded-2xl px-6 py-3 text-center min-w-[80px]">
+              <div className="text-2xl font-black text-primary">{favoriteSchools.length}</div>
+              <div className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mt-0.5">{t("nav_schools")}</div>
             </div>
-            <div className="bg-white/60 dark:bg-white/10 rounded-xl px-4 py-2 min-w-[70px]">
-              <div className="text-lg font-bold text-secondary">{favoriteCompetitions.length}</div>
-              <div className="text-[10px] text-muted-foreground">{t("nav_competitions")}</div>
+            <div className="bg-card/80 border border-border/50 rounded-2xl px-6 py-3 text-center min-w-[80px]">
+              <div className="text-2xl font-black text-secondary">{favoriteCompetitions.length}</div>
+              <div className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mt-0.5">{t("nav_competitions")}</div>
             </div>
           </div>
         </div>
@@ -411,7 +411,7 @@ export default function Profile() {
           {/* Déconnexion */}
           <button
             onClick={handleLogout}
-            className="w-full py-4 rounded-2xl border-2 border-red-100 bg-red-50 text-red-600 font-bold text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition-all"
+            className="w-full py-4 rounded-2xl bg-red-950 border border-red-900/60 text-red-400 font-black text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition-all press"
           >
             <LogOut className="w-5 h-5" /> {t("profile_logout")}
           </button>

@@ -289,20 +289,38 @@ function SidebarContent({
       {/* Bottom: theme + lang + user */}
       <div className="border-t border-border/50 px-3 py-4 space-y-2">
         <div className="flex items-center justify-between px-3 py-2">
-          <button
-            onClick={toggleTheme}
-            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
-            {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-            <span>{theme === "dark" ? t("theme_light") : t("theme_dark")}</span>
-          </button>
-          <button
-            onClick={() => setLanguage(language === "fr" ? "en" : "fr")}
-            className="flex items-center gap-1 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors bg-muted px-2 py-1 rounded-md"
-          >
-            <Globe className="w-3 h-3" />
-            {String(language).toUpperCase()}
-          </button>
+          <div className="flex items-center gap-2">
+            {theme === "dark"
+              ? <Moon className="w-4 h-4 text-muted-foreground" />
+              : <Sun className="w-4 h-4 text-muted-foreground" />}
+            <span className="text-sm text-muted-foreground font-medium">
+              {theme === "dark" ? t("theme_dark") : t("theme_light")}
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setLanguage(language === "fr" ? "en" : "fr")}
+              className="flex items-center gap-1 text-xs font-bold text-muted-foreground hover:text-foreground transition-colors bg-muted px-2 py-1 rounded-md"
+            >
+              <Globe className="w-3 h-3" />
+              {String(language).toUpperCase()}
+            </button>
+            <button
+              onClick={toggleTheme}
+              aria-label="Toggle theme"
+              className={cn(
+                "relative w-11 h-6 rounded-full transition-colors duration-300 shrink-0",
+                theme === "dark" ? "bg-primary" : "bg-muted-foreground/30"
+              )}
+            >
+              <div className={cn(
+                "absolute top-0.5 w-5 h-5 rounded-full bg-white shadow-md transition-transform duration-300 flex items-center justify-center text-[11px] leading-none",
+                theme === "dark" ? "translate-x-[22px]" : "translate-x-0.5"
+              )}>
+                {theme === "dark" ? "🌙" : "☀️"}
+              </div>
+            </button>
+          </div>
         </div>
 
         <button

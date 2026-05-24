@@ -145,29 +145,40 @@ export default function SchoolDetail() {
             <span>{school.address}, {school.city}</span>
           </div>
 
-          <div className="grid grid-cols-2 gap-3 pt-5 border-t border-border/50">
+          <div className={`grid gap-3 pt-5 border-t border-border/50 ${[school.phone, school.website, school.email].filter(Boolean).length >= 3 ? 'grid-cols-3' : 'grid-cols-2'}`}>
             {school.phone && (
-              <a href={`tel:${school.phone}`} className="flex items-center text-sm font-medium text-foreground hover:text-primary transition-colors">
-                <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center mr-2 shrink-0">
-                  <Phone className="w-4 h-4" />
+              <a
+                href={`tel:${school.phone}`}
+                className="flex flex-col items-center gap-2 bg-muted/60 hover:bg-muted border border-border/50 rounded-2xl p-3 text-center transition-all active:scale-95 press"
+              >
+                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                  <Phone className="w-5 h-5 text-primary" />
                 </div>
-                {t("school_call")}
+                <span className="text-xs font-bold text-foreground">{t("school_call")}</span>
               </a>
             )}
             {school.website && (
-              <a href={school.website} target="_blank" rel="noopener noreferrer" className="flex items-center text-sm font-medium text-foreground hover:text-primary transition-colors">
-                <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center mr-2 shrink-0">
-                  <Globe className="w-4 h-4" />
+              <a
+                href={school.website}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex flex-col items-center gap-2 bg-muted/60 hover:bg-muted border border-border/50 rounded-2xl p-3 text-center transition-all active:scale-95 press"
+              >
+                <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
+                  <Globe className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                 </div>
-                {t("school_website_label")}
+                <span className="text-xs font-bold text-foreground">{t("school_website_label")}</span>
               </a>
             )}
             {school.email && (
-              <a href={`mailto:${school.email}`} className="flex items-center text-sm font-medium text-foreground hover:text-primary transition-colors col-span-2 mt-1">
-                <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center mr-2 shrink-0">
-                  <Mail className="w-4 h-4" />
+              <a
+                href={`mailto:${school.email}`}
+                className="flex flex-col items-center gap-2 bg-muted/60 hover:bg-muted border border-border/50 rounded-2xl p-3 text-center transition-all active:scale-95 press"
+              >
+                <div className="w-10 h-10 rounded-xl bg-green-500/10 flex items-center justify-center">
+                  <Mail className="w-5 h-5 text-green-600 dark:text-green-400" />
                 </div>
-                {school.email}
+                <span className="text-xs font-bold text-foreground truncate max-w-full">Email</span>
               </a>
             )}
           </div>

@@ -113,26 +113,28 @@ export default function Conseils() {
             >
               <button
                 onClick={() => setSelectedArticle(article)}
-                className="w-full bg-card border border-border/50 rounded-2xl p-5 shadow-sm text-left active:scale-[0.98] transition-all hover:border-primary/30"
+                className="w-full bg-card border border-border/50 rounded-2xl p-4 shadow-sm text-left active:scale-[0.97] transition-all hover:border-primary/30 press"
               >
-                <div className="flex items-start gap-4">
-                  <div className="text-4xl w-12 text-center shrink-0 mt-0.5">{article.emoji}</div>
+                <div className="flex items-start gap-3">
+                  <div className="w-12 h-12 rounded-2xl bg-muted flex items-center justify-center text-2xl shrink-0">
+                    {article.emoji}
+                  </div>
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-2 flex-wrap">
-                      <span className={cn("text-[10px] font-bold px-2 py-0.5 rounded-full",
+                    <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                      <span className={cn("text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider",
                         article.category === "Orientation" ? "bg-primary/10 text-primary" :
                         article.category === "Études" ? "bg-secondary/10 text-secondary" :
                         article.category === "Concours" ? "bg-orange-100 text-orange-700 dark:bg-orange-900/20 dark:text-orange-400" :
                         "bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400"
                       )}>{article.category}</span>
-                      <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
-                        <Clock className="w-3 h-3" /> {article.readTime}
+                      <span className="flex items-center gap-1 text-[10px] text-muted-foreground font-medium">
+                        <Clock className="w-3 h-3" /> {article.readTime} {t("conseils_read_time")}
                       </span>
                     </div>
-                    <h3 className="font-display font-bold text-base text-foreground leading-snug mb-2">{article.title}</h3>
+                    <h3 className="font-black text-sm text-foreground leading-snug mb-1.5">{article.title}</h3>
                     <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">{article.intro}</p>
                   </div>
-                  <BookOpen className="w-4 h-4 text-muted-foreground/50 shrink-0 mt-1" />
+                  <BookOpen className="w-4 h-4 text-primary/40 shrink-0 mt-0.5" />
                 </div>
               </button>
             </motion.div>

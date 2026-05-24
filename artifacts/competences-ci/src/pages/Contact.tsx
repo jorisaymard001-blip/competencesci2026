@@ -64,13 +64,13 @@ export default function Contact() {
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.07 }}
-              className="flex items-center gap-4 bg-card border border-border/50 rounded-2xl p-4 shadow-sm active:scale-[0.98] transition-all"
+              className="flex items-center gap-4 bg-card border border-border/50 rounded-2xl p-4 shadow-sm active:scale-[0.97] transition-all press"
             >
               <div className={`w-12 h-12 ${link.iconBg} rounded-xl flex items-center justify-center text-2xl shrink-0`}>
                 {link.icon}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="font-semibold text-sm text-foreground">{link.label}</p>
+                <p className="font-black text-sm text-foreground">{link.label}</p>
                 <p className="text-xs text-muted-foreground mt-0.5 truncate">{link.sub}</p>
               </div>
               <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0 text-primary" />
@@ -84,7 +84,7 @@ export default function Contact() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.25 }}
         >
-          <h2 className="font-display font-bold text-base text-foreground mb-3">
+          <h2 className="font-black text-sm text-foreground uppercase tracking-wide mb-3">
             {t("contact_social_title")}
           </h2>
           <div className="grid grid-cols-2 gap-3 mb-8">
@@ -97,7 +97,7 @@ export default function Contact() {
                 className="bg-card border border-border/50 rounded-2xl p-4 text-center active:scale-[0.97] transition-all"
               >
                 <p className="text-2xl mb-1.5">{s.icon}</p>
-                <p className="font-semibold text-sm text-foreground">{s.label}</p>
+                <p className="font-black text-sm text-foreground mt-0.5">{s.label}</p>
               </a>
             ))}
           </div>

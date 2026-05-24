@@ -63,8 +63,15 @@ export default function CompetitionDetail() {
       <div className="bg-background min-h-screen max-w-4xl mx-auto w-full">
 
         {/* Header Block */}
-        <div className="bg-foreground text-white px-5 md:px-8 pt-8 pb-12 rounded-b-[40px] relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-secondary/30 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4" />
+        <div className={cn(
+          "text-white px-5 md:px-8 pt-8 pb-12 rounded-b-[40px] relative overflow-hidden",
+          comp.status === "open"
+            ? "bg-gradient-to-br from-green-900 via-slate-900 to-slate-950 dark:from-green-950 dark:via-slate-950 dark:to-black"
+            : comp.status === "upcoming"
+            ? "bg-gradient-to-br from-blue-900 via-slate-900 to-slate-950 dark:from-blue-950 dark:via-slate-950 dark:to-black"
+            : "bg-gradient-to-br from-slate-700 via-slate-900 to-slate-950 dark:from-slate-800 dark:via-slate-950 dark:to-black"
+        )}>
+          <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4 pointer-events-none" />
 
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-4">
@@ -85,7 +92,7 @@ export default function CompetitionDetail() {
               </button>
             </div>
 
-            <h1 className="font-display text-2xl sm:text-3xl font-bold leading-tight mb-4 text-balance">
+            <h1 className="font-black text-2xl sm:text-3xl leading-tight mb-4 text-balance">
               {comp.title}
             </h1>
 

@@ -21,7 +21,7 @@ export default function About() {
           <div className="w-16 h-16 bg-primary/10 rounded-3xl flex items-center justify-center mb-5">
             <GraduationCap className="w-8 h-8 text-primary" />
           </div>
-          <h1 className="font-display text-2xl font-bold text-foreground mb-3 leading-tight">
+          <h1 className="font-black text-2xl text-foreground mb-3 leading-tight">
             {t("about_app_title")}
           </h1>
           <p className="text-sm text-muted-foreground leading-relaxed text-balance">
@@ -40,7 +40,7 @@ export default function About() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
           >
-            <h2 className="font-display text-base font-bold text-foreground mb-3">{t("about_features")}</h2>
+            <h2 className="font-black text-sm text-foreground uppercase tracking-wide mb-3">{t("about_features")}</h2>
             <div className="bg-card border border-border/50 rounded-2xl overflow-hidden shadow-sm">
               {[
                 { emoji: "🏫", text: "40 établissements référencés (publics et privés)" },
@@ -87,7 +87,7 @@ export default function About() {
             <p className="text-sm text-muted-foreground leading-relaxed mb-4">{t("about_contact_text")}</p>
             <button
               onClick={() => navigate("/messages")}
-              className="w-full py-3 rounded-xl bg-secondary text-white font-semibold text-sm active:scale-[0.98] transition-all"
+              className="w-full py-3 rounded-xl bg-secondary text-white font-black text-sm active:scale-[0.98] transition-all press"
             >
               {t("about_contact_btn")}
             </button>
