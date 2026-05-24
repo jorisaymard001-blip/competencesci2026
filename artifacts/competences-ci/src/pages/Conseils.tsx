@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Layout } from "@/components/Layout";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, Clock, BookOpen } from "lucide-react";
-import { articles, Article, ArticleSection } from "@/lib/articles";
+import { articles, Article, ArticleSection as ArticleSectionData } from "@/lib/articles";
 import { cn } from "@/lib/utils";
 import { useT } from "@/lib/useT";
 
@@ -34,7 +34,7 @@ function setSavedArticles(ids: string[]) {
 
 // ── Article reading view ─────────────────────────────────────────────────────
 
-function ArticleSection({ section, headingIdx }: { section: ArticleSection; headingIdx?: number }) {
+function ArticleSection({ section, headingIdx }: { section: ArticleSectionData; headingIdx?: number }) {
   switch (section.type) {
     case "heading":
       return (
