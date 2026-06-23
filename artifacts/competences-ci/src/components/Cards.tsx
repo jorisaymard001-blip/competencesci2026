@@ -4,10 +4,11 @@ import { motion } from "framer-motion";
 import { cn, formatDate } from "@/lib/utils";
 import type { School, Competition } from "@workspace/api-client-react";
 import { getSchoolImage } from "@/lib/school-images";
+import { getCompetitionImage } from "@/lib/competition-images";
+
+const FALLBACK = "https://images.unsplash.com/photo-1562774053-701939374585?w=800&q=75&auto=format&fit=crop";
 
 // ── SCHOOL CARD ─────────────────────────────────────────────────────────────
-
-const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1562774053-701939374585?w=800&q=75&auto=format&fit=crop";
 
 export function SchoolCard({ school, index = 0 }: { school: School; index?: number }) {
   const isPublic = school.type === "public";
@@ -23,27 +24,23 @@ export function SchoolCard({ school, index = 0 }: { school: School; index?: numb
         href={`/schools/${school.id}`}
         className="group block bg-card rounded-2xl border border-border/50 shadow-sm hover:shadow-lg transition-all duration-200 active:scale-[0.97] overflow-hidden"
       >
-        {/* Image header */}
         <div className="relative h-36 overflow-hidden bg-muted">
           <img
             src={imageUrl}
             alt={school.name}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-            onError={e => { (e.currentTarget as HTMLImageElement).src = FALLBACK_IMAGE; }}
+            onError={e => { (e.currentTarget as HTMLImageElement).src = FALLBACK; }}
             loading="lazy"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent" />
           <span className={cn(
             "absolute top-2.5 right-2.5 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider backdrop-blur-sm",
-            isPublic
-              ? "bg-green-500/80 text-white"
-              : "bg-orange-500/80 text-white"
+            isPublic ? "bg-green-500/80 text-white" : "bg-orange-500/80 text-white"
           )}>
             {isPublic ? "Public" : "Privé"}
           </span>
         </div>
 
-        {/* Content */}
         <div className="p-4">
           <h3 className="font-black text-sm text-foreground leading-tight line-clamp-2 group-hover:text-primary transition-colors mb-1.5">
             {school.name}
@@ -53,7 +50,7 @@ export function SchoolCard({ school, index = 0 }: { school: School; index?: numb
             <span>{school.city}</span>
           </div>
           <div className="flex flex-wrap gap-1.5">
-            {school.domains.slice(0, 2).map(domain => (
+            {school.domains.slice(0, 2).map((domain: string) => (
               <span key={domain} className="inline-flex items-center px-2 py-0.5 rounded-full bg-muted text-muted-foreground text-[11px] font-medium">
                 {domain}
               </span>
@@ -90,26 +87,30 @@ export function SchoolCardSkeleton() {
 
 // ── COMPETITION CARD ─────────────────────────────────────────────────────────
 
-export function CompetitionCard({ competition, index = 0 }: { competition: Competition; index?: number }) {
-  const statusConfig = {
-    open: {
-      label: "🟢 Ouvert",
-      border: "border-l-green-500",
-      badgeCls: "bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20",
-    },
-    closed: {
-      label: "🔴 Fermé",
-      border: "border-l-red-500",
-      badgeCls: "bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20",
-    },
-    upcoming: {
-      label: "🔵 À venir",
-      border: "border-l-blue-500",
-      badgeCls: "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20",
-    },
-  };
+const STATUS_CONFIG = {
+  open: {
+    label: "🟢 Ouvert",
+    badgeCls: "bg-green-500/80 text-white",
+    accentCls: "ring-green-500/30",
+  },
+  closed: {
+    label: "🔴 Fermé",
+    badgeCls: "bg-red-500/80 text-white",
+    accentCls: "ring-red-500/20",
+  },
+  upcoming: {
+    label: "🔵 À venir",
+    badgeCls: "bg-blue-500/80 text-white",
+    accentCls: "ring-blue-500/30",
+  },
+} as const;
 
-  const status = statusConfig[competition.status as keyof typeof statusConfig] || statusConfig.closed;
+export function CompetitionCard({ competition, index = 0 }: { competition: Competition; index?: number }) {
+  const statusKey = (competition.status as keyof typeof STATUS_CONFIG) in STATUS_CONFIG
+    ? (competition.status as keyof typeof STATUS_CONFIG)
+    : "closed";
+  const status = STATUS_CONFIG[statusKey];
+  const imageUrl = getCompetitionImage(competition);
 
   return (
     <motion.div
@@ -120,47 +121,65 @@ export function CompetitionCard({ competition, index = 0 }: { competition: Compe
       <Link
         href={`/competitions/${competition.id}`}
         className={cn(
-          "group block bg-card rounded-2xl p-4 border border-border/50 shadow-sm",
-          "border-l-4 hover:shadow-md transition-all duration-200 active:scale-[0.97]",
-          status.border
+          "group block bg-card rounded-2xl border border-border/50 shadow-sm hover:shadow-lg",
+          "transition-all duration-200 active:scale-[0.97] overflow-hidden",
+          "ring-1 ring-transparent hover:ring-1",
+          status.accentCls
         )}
       >
-        <div className="flex justify-between items-start mb-3">
+        {/* Image header */}
+        <div className="relative h-28 overflow-hidden bg-muted">
+          <img
+            src={imageUrl}
+            alt={competition.title}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            onError={e => { (e.currentTarget as HTMLImageElement).src = FALLBACK; }}
+            loading="lazy"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+
+          {/* Status badge */}
           <span className={cn(
-            "px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border",
+            "absolute top-2.5 right-2.5 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider backdrop-blur-sm",
             status.badgeCls
           )}>
             {status.label}
           </span>
-          <span className="flex items-center gap-1 text-muted-foreground text-xs font-medium bg-muted px-2.5 py-1 rounded-full">
-            <Briefcase className="w-3 h-3" />
-            {competition.positions} postes
-          </span>
+
+          {/* Ministry at bottom of image */}
+          <div className="absolute bottom-0 inset-x-0 px-3 pb-2">
+            <p className="text-white/85 text-[11px] font-medium truncate">{competition.ministry}</p>
+          </div>
         </div>
 
-        <h3 className="font-black text-base text-foreground group-hover:text-secondary transition-colors leading-tight mb-1.5">
-          {competition.title}
-        </h3>
+        {/* Content */}
+        <div className="p-3.5">
+          <h3 className="font-black text-sm text-foreground leading-tight line-clamp-2 group-hover:text-secondary transition-colors mb-3">
+            {competition.title}
+          </h3>
 
-        <p className="text-sm text-muted-foreground mb-4">{competition.ministry}</p>
-
-        <div className="flex items-center justify-between pt-3 border-t border-border/50">
-          <div className="flex items-center text-xs text-muted-foreground gap-1">
-            <GraduationCap className="w-3.5 h-3.5 text-primary/70" />
-            <span className="truncate max-w-[140px]">{competition.diploma}</span>
-          </div>
-          {(competition.openDate || competition.closeDate) && (
-            <div className="flex items-center text-xs font-medium gap-1">
-              <Calendar className="w-3 h-3 text-muted-foreground" />
-              {competition.status === "open" ? (
-                <span className="text-green-600 dark:text-green-400">Jusqu'au {formatDate(competition.closeDate)}</span>
-              ) : competition.status === "upcoming" ? (
-                <span className="text-blue-600 dark:text-blue-400">Dès le {formatDate(competition.openDate)}</span>
-              ) : (
-                <span className="text-muted-foreground">Clôturé</span>
-              )}
+          <div className="flex items-center justify-between pt-2.5 border-t border-border/50">
+            <div className="flex items-center text-xs text-muted-foreground gap-1 min-w-0">
+              <GraduationCap className="w-3 h-3 text-primary/70 shrink-0" />
+              <span className="truncate max-w-[110px]">{competition.diploma}</span>
             </div>
-          )}
+            <div className="flex items-center gap-1.5 shrink-0">
+              {(competition.openDate || competition.closeDate) && (
+                <div className="flex items-center text-xs font-medium gap-1">
+                  <Calendar className="w-3 h-3 text-muted-foreground" />
+                  {competition.status === "open" ? (
+                    <span className="text-green-600 dark:text-green-400 text-[11px]">{formatDate(competition.closeDate)}</span>
+                  ) : competition.status === "upcoming" ? (
+                    <span className="text-blue-600 dark:text-blue-400 text-[11px]">{formatDate(competition.openDate)}</span>
+                  ) : null}
+                </div>
+              )}
+              <span className="flex items-center gap-1 bg-muted px-2 py-0.5 rounded-full text-[11px] font-bold text-foreground">
+                <Briefcase className="w-3 h-3 text-primary" />
+                {competition.positions}
+              </span>
+            </div>
+          </div>
         </div>
       </Link>
     </motion.div>
@@ -171,16 +190,15 @@ export function CompetitionCard({ competition, index = 0 }: { competition: Compe
 
 export function CompetitionCardSkeleton() {
   return (
-    <div className="bg-card rounded-2xl p-4 border border-border/50 border-l-4 border-l-border animate-pulse">
-      <div className="flex justify-between mb-3">
-        <div className="h-5 w-20 bg-muted rounded-full" />
-        <div className="h-5 w-20 bg-muted rounded-full" />
-      </div>
-      <div className="h-5 w-3/4 bg-muted rounded-lg mb-2" />
-      <div className="h-4 w-1/2 bg-muted rounded-lg mb-4" />
-      <div className="pt-3 border-t border-border/50 flex justify-between">
-        <div className="h-3.5 w-24 bg-muted rounded-lg" />
-        <div className="h-3.5 w-28 bg-muted rounded-lg" />
+    <div className="bg-card rounded-2xl border border-border/50 shadow-sm overflow-hidden animate-pulse">
+      <div className="h-28 bg-muted" />
+      <div className="p-3.5">
+        <div className="h-4 w-3/4 bg-muted rounded-lg mb-2" />
+        <div className="h-3 w-1/2 bg-muted rounded-lg mb-3" />
+        <div className="pt-2.5 border-t border-border/50 flex justify-between">
+          <div className="h-3.5 w-24 bg-muted rounded-lg" />
+          <div className="h-3.5 w-20 bg-muted rounded-lg" />
+        </div>
       </div>
     </div>
   );

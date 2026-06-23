@@ -9,6 +9,7 @@ import { useFavorites } from "@/contexts/FavoritesContext";
 import { getCompetitionInfo } from "@/lib/competition-info";
 import { cn } from "@/lib/utils";
 import { useT } from "@/lib/useT";
+import { getCompetitionImage } from "@/lib/competition-images";
 
 export default function CompetitionDetail() {
   const [, params] = useRoute("/competitions/:id");
@@ -58,6 +59,9 @@ export default function CompetitionDetail() {
     </span>
   ) : null;
 
+  const coverImage = getCompetitionImage(comp);
+  const FALLBACK_IMG = "https://images.unsplash.com/photo-1568992687947-868a62a9f521?w=800&q=75&auto=format&fit=crop";
+
   return (
     <Layout showBack noBottomNav>
       <div className="bg-background min-h-screen max-w-4xl mx-auto w-full">
@@ -66,11 +70,20 @@ export default function CompetitionDetail() {
         <div className={cn(
           "text-white px-5 md:px-8 pt-8 pb-12 rounded-b-[40px] relative overflow-hidden",
           comp.status === "open"
-            ? "bg-gradient-to-br from-green-900 via-slate-900 to-slate-950 dark:from-green-950 dark:via-slate-950 dark:to-black"
+            ? "bg-gradient-to-br from-green-900 via-slate-900 to-slate-950"
             : comp.status === "upcoming"
-            ? "bg-gradient-to-br from-blue-900 via-slate-900 to-slate-950 dark:from-blue-950 dark:via-slate-950 dark:to-black"
-            : "bg-gradient-to-br from-slate-700 via-slate-900 to-slate-950 dark:from-slate-800 dark:via-slate-950 dark:to-black"
+            ? "bg-gradient-to-br from-blue-900 via-slate-900 to-slate-950"
+            : "bg-gradient-to-br from-slate-700 via-slate-900 to-slate-950"
         )}>
+          {/* Real cover image as background */}
+          <img
+            src={coverImage}
+            alt=""
+            aria-hidden="true"
+            className="absolute inset-0 w-full h-full object-cover opacity-25 mix-blend-luminosity pointer-events-none"
+            onError={e => { (e.currentTarget as HTMLImageElement).src = FALLBACK_IMG; }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent pointer-events-none" />
           <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4 pointer-events-none" />
 
           <div className="relative z-10">

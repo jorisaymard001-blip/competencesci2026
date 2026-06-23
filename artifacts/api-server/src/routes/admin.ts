@@ -115,6 +115,14 @@ async function ensureSchoolImageColumns() {
 }
 ensureSchoolImageColumns().catch(err => console.error("[admin] ensureSchoolImageColumns error:", err));
 
+// ── Competition image columns migration ───────────────────────────────────────
+
+async function ensureCompetitionImageColumns() {
+  await pool.query(`ALTER TABLE competitions ADD COLUMN IF NOT EXISTS image_url TEXT`);
+  await pool.query(`ALTER TABLE competitions ADD COLUMN IF NOT EXISTS logo_url TEXT`);
+}
+ensureCompetitionImageColumns().catch(err => console.error("[admin] ensureCompetitionImageColumns error:", err));
+
 // ── Login ─────────────────────────────────────────────────────────────────────
 
 router.post("/admin/login", (req: Request, res: Response) => {
@@ -149,7 +157,7 @@ router.get("/admin/competitions", adminAuth, async (_req: Request, res: Response
 });
 
 router.post("/admin/competitions", adminAuth, async (req: Request, res: Response) => {
-  const { title, ministry, city, diploma, status, openDate, closeDate, positions, description, requirements, process, contact, website } = req.body as Record<string, any>;
+  const { title, ministry, city, diploma, status, openDate, closeDate, positions, description, requirements, process, contact, website, imageUrl, logoUrl } = req.body as Record<string, any>;
   const [comp] = await db.insert(competitionsTable).values({
     title, ministry, city, diploma,
     status: status ?? "upcoming",
@@ -161,13 +169,15 @@ router.post("/admin/competitions", adminAuth, async (req: Request, res: Response
     process: Array.isArray(process) ? process : [],
     contact: contact || null,
     website: website || null,
+    imageUrl: imageUrl || null,
+    logoUrl: logoUrl || null,
   }).returning();
   res.status(201).json(comp);
 });
 
 router.put("/admin/competitions/:id", adminAuth, async (req: Request, res: Response) => {
   const id = parseInt(req.params.id);
-  const { title, ministry, city, diploma, status, openDate, closeDate, positions, description, requirements, process, contact, website } = req.body as Record<string, any>;
+  const { title, ministry, city, diploma, status, openDate, closeDate, positions, description, requirements, process, contact, website, imageUrl, logoUrl } = req.body as Record<string, any>;
   const [comp] = await db.update(competitionsTable).set({
     title, ministry, city, diploma,
     status: status ?? "upcoming",
@@ -179,6 +189,8 @@ router.put("/admin/competitions/:id", adminAuth, async (req: Request, res: Respo
     process: Array.isArray(process) ? process : [],
     contact: contact || null,
     website: website || null,
+    imageUrl: imageUrl || null,
+    logoUrl: logoUrl || null,
   }).where(eq(competitionsTable.id, id)).returning();
   if (!comp) return res.status(404).json({ message: "Introuvable" });
   res.json(comp);

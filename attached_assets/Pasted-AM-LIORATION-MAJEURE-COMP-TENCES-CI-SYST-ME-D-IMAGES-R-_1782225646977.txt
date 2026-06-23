@@ -1,0 +1,255 @@
+AMÉLIORATION MAJEURE COMPÉTENCES CI — SYSTÈME D’IMAGES RÉELLES POUR ÉCOLES ET CONCOURS
+
+Je veux rendre l’application Compétences CI beaucoup plus professionnelle en ajoutant des images réelles et spécifiques pour chaque école et chaque concours.
+
+IMPORTANT :
+Ne pas utiliser des images génériques d’éducation.
+Ne pas mettre une simple image d’un bâtiment qui représente juste une école.
+Chaque image doit correspondre EXACTEMENT à l’élément affiché dans l’application.
+
+================================================
+
+PARTIE 1 — ÉCOLES & INSTITUTS
+
+OBJECTIF :
+Chaque école présente dans l’application doit avoir sa propre identité visuelle.
+
+Pour chaque établissement déjà présent dans la base de données :
+
+Créer les champs :
+
+- imageCampus
+- logoEcole
+- imageGalerie (optionnel)
+- sourceImage
+
+Structure :
+
+{
+nomEcole:"",
+ville:"",
+type:"",
+imageCampus:"",
+logoEcole:"",
+description:""
+}
+
+================================================
+
+RÈGLE IMPORTANTE POUR LES IMAGES :
+
+L’image doit correspondre réellement à l’établissement.
+
+Exemples :
+
+Université Félix Houphouët-Boigny :
+→ image réelle du campus UFHB
+
+INP-HB :
+→ image réelle du campus INP-HB
+
+ENS :
+→ image réelle de l’École Normale Supérieure
+
+ENA :
+→ image réelle de l’ENA Côte d’Ivoire
+
+INFAS :
+→ image réelle de l’établissement
+
+ESATIC :
+→ image réelle de l’ESATIC
+
+Grandes écoles privées :
+→ image réelle de leur bâtiment ou logo officiel
+
+Ne jamais remplacer par :
+❌ une salle de classe générique
+❌ un étudiant avec un diplôme
+❌ une bibliothèque générique
+❌ une image d’université étrangère
+
+================================================
+
+AFFICHAGE PAGE ÉCOLES :
+
+Transformer les cartes écoles :
+
+Avant :
+
+Nom
+Ville
+Type
+
+Après :
+
+[PHOTO RÉELLE DU CAMPUS]
+
+Nom complet
+
+📍 Ville
+
+🏫 Public / Privé
+
+Filières disponibles
+
+Bouton :
+Voir l’établissement
+
+Design :
+- cartes arrondies
+- style premium
+- même design que Compétences CI
+- orange/blanc/gris
+
+================================================
+
+PAGE DÉTAIL ÉCOLE :
+
+Ajouter :
+
+- photo couverture réelle
+- logo officiel
+- galerie photo si disponible
+- description
+- formations
+- conditions d’accès
+- informations utiles
+
+================================================
+
+
+PARTIE 2 — CONCOURS
+
+Créer le même système pour les concours.
+
+Chaque concours doit avoir une image ou identité visuelle.
+
+Ajouter :
+
+- imageConcours
+- logoOrganisation
+- organisme
+- sourceOfficielle
+
+Structure :
+
+{
+nomConcours:"",
+organisme:"",
+imageConcours:"",
+logoOrganisation:"",
+dateOuverture:"",
+dateCloture:"",
+statut:""
+}
+
+================================================
+
+EXEMPLES :
+
+CAFOP :
+→ logo CAFOP / Ministère concerné
+
+ENS :
+→ logo ENS / image officielle
+
+ENA :
+→ logo ENA Côte d’Ivoire
+
+INFAS :
+→ logo INFAS
+
+Police :
+→ image/logo officiel Police Nationale
+
+Gendarmerie :
+→ logo officiel
+
+Concours administratifs :
+→ logo Fonction Publique Côte d’Ivoire
+
+Ne pas mettre une image générique de concours.
+
+================================================
+
+PAGE CONCOURS :
+
+Nouvelle carte :
+
+[IMAGE / LOGO DU CONCOURS]
+
+Nom du concours
+
+Organisme
+
+Statut :
+
+🟢 Ouvert
+🟠 À venir
+🔴 Fermé
+
+Date limite
+
+Bouton :
+Voir détails
+
+================================================
+
+PAGE DÉTAIL CONCOURS :
+
+Afficher :
+
+- image officielle
+- organisme
+- description
+- conditions
+- diplôme demandé
+- dates importantes
+- lien officiel de candidature
+
+================================================
+
+ADMIN PANEL
+
+Dans /admin ajouter la gestion :
+
+Écoles :
+- ajouter image réelle
+- changer image
+- ajouter logo
+
+Concours :
+- ajouter image
+- ajouter logo organisme
+- modifier
+
+================================================
+
+SYSTÈME AUTOMATIQUE
+
+Lorsqu’une nouvelle école ou un nouveau concours est ajouté :
+
+Créer automatiquement une fiche complète avec :
+- image
+- logo
+- informations
+
+Si aucune image trouvée :
+
+Afficher un placeholder professionnel mais uniquement temporaire.
+
+================================================
+
+OBJECTIF FINAL :
+
+Compétences CI doit devenir une vraie plateforme ivoirienne d’orientation où :
+
+Chaque école ressemble à une vraie fiche Google/LinkedIn avec son identité.
+
+Chaque concours ressemble à une fiche officielle.
+
+L’utilisateur doit reconnaître immédiatement l’établissement ou le concours grâce à son image.
+
+NE CASSE PAS LES FONCTIONNALITÉS EXISTANTES.
+FAIS LES MODIFICATIONS PROGRESSIVEMENT ET TESTE L’APPLICATION APRÈS CHAQUE ÉTAPE.

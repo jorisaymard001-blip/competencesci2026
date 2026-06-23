@@ -59,6 +59,8 @@ export interface Competition {
   closeDate?: string | null;
   positions: number;
   description: string;
+  imageUrl?: string | null;
+  logoUrl?: string | null;
 }
 
 export type CompetitionDetail = Competition & {
@@ -66,6 +68,8 @@ export type CompetitionDetail = Competition & {
   process?: string[];
   contact?: string | null;
   website?: string | null;
+  imageUrl?: string | null;
+  logoUrl?: string | null;
 };
 
 export interface RegisterRequest {

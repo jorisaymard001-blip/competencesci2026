@@ -77,6 +77,8 @@ export const ListCompetitionsResponseItem = zod.object({
   closeDate: zod.date().nullish(),
   positions: zod.number(),
   description: zod.string(),
+  imageUrl: zod.string().nullish(),
+  logoUrl: zod.string().nullish(),
 });
 export const ListCompetitionsResponse = zod.array(ListCompetitionsResponseItem);
 
@@ -103,6 +105,8 @@ export const GetCompetitionResponse = zod
       process: zod.array(zod.string()).optional(),
       contact: zod.string().nullish(),
       website: zod.string().nullish(),
+      imageUrl: zod.string().nullish(),
+      logoUrl: zod.string().nullish(),
     }),
   );
 

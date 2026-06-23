@@ -19,6 +19,8 @@ export const competitionsTable = pgTable("competitions", {
   process: text("process").array().notNull().default([]),
   contact: text("contact"),
   website: text("website"),
+  imageUrl: text("image_url"),
+  logoUrl: text("logo_url"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
