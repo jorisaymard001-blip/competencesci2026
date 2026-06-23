@@ -1,0 +1,156 @@
+AMÉLIORATION COMPÉTENCES CI — AJOUT DES IMAGES RÉELLES DES ÉCOLES
+
+Je veux améliorer la partie "Écoles & Instituts" de l’application Compétences CI.
+
+OBJECTIF :
+Chaque école affichée dans l’application doit avoir une vraie image (campus, bâtiment, logo officiel ou photo représentative) afin de rendre l’application plus professionnelle et réaliste.
+
+NE MODIFIE PAS LE DESIGN GLOBAL EXISTANT.
+GARDE :
+- les couleurs actuelles Compétences CI (orange, blanc, gris)
+- les cartes arrondies
+- le style moderne de l’application
+- la navigation existante
+
+================================
+
+1) MODIFICATION DE LA BASE DE DONNÉES
+
+Ajouter dans la table/collection des écoles les nouveaux champs :
+
+- imageUrl : image principale de l’école
+- logoUrl : logo officiel (optionnel)
+- description : présentation courte de l’établissement
+
+Structure exemple :
+
+{
+ id: "",
+ nom: "",
+ ville: "",
+ type: "",
+ filieres: [],
+ imageUrl: "",
+ logoUrl: "",
+ description: ""
+}
+
+================================
+
+2) AFFICHAGE DANS LA PAGE "ÉCOLES & INSTITUTS"
+
+Modifier les cartes des écoles.
+
+Nouvelle apparence :
+
+[ IMAGE DE L’ÉCOLE ]
+
+Nom de l’établissement
+
+📍 Ville
+🏫 Type (Public / Privé)
+
+Tags :
+- filières
+- domaines
+
+Bouton :
+"Voir détails"
+
+L’image doit :
+- être en haut de la carte
+- avoir des coins arrondis
+- être responsive mobile
+- garder une bonne qualité
+- avoir un effet moderne
+
+================================
+
+3) PAGE DÉTAIL D’UNE ÉCOLE
+
+Lorsqu’un utilisateur clique sur une école, afficher :
+
+- grande image de couverture
+- logo si disponible
+- nom complet
+- ville
+- type d’école
+- description
+- filières disponibles
+- informations utiles
+- lien officiel si disponible
+
+Créer une interface similaire aux applications professionnelles d’orientation.
+
+================================
+
+4) TABLEAU DE BORD ADMIN
+
+Dans /admin ajouter la gestion des images écoles.
+
+Quand l’administrateur ajoute ou modifie une école, permettre :
+
+- ajouter une image
+- modifier l’image
+- remplacer l’image
+- supprimer l’image
+
+Champs admin :
+
+Nom :
+Ville :
+Type :
+Image école :
+Logo :
+Description :
+Filières :
+
+================================
+
+5) DONNÉES EXISTANTES
+
+Mettre à jour les écoles déjà présentes dans l’application.
+
+Ajouter des images adaptées pour les établissements ivoiriens connus :
+
+- Université Félix Houphouët-Boigny
+- INP-HB
+- ENS
+- ENA
+- INFAS
+- ESATIC
+- ISTC
+- grandes écoles privées ivoiriennes
+
+Les images doivent correspondre réellement aux établissements.
+
+================================
+
+6) SYSTÈME DE SECOURS
+
+Si une école n’a pas d’image :
+
+Afficher automatiquement une image par défaut professionnelle liée à l’éducation.
+
+Ne jamais laisser une carte vide.
+
+================================
+
+7) OPTIMISATION
+
+Les images doivent :
+- charger rapidement
+- être optimisées pour mobile
+- fonctionner sur Android et iOS
+- ne pas ralentir l’application
+
+================================
+
+RÉSULTAT ATTENDU :
+
+Compétences CI doit ressembler à une vraie plateforme d’orientation scolaire professionnelle où chaque école possède une identité visuelle avec son image, comme les grandes applications modernes.
+
+IMPORTANT :
+- Ne casse aucune fonctionnalité existante.
+- Fais les modifications étape par étape.
+- Vérifie que la navigation et les autres pages fonctionnent toujours après modification.

@@ -18,6 +18,8 @@ export const schoolsTable = pgTable("schools", {
   domains: text("domains").array().notNull().default([]),
   accreditation: text("accreditation"),
   founded: integer("founded"),
+  imageUrl: text("image_url"),
+  logoUrl: text("logo_url"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

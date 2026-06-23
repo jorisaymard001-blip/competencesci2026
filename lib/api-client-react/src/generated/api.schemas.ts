@@ -27,12 +27,16 @@ export interface School {
   phone?: string | null;
   website?: string | null;
   description: string;
+  imageUrl?: string | null;
+  logoUrl?: string | null;
 }
 
 export type SchoolDetail = School & {
   email?: string | null;
   founded?: number | null;
   accreditation?: string | null;
+  imageUrl?: string | null;
+  logoUrl?: string | null;
 };
 
 export type CompetitionStatus =

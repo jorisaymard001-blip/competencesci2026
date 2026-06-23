@@ -28,6 +28,8 @@ export const ListSchoolsResponseItem = zod.object({
   phone: zod.string().nullish(),
   website: zod.string().nullish(),
   description: zod.string(),
+  imageUrl: zod.string().nullish(),
+  logoUrl: zod.string().nullish(),
 });
 export const ListSchoolsResponse = zod.array(ListSchoolsResponseItem);
 
@@ -53,6 +55,8 @@ export const GetSchoolResponse = zod
       email: zod.string().nullish(),
       founded: zod.number().nullish(),
       accreditation: zod.string().nullish(),
+      imageUrl: zod.string().nullish(),
+      logoUrl: zod.string().nullish(),
     }),
   );
 

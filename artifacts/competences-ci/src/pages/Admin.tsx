@@ -326,6 +326,14 @@ function SchoolsTab({ fetch: apiFetch, onToast }: { fetch: (p: string, o?: Reque
             <Field label="Description"><textarea className={`${inputCls} resize-none`} rows={3} value={form.description ?? ""} onChange={e => set("description", e.target.value)} /></Field>
             <Field label="Site web"><input className={inputCls} value={form.website ?? ""} onChange={e => set("website", e.target.value)} placeholder="https://…" /></Field>
             <Field label="Email"><input className={inputCls} value={form.email ?? ""} onChange={e => set("email", e.target.value)} placeholder="contact@ecole.ci" /></Field>
+            <Field label="Image école (URL)"><input className={inputCls} value={form.imageUrl ?? ""} onChange={e => set("imageUrl", e.target.value)} placeholder="https://images.unsplash.com/…" /></Field>
+            <Field label="Logo (URL)"><input className={inputCls} value={form.logoUrl ?? ""} onChange={e => set("logoUrl", e.target.value)} placeholder="https://…/logo.png" /></Field>
+            {(form.imageUrl || form.logoUrl) && (
+              <div className="flex gap-3">
+                {form.imageUrl && <img src={form.imageUrl} alt="Aperçu image" className="h-20 w-32 object-cover rounded-xl border border-slate-700" onError={e => (e.currentTarget.style.display = "none")} />}
+                {form.logoUrl && <img src={form.logoUrl} alt="Aperçu logo" className="h-20 w-20 object-contain rounded-xl border border-slate-700 bg-white p-1" onError={e => (e.currentTarget.style.display = "none")} />}
+              </div>
+            )}
           </Modal>
         )}
       </AnimatePresence>

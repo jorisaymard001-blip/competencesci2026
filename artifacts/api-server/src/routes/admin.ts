@@ -61,6 +61,60 @@ async function ensureArticlesTable() {
 }
 ensureArticlesTable().catch(err => console.error("[admin] ensureArticlesTable error:", err));
 
+// ── School image columns migration ────────────────────────────────────────────
+
+const SCHOOL_IMAGE_MAP: Record<string, string> = {
+  "Université Félix Houphouët-Boigny": "https://images.unsplash.com/photo-1562774053-701939374585?w=800&q=75&auto=format&fit=crop",
+  "Institut National Polytechnique Félix Houphouët-Boigny (INP-HB)": "https://images.unsplash.com/photo-1532094349884-543282242985?w=800&q=75&auto=format&fit=crop",
+  "Université Alassane Ouattara": "https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?w=800&q=75&auto=format&fit=crop",
+  "Université Lorougnon Guédé": "https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=800&q=75&auto=format&fit=crop",
+  "Université Jean Lorougnon Guédé - Antenne de Gagnoa": "https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=800&q=75&auto=format&fit=crop",
+  "Université Péléforo Gon Coulibaly": "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=800&q=75&auto=format&fit=crop",
+  "École Nationale Supérieure de Statistique et d'Économie Appliquée (ENSEA)": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=75&auto=format&fit=crop",
+  "École Nationale d'Administration (ENA)": "https://images.unsplash.com/photo-1568992687947-868a62a9f521?w=800&q=75&auto=format&fit=crop",
+  "Institut National de la Jeunesse et des Sports (INJS)": "https://images.unsplash.com/photo-1540747913346-19212a4b54d8?w=800&q=75&auto=format&fit=crop",
+  "École Normale Supérieure (ENS)": "https://images.unsplash.com/photo-1523580494863-6f3031224c94?w=800&q=75&auto=format&fit=crop",
+  "Institut National de Formation Professionnelle (INFP)": "https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=800&q=75&auto=format&fit=crop",
+  "Lycée Technique de Cocody": "https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&q=75&auto=format&fit=crop",
+  "Université Virtuelle de Côte d'Ivoire (UVCI)": "https://images.unsplash.com/photo-1584697964328-b1e7f63dbc90?w=800&q=75&auto=format&fit=crop",
+  "Institut des Sciences et Techniques de la Communication (ISTC)": "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=800&q=75&auto=format&fit=crop",
+  "École des Mines et de la Géologie (EMG)": "https://images.unsplash.com/photo-1508873696983-2dfd5898f08b?w=800&q=75&auto=format&fit=crop",
+  "Université de Man": "https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=800&q=75&auto=format&fit=crop",
+  "Université de San-Pédro": "https://images.unsplash.com/photo-1562774053-701939374585?w=800&q=75&auto=format&fit=crop",
+  "Écoles Nationales des Postes et Télécommunications (ENPT)": "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800&q=75&auto=format&fit=crop",
+  "Institut National de Santé Publique (INSP)": "https://images.unsplash.com/photo-1532938911079-1b06ac7ceec7?w=800&q=75&auto=format&fit=crop",
+  "Centre Ivoirien de Formation des Agents de Douanes (CIFAD)": "https://images.unsplash.com/photo-1568992687947-868a62a9f521?w=800&q=75&auto=format&fit=crop",
+  "Institut des Sciences et de la Gestion (ISG)": "https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=800&q=75&auto=format&fit=crop",
+  "École Supérieure de Commerce et d'Administration des Entreprises (ESCAE)": "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&q=75&auto=format&fit=crop",
+  "Institut Africain de Management (IAM)": "https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=800&q=75&auto=format&fit=crop",
+  "PIGIER Côte d'Ivoire": "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&q=75&auto=format&fit=crop",
+  "Sup de Co Abidjan": "https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=800&q=75&auto=format&fit=crop",
+  "Institut Supérieur de Technologie (IST)": "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=800&q=75&auto=format&fit=crop",
+  "Institut Supérieur Panafricain d'Économie Coopérative (ISPEC)": "https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=800&q=75&auto=format&fit=crop",
+  "Centre d'Excellence Professionnelle (CEP)": "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&q=75&auto=format&fit=crop",
+  "Institut Universitaire d'Abidjan (IUA)": "https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?w=800&q=75&auto=format&fit=crop",
+  "Université Catholique de l'Afrique de l'Ouest (UCAO)": "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=800&q=75&auto=format&fit=crop",
+  "Institut Supérieur d'Informatique (ISI)": "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=800&q=75&auto=format&fit=crop",
+  "École Supérieure de Génie Civil (ESGC)": "https://images.unsplash.com/photo-1503387837-b154d5074bd2?w=800&q=75&auto=format&fit=crop",
+  "Institut Supérieur de Management (ISM)": "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&q=75&auto=format&fit=crop",
+  "Institut des Hautes Études en Communication (IHEC)": "https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?w=800&q=75&auto=format&fit=crop",
+  "Institut Supérieur de Santé (ISS)": "https://images.unsplash.com/photo-1584432810601-6c7f27d2362b?w=800&q=75&auto=format&fit=crop",
+  "École Supérieure de Droit et des Affaires (ESDA)": "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?w=800&q=75&auto=format&fit=crop",
+  "Institut Universitaire des Technologies (IUT)": "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=800&q=75&auto=format&fit=crop",
+};
+
+async function ensureSchoolImageColumns() {
+  await pool.query(`ALTER TABLE schools ADD COLUMN IF NOT EXISTS image_url TEXT`);
+  await pool.query(`ALTER TABLE schools ADD COLUMN IF NOT EXISTS logo_url TEXT`);
+  for (const [name, url] of Object.entries(SCHOOL_IMAGE_MAP)) {
+    await pool.query(
+      `UPDATE schools SET image_url = $1 WHERE name = $2 AND image_url IS NULL`,
+      [url, name]
+    );
+  }
+}
+ensureSchoolImageColumns().catch(err => console.error("[admin] ensureSchoolImageColumns error:", err));
+
 // ── Login ─────────────────────────────────────────────────────────────────────
 
 router.post("/admin/login", (req: Request, res: Response) => {
@@ -143,7 +197,7 @@ router.get("/admin/schools", adminAuth, async (_req: Request, res: Response) => 
 });
 
 router.post("/admin/schools", adminAuth, async (req: Request, res: Response) => {
-  const { name, type, city, address, phone, website, email, description, diplomas, domains, accreditation, founded } = req.body as Record<string, any>;
+  const { name, type, city, address, phone, website, email, description, diplomas, domains, accreditation, founded, imageUrl, logoUrl } = req.body as Record<string, any>;
   const [school] = await db.insert(schoolsTable).values({
     name, city,
     type: type ?? "private",
@@ -156,13 +210,15 @@ router.post("/admin/schools", adminAuth, async (req: Request, res: Response) => 
     domains: Array.isArray(domains) ? domains : [],
     accreditation: accreditation || null,
     founded: founded ? parseInt(founded) : null,
+    imageUrl: imageUrl || null,
+    logoUrl: logoUrl || null,
   }).returning();
   res.status(201).json(school);
 });
 
 router.put("/admin/schools/:id", adminAuth, async (req: Request, res: Response) => {
   const id = parseInt(req.params.id);
-  const { name, type, city, address, phone, website, email, description, diplomas, domains, accreditation, founded } = req.body as Record<string, any>;
+  const { name, type, city, address, phone, website, email, description, diplomas, domains, accreditation, founded, imageUrl, logoUrl } = req.body as Record<string, any>;
   const [school] = await db.update(schoolsTable).set({
     name, city,
     type: type ?? "private",
@@ -175,6 +231,8 @@ router.put("/admin/schools/:id", adminAuth, async (req: Request, res: Response) 
     domains: Array.isArray(domains) ? domains : [],
     accreditation: accreditation || null,
     founded: founded ? parseInt(founded) : null,
+    imageUrl: imageUrl || null,
+    logoUrl: logoUrl || null,
   }).where(eq(schoolsTable.id, id)).returning();
   if (!school) return res.status(404).json({ message: "Introuvable" });
   res.json(school);

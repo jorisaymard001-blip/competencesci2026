@@ -3,11 +3,15 @@ import { MapPin, Briefcase, Calendar, GraduationCap } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn, formatDate } from "@/lib/utils";
 import type { School, Competition } from "@workspace/api-client-react";
+import { getSchoolImage } from "@/lib/school-images";
 
 // ── SCHOOL CARD ─────────────────────────────────────────────────────────────
 
+const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1562774053-701939374585?w=800&q=75&auto=format&fit=crop";
+
 export function SchoolCard({ school, index = 0 }: { school: School; index?: number }) {
   const isPublic = school.type === "public";
+  const imageUrl = getSchoolImage(school);
 
   return (
     <motion.div
@@ -17,45 +21,49 @@ export function SchoolCard({ school, index = 0 }: { school: School; index?: numb
     >
       <Link
         href={`/schools/${school.id}`}
-        className={cn(
-          "group block bg-card rounded-2xl p-4 border shadow-sm",
-          "hover:shadow-md transition-all duration-200 active:scale-[0.97]",
-          isPublic
-            ? "border-l-4 border-l-green-500 border-border/50 hover:border-l-green-400"
-            : "border-l-4 border-l-primary border-border/50 hover:border-l-primary/70"
-        )}
+        className="group block bg-card rounded-2xl border border-border/50 shadow-sm hover:shadow-lg transition-all duration-200 active:scale-[0.97] overflow-hidden"
       >
-        <div className="flex justify-between items-start mb-3">
-          <div className="flex-1 pr-3">
-            <h3 className="font-black text-base text-foreground leading-tight line-clamp-2 group-hover:text-primary transition-colors">
-              {school.name}
-            </h3>
-            <div className="flex items-center text-muted-foreground text-xs mt-1.5 gap-1">
-              <MapPin className="w-3 h-3 shrink-0" />
-              <span>{school.city}</span>
-            </div>
-          </div>
+        {/* Image header */}
+        <div className="relative h-36 overflow-hidden bg-muted">
+          <img
+            src={imageUrl}
+            alt={school.name}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            onError={e => { (e.currentTarget as HTMLImageElement).src = FALLBACK_IMAGE; }}
+            loading="lazy"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent" />
           <span className={cn(
-            "px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider shrink-0",
+            "absolute top-2.5 right-2.5 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider backdrop-blur-sm",
             isPublic
-              ? "bg-green-500/10 text-green-600 dark:text-green-400 border border-green-500/20"
-              : "bg-primary/10 text-primary border border-primary/20"
+              ? "bg-green-500/80 text-white"
+              : "bg-orange-500/80 text-white"
           )}>
             {isPublic ? "Public" : "Privé"}
           </span>
         </div>
 
-        <div className="flex flex-wrap gap-1.5">
-          {school.domains.slice(0, 3).map(domain => (
-            <span key={domain} className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-muted text-muted-foreground text-[11px] font-medium">
-              {domain}
-            </span>
-          ))}
-          {school.domains.length > 3 && (
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-primary/10 text-primary text-[11px] font-bold">
-              +{school.domains.length - 3}
-            </span>
-          )}
+        {/* Content */}
+        <div className="p-4">
+          <h3 className="font-black text-sm text-foreground leading-tight line-clamp-2 group-hover:text-primary transition-colors mb-1.5">
+            {school.name}
+          </h3>
+          <div className="flex items-center text-muted-foreground text-xs mb-3 gap-1">
+            <MapPin className="w-3 h-3 shrink-0" />
+            <span>{school.city}</span>
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            {school.domains.slice(0, 2).map(domain => (
+              <span key={domain} className="inline-flex items-center px-2 py-0.5 rounded-full bg-muted text-muted-foreground text-[11px] font-medium">
+                {domain}
+              </span>
+            ))}
+            {school.domains.length > 2 && (
+              <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-primary/10 text-primary text-[11px] font-bold">
+                +{school.domains.length - 2}
+              </span>
+            )}
+          </div>
         </div>
       </Link>
     </motion.div>
@@ -66,18 +74,15 @@ export function SchoolCard({ school, index = 0 }: { school: School; index?: numb
 
 export function SchoolCardSkeleton() {
   return (
-    <div className="bg-card rounded-2xl p-4 border border-border/50 border-l-4 border-l-border animate-pulse">
-      <div className="flex justify-between mb-3">
-        <div className="flex-1 pr-3">
-          <div className="h-5 w-3/4 bg-muted rounded-lg mb-2" />
-          <div className="h-3.5 w-24 bg-muted rounded-lg" />
+    <div className="bg-card rounded-2xl border border-border/50 shadow-sm overflow-hidden animate-pulse">
+      <div className="h-36 bg-muted" />
+      <div className="p-4">
+        <div className="h-4 w-3/4 bg-muted rounded-lg mb-2" />
+        <div className="h-3 w-24 bg-muted rounded-lg mb-3" />
+        <div className="flex gap-1.5">
+          <div className="h-5 w-20 bg-muted rounded-full" />
+          <div className="h-5 w-24 bg-muted rounded-full" />
         </div>
-        <div className="h-6 w-14 bg-muted rounded-full" />
-      </div>
-      <div className="flex gap-1.5">
-        <div className="h-5 w-20 bg-muted rounded-full" />
-        <div className="h-5 w-24 bg-muted rounded-full" />
-        <div className="h-5 w-16 bg-muted rounded-full" />
       </div>
     </div>
   );
