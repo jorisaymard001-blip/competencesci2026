@@ -1,0 +1,94 @@
+Remplace l'icône de l'application 
+Compétences CI — celle qui s'affiche 
+sur l'écran d'accueil du téléphone 
+et sur les plateformes de téléchargement 
+(PWA install, App Store, Google Play).
+
+L'image source du nouveau logo est 
+déjà uploadée dans le projet.
+
+## ÉTAPE 1 — Génère toutes les tailles
+
+Utilise sharp pour redimensionner 
+l'image source dans toutes les 
+tailles d'icônes nécessaires :
+
+npm install sharp --save-dev
+
+Crée scripts/generate-icons.js :
+
+const sharp = require('sharp');
+const fs = require('fs');
+
+const SOURCE = 'public/logo-source.png'; 
+// chemin de l'image uploadée
+
+const sizes = [
+  16, 32, 72, 96, 128, 144, 152, 
+  180, 192, 384, 512
+];
+
+async function generateIcons() {
+  for (const size of sizes) {
+    await sharp(SOURCE)
+      .resize(size, size)
+      .png()
+      .toFile(`public/icon-${size}x${size}.png`);
+    console.log(`✅ icon-${size}x${size}.png`);
+  }
+
+  await sharp(SOURCE)
+    .resize(180, 180)
+    .toFile('public/apple-touch-icon.png');
+
+  await sharp(SOURCE)
+    .resize(32, 32)
+    .toFile('public/favicon.png');
+
+  console.log('🎉 Terminé !');
+}
+
+generateIcons();
+
+Exécute :
+node scripts/generate-icons.js
+
+
+## ÉTAPE 2 — Met à jour manifest.json
+
+Remplace tous les chemins d'icônes 
+dans public/manifest.json par les 
+nouveaux fichiers générés 
+(icon-72x72.png, icon-192x192.png, 
+icon-512x512.png, etc.)
+
+Garde le reste du manifest identique, 
+change uniquement la section "icons".
+
+
+## ÉTAPE 3 — Met à jour index.html
+
+Dans le <head>, remplace les balises 
+liées au favicon et à l'icône Apple :
+
+<link rel="icon" type="image/png" 
+  href="/favicon.png"/>
+<link rel="apple-touch-icon" 
+  href="/apple-touch-icon.png"/>
+<link rel="manifest" href="/manifest.json"/>
+
+
+## CE QU'IL NE FAUT PAS TOUCHER
+- Ne modifie aucun composant React/JSX
+- Ne touche pas au menu latéral, 
+  header, ou splash screen
+- Cette modification concerne UNIQUEMENT 
+  les fichiers d'icône système 
+  (manifest.json, favicon, apple-touch-icon)
+
+## RÉSULTAT ATTENDU
+Quand l'utilisateur ajoute l'app 
+à son écran d'accueil (PWA), 
+ou regarde l'onglet du navigateur, 
+il verra le nouveau logo : diplôme 
+roulé orange avec "Compétences CI 🇨🇮".
