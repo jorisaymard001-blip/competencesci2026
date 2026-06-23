@@ -1,5 +1,5 @@
 // ── Compétences CI — Service Worker ──────────────────────────────────────────
-const STATIC_CACHE = "competences-ci-static-v3";
+const STATIC_CACHE = "competences-ci-static-v4";
 const API_CACHE    = "competences-ci-api-v2";
 const IMG_CACHE    = "competences-ci-img-v1";
 
@@ -8,10 +8,10 @@ const PRECACHE_URLS = [
   "/",
   "/index.html",
   "/manifest.json",
-  "/icon-192.png",
-  "/icon-512.png",
+  "/icon-192x192.png",
+  "/icon-512x512.png",
   "/apple-touch-icon.png",
-  "/favicon.svg",
+  "/favicon.png",
 ];
 
 // ── INSTALL ───────────────────────────────────────────────────────────────────
@@ -121,13 +121,13 @@ self.addEventListener("fetch", (event) => {
 
 // ── PUSH NOTIFICATIONS ────────────────────────────────────────────────────────
 self.addEventListener("push", (event) => {
-  let data = { title: "Compétences CI", body: "Nouveau message reçu", icon: "/icon-192.png" };
+  let data = { title: "Compétences CI", body: "Nouveau message reçu", icon: "/icon-192x192.png" };
   try { data = { ...data, ...event.data?.json() }; } catch {}
   event.waitUntil(
     self.registration.showNotification(data.title, {
       body: data.body,
-      icon: data.icon ?? "/icon-192.png",
-      badge: "/icon-192.png",
+      icon: data.icon ?? "/icon-192x192.png",
+      badge: "/icon-192x192.png",
       tag: data.tag ?? "competences-ci",
       data,
       actions: [

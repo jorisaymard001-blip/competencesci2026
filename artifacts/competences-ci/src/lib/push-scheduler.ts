@@ -96,8 +96,8 @@ export async function showLocalNotification(opts: {
 
   const payload: NotificationOptions = {
     body: opts.body,
-    icon: opts.icon ?? "/icon-192.png",
-    badge: "/icon-192.png",
+    icon: opts.icon ?? "/icon-192x192.png",
+    badge: "/icon-192x192.png",
     tag: opts.tag ?? "competences-ci",
     data: { url: opts.url ?? "/" },
   };

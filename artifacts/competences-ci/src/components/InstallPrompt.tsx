@@ -110,7 +110,7 @@ export function InstallPrompt() {
                   {/* App icon */}
                   <div className="shrink-0">
                     <img
-                      src="/icon-192.png"
+                      src="/icon-192x192.png"
                       alt="Compétences CI"
                       className="w-14 h-14 rounded-2xl shadow-md border border-border/30"
                     />
@@ -191,7 +191,7 @@ export function InstallPrompt() {
               <div className="w-10 h-1 bg-border rounded-full mx-auto mb-5" />
 
               <div className="flex items-center gap-3 mb-5">
-                <img src="/icon-192.png" alt="" className="w-12 h-12 rounded-xl border border-border/30" />
+                <img src="/icon-192x192.png" alt="" className="w-12 h-12 rounded-xl border border-border/30" />
                 <div>
                   <h3 className="font-display font-bold text-base">Installer Compétences CI</h3>
                   <p className="text-xs text-muted-foreground">sur votre iPhone / iPad</p>
