@@ -193,7 +193,7 @@ export default function SchoolDetail() {
             </h2>
             <div className="bg-card rounded-2xl p-5 border border-border/50 shadow-sm">
               <p className="text-muted-foreground text-sm leading-relaxed">
-                {school.description}
+                {school.description || "Informations détaillées sur cet établissement disponibles prochainement. Contactez l'école directement pour obtenir une présentation complète de ses programmes et de son environnement académique."}
               </p>
 
               {school.accreditation && (
@@ -209,21 +209,24 @@ export default function SchoolDetail() {
           </section>
 
           {/* Domains Section */}
-          <section>
-            <h2 className="font-display text-lg font-bold mb-3 flex items-center">
-              <BookOpen className="w-5 h-5 mr-2 text-primary" /> {t("school_domains")}
-            </h2>
-            <div className="flex flex-wrap gap-2">
-              {school.domains.map((domain, i) => (
-                <span key={i} className="px-3 py-1.5 bg-orange-50 text-orange-800 border border-orange-100 rounded-xl text-sm font-medium">
-                  {domain}
-                </span>
-              ))}
-            </div>
-          </section>
+          {school.domains && school.domains.length > 0 && (
+            <section>
+              <h2 className="font-display text-lg font-bold mb-3 flex items-center">
+                <BookOpen className="w-5 h-5 mr-2 text-primary" /> {t("school_domains")}
+              </h2>
+              <div className="flex flex-wrap gap-2">
+                {school.domains.map((domain, i) => (
+                  <span key={i} className="px-3 py-1.5 bg-orange-50 dark:bg-orange-950/40 text-orange-800 dark:text-orange-300 border border-orange-100 dark:border-orange-900/50 rounded-xl text-sm font-medium">
+                    {domain}
+                  </span>
+                ))}
+              </div>
+            </section>
+          )}
 
           {/* Diplomas Section */}
-          <section>
+          {school.diplomas && school.diplomas.length > 0 && (
+            <section>
             <h2 className="font-display text-lg font-bold mb-1 flex items-center">
               <GraduationCap className="w-5 h-5 mr-2 text-primary" /> {t("school_diplomas")}
             </h2>
@@ -249,6 +252,7 @@ export default function SchoolDetail() {
               })}
             </div>
           </section>
+          )}
 
           {/* Costs Section */}
           {(() => {

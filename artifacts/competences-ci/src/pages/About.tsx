@@ -1,6 +1,6 @@
 import { Layout } from "@/components/Layout";
 import { useLocation } from "wouter";
-import { GraduationCap, MessageCircle, Heart } from "lucide-react";
+import { GraduationCap, MessageCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import { useT } from "@/lib/useT";
 
@@ -65,12 +65,21 @@ export default function About() {
             transition={{ delay: 0.15 }}
             className="bg-card border border-border/50 rounded-2xl p-5 shadow-sm"
           >
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-xl">🧡</span>
-              <h2 className="font-display text-base font-bold text-primary">{t("about_creator_label")}</h2>
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-10 h-10 bg-orange-500/10 border border-orange-500/20 rounded-xl flex items-center justify-center shrink-0">
+                <span className="text-lg">👨‍💻</span>
+              </div>
+              <div>
+                <p className="text-foreground font-bold text-base">Développeur</p>
+                <p className="text-muted-foreground text-xs">Conception &amp; développement</p>
+              </div>
             </div>
-            <p className="text-sm text-foreground font-medium leading-relaxed">{t("about_creator")}</p>
-            <p className="text-xs text-muted-foreground mt-1">{t("about_made_with")}</p>
+            <p className="text-muted-foreground text-sm leading-relaxed mb-3">
+              Compétences CI a été conçue et développée par <span className="font-semibold text-foreground">Yao Brou Joris Aymard</span>, étudiant en Génie Civil, dans le but de faciliter l'orientation académique et professionnelle des étudiants ivoiriens.
+            </p>
+            <div className="flex items-center gap-2 pt-3 border-t border-border/40">
+              <span className="text-muted-foreground text-xs">© 2026 Compétences CI — Tous droits réservés</span>
+            </div>
           </motion.section>
 
           {/* Contact reference */}

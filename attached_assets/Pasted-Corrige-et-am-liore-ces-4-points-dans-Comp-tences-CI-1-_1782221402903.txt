@@ -1,0 +1,329 @@
+Corrige et améliore ces 4 points dans 
+Compétences CI :
+
+## 1. VERSION ORDINATEUR — Layout cassé
+
+Sur grand écran, le contenu déborde à 
+droite et les cards (stats, "Concours 
+Ouverts", "Villes") sont coupées et 
+illisibles. La sidebar et le contenu 
+principal ne sont pas bien dimensionnés.
+
+### Corrections à apporter :
+
+- La sidebar gauche doit avoir une 
+  largeur FIXE de 280px, jamais plus, 
+  jamais moins :
+
+aside.sidebar-desktop {
+  width: 280px;
+  flex-shrink: 0;
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  overflow-y: auto;
+}
+
+- Le contenu principal doit avoir une 
+  largeur MAXIMALE et être centré, 
+  jamais en pleine largeur de l'écran :
+
+main.content-desktop {
+  margin-left: 280px;
+  max-width: 900px;
+  margin-right: auto;
+  margin-left: 300px;
+  padding: 24px 32px;
+}
+
+- Les cards de stats (40 Écoles, 
+  Concours Ouverts, Villes, Filières) 
+  doivent être dans une grille qui 
+  s'adapte SANS déborder :
+
+.stats-grid-desktop {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  width: 100%;
+}
+
+/* Chaque card doit avoir overflow 
+   hidden et text-overflow ellipsis */
+.stat-card {
+  overflow: hidden;
+  min-width: 0;
+}
+.stat-card p {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+- Les cards "Explorer" (Annuaire des 
+  Écoles, Concours Publics) doivent 
+  être dans une grille 2 colonnes 
+  propre sur ordinateur :
+
+.explorer-grid-desktop {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  width: 100%;
+}
+
+- Empêche tout débordement horizontal 
+  global :
+
+body, html {
+  overflow-x: hidden;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+
+## 2. PAGES CONNEXION & INSCRIPTION — 
+## Remplace le chapeau par l'icône réelle
+
+Sur les pages "Bienvenue" (connexion) 
+et "Créer un compte" (inscription), 
+remplace l'icône emoji 🎓 dans le 
+cercle par l'icône réelle de 
+l'application (le logo diplôme 
+orange déjà généré).
+
+### Page Connexion (LoginPage.jsx) :
+
+/* AVANT */
+<div className="w-16 h-16 bg-gray-700 
+  rounded-2xl flex items-center 
+  justify-center">
+  <span className="text-3xl">🎓</span>
+</div>
+
+/* APRÈS */
+<div className="w-16 h-16 rounded-2xl 
+  overflow-hidden">
+  <img 
+    src="/icon-192x192.png" 
+    alt="Compétences CI"
+    className="w-full h-full object-cover"
+  />
+</div>
+
+### Page Inscription (SignupPage.jsx) :
+Applique exactement le même changement.
+
+### Modernise aussi le design des 2 pages :
+
+Remplace les fonds dégradés actuels 
+(vert pour inscription, sombre marron 
+pour connexion) par un fond cohérent 
+avec l'identité de l'app :
+
+/* Header connexion ET inscription */
+<div className="relative px-6 pt-16 pb-10 
+  bg-gradient-to-br from-gray-900 
+  via-gray-950 to-black overflow-hidden">
+  
+  {/* Cercle décoratif orange en fond */}
+  <div className="absolute -top-20 -right-20 
+    w-64 h-64 bg-orange-500/10 
+    rounded-full blur-3xl"/>
+  
+  <div className="relative z-10">
+    <div className="w-16 h-16 rounded-2xl 
+      overflow-hidden shadow-lg 
+      shadow-orange-500/20 mb-5">
+      <img 
+        src="/icon-192x192.png" 
+        alt="Compétences CI"
+        className="w-full h-full object-cover"
+      />
+    </div>
+
+    <h1 className="text-white font-black 
+      text-3xl mb-2">
+      {isLogin ? 'Bienvenue' : 'Créer un compte'}
+    </h1>
+    <p className="text-gray-400 text-sm">
+      {isLogin 
+        ? 'Connectez-vous à Compétences CI' 
+        : 'Rejoignez Compétences CI'}
+    </p>
+  </div>
+</div>
+
+Garde le bouton d'action principal 
+en orange (#F97316) pour les deux pages 
+(actuellement le bouton inscription 
+est vert, change-le en orange pour 
+rester cohérent) :
+
+<button className="w-full bg-orange-500 
+  hover:bg-orange-600 text-white 
+  rounded-2xl py-4 font-bold text-base 
+  transition-colors press">
+  {isLogin ? 'Se connecter' : 'Créer mon compte'} →
+</button>
+
+
+## 3. PAGE À PROPOS — Section Créateur 
+## à professionnaliser
+
+Sur la page "À propos", remplace la 
+card "Créateur" actuelle.
+
+### AVANT :
+🧡 Créateur
+Application créée par Yao Brou Joris Aymard.
+Fait avec ❤️ pour la Côte d'Ivoire
+
+### APRÈS — Version professionnelle :
+
+<div className="bg-gray-800 border 
+  border-gray-700 rounded-2xl p-5 mb-4">
+  
+  <div className="flex items-center gap-3 mb-3">
+    <div className="w-10 h-10 bg-orange-950 
+      border border-orange-800 rounded-xl 
+      flex items-center justify-center">
+      <span className="text-lg">👨‍💻</span>
+    </div>
+    <div>
+      <p className="text-white font-bold text-base">
+        Développeur
+      </p>
+      <p className="text-gray-500 text-xs">
+        Conception & développement
+      </p>
+    </div>
+  </div>
+
+  <p className="text-gray-300 text-sm 
+    leading-relaxed mb-3">
+    Compétences CI a été conçue et développée 
+    par Yao Brou Joris Aymard, étudiant en 
+    Génie Civil, dans le but de faciliter 
+    l'orientation académique et professionnelle 
+    des étudiants ivoiriens.
+  </p>
+
+  <div className="flex items-center gap-2 
+    pt-3 border-t border-gray-700">
+    <span className="text-gray-500 text-xs">
+      © 2026 Compétences CI — Tous droits réservés
+    </span>
+  </div>
+</div>
+
+Supprime complètement la phrase 
+"Fait avec ❤️ pour la Côte d'Ivoire" 
+et tout emoji cœur orange/rouge associé.
+
+
+## 4. PAGE ÉCOLES — Trop simple, 
+## ajoute des pages détaillées par établissement
+
+La page liste des écoles fonctionne, 
+mais certaines écoles n'ont pas de 
+page détail complète ou le contenu 
+est insuffisant. Améliore ainsi :
+
+### Vérifie que CHAQUE école de la 
+### base de données a une page détail 
+### complète avec :
+
+- Badge type (PUBLIC/PRIVÉ) + année 
+  de fondation
+- Nom complet de l'école
+- Adresse précise (quartier, ville)
+- Actions : Appeler / Site Web / Email
+- Section "À propos" avec description 
+  réelle et complète (minimum 2-3 phrases, 
+  pas juste un mot)
+- Accréditation officielle
+- Domaines de formation (liste complète 
+  des filières, pas tronquée)
+- Diplômes préparés avec détails
+- Coût de la formation (frais réels)
+- Bouton favoris
+
+### Si certaines écoles dans la base 
+### de données n'ont que des infos 
+### partielles, complète-les avec ce 
+### modèle de structure :
+
+{
+  id: "ecole-id",
+  nom: "Nom complet de l'école",
+  type: "PUBLIC" ou "PRIVÉ",
+  anneeFondation: 1990,
+  ville: "Abidjan",
+  quartier: "Plateau",
+  adresseComplete: "Plateau, Abidjan, Abidjan",
+  telephone: "+225 XX XX XX XX XX",
+  siteWeb: "https://...",
+  email: "contact@ecole.ci",
+  description: "Description complète 
+    de l'école en 2-3 phrases minimum, 
+    expliquant sa spécialité, sa 
+    réputation et ses points forts.",
+  accreditation: "Ministère de tutelle",
+  domainesFormation: [
+    "Filière 1", "Filière 2", "Filière 3"
+  ],
+  diplomes: [
+    { nom: "Licence", details: "..." },
+    { nom: "Master", details: "..." }
+  ],
+  fraisScolarite: "XXX XXX FCFA/an",
+  fraisInscription: "XX XXX FCFA"
+}
+
+### Ajoute aussi une section "Photos" 
+### si des images d'établissements sont 
+### disponibles :
+
+<div className="mb-4">
+  <h2 className="text-white font-bold 
+    mb-3">📸 Galerie</h2>
+  <div className="flex gap-2 overflow-x-auto">
+    {ecole.photos?.map((photo, i) => (
+      <img key={i} src={photo} 
+        className="w-32 h-32 rounded-xl 
+          object-cover flex-shrink-0"/>
+    ))}
+  </div>
+</div>
+
+Si aucune photo n'est disponible pour 
+une école, n'affiche pas cette section 
+(condition ecole.photos?.length > 0).
+
+### Vérifie qu'aucune page détail 
+### école n'affiche une erreur 404 ou 
+### un contenu vide — toutes les 
+### 40 écoles référencées doivent 
+### avoir une fiche complète et 
+### fonctionnelle.
+
+
+## IMPORTANT — Tests à faire après 
+## ces corrections
+
+1. Ouvre l'app sur ordinateur et 
+   vérifie qu'aucun élément ne déborde 
+   à droite de l'écran
+2. Teste les pages connexion et 
+   inscription — l'icône doit être 
+   l'image réelle, pas l'emoji
+3. Vérifie la page À propos — plus 
+   de "Fait avec ❤️"
+4. Clique sur 5-6 écoles différentes 
+   au hasard dans la liste pour vérifier 
+   qu'elles ont toutes une fiche 
+   complète sans erreur

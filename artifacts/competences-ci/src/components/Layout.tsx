@@ -73,7 +73,7 @@ export function Layout({
 
       {/* ── SIDEBAR (lg+) ──────────────────────────────────────────── */}
       {user && (
-        <aside className="hidden lg:flex flex-col fixed inset-y-0 left-0 w-64 xl:w-72 bg-card border-r border-border/60 z-50 shadow-sm">
+        <aside className="hidden lg:flex flex-col fixed inset-y-0 left-0 w-[280px] bg-card border-r border-border/60 z-50 shadow-sm">
           <SidebarContent t={t} navigate={navigate} user={user} unreadCount={unreadCount}
             theme={theme} toggleTheme={toggleTheme} language={language} setLanguage={setLanguage} />
         </aside>
@@ -114,8 +114,8 @@ export function Layout({
 
       {/* ── MAIN CONTENT WRAPPER ──────────────────────────────────── */}
       <div className={cn(
-        "flex-1 flex flex-col min-h-[100dvh] w-full",
-        user && "lg:ml-64 xl:ml-72"
+        "flex-1 flex flex-col min-h-[100dvh] min-w-0 overflow-x-hidden",
+        user && "lg:ml-[280px]"
       )}>
 
         {/* ── HEADER ─────────────────────────────────────────────── */}
@@ -215,7 +215,7 @@ export function Layout({
         {/* ── PAGE CONTENT ───────────────────────────────────────── */}
         <main className={cn(
           "flex-1 w-full flex flex-col relative mx-auto",
-          "lg:max-w-5xl xl:max-w-6xl",
+          "lg:max-w-[900px]",
           !noBottomNav && "pb-20 lg:pb-6"
         )}>
           {children}
