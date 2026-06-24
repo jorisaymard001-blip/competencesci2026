@@ -24,18 +24,17 @@ export function SchoolCard({ school, index = 0 }: { school: School; index?: numb
         href={`/schools/${school.id}`}
         className="group block bg-card rounded-2xl border border-border/50 shadow-sm hover:shadow-lg transition-all duration-200 active:scale-[0.97] overflow-hidden"
       >
-        <div className="relative h-36 overflow-hidden bg-muted">
+        <div className="relative h-40 overflow-hidden bg-gray-100 dark:bg-slate-800 flex items-center justify-center">
           <img
             src={imageUrl}
             alt={school.name}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-            onError={e => { (e.currentTarget as HTMLImageElement).src = FALLBACK; }}
+            className="w-full h-full object-contain p-4"
+            onError={e => { (e.currentTarget as HTMLImageElement).src = "/images/establishments/placeholder.svg"; }}
             loading="lazy"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent" />
           <span className={cn(
-            "absolute top-2.5 right-2.5 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider backdrop-blur-sm",
-            isPublic ? "bg-green-500/80 text-white" : "bg-orange-500/80 text-white"
+            "absolute top-2.5 right-2.5 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider shadow",
+            isPublic ? "bg-green-500/90 text-white" : "bg-orange-500/90 text-white"
           )}>
             {isPublic ? "Public" : "Privé"}
           </span>
@@ -72,7 +71,7 @@ export function SchoolCard({ school, index = 0 }: { school: School; index?: numb
 export function SchoolCardSkeleton() {
   return (
     <div className="bg-card rounded-2xl border border-border/50 shadow-sm overflow-hidden animate-pulse">
-      <div className="h-36 bg-muted" />
+      <div className="h-40 bg-muted" />
       <div className="p-4">
         <div className="h-4 w-3/4 bg-muted rounded-lg mb-2" />
         <div className="h-3 w-24 bg-muted rounded-lg mb-3" />

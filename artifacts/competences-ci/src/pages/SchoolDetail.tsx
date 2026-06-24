@@ -95,20 +95,19 @@ export default function SchoolDetail() {
   const imageUrl = getSchoolImage(school);
 
   return (
-    <Layout showBack noBottomNav transparentHeader>
+    <Layout showBack noBottomNav>
 
-      {/* Cover Image Header */}
-      <div className="absolute top-0 inset-x-0 h-72 overflow-hidden">
+      {/* Logo Header */}
+      <div className="w-full h-40 overflow-hidden bg-gray-100 dark:bg-slate-800 flex items-center justify-center">
         <img
           src={imageUrl}
           alt={school.name}
-          className="w-full h-full object-cover"
-          onError={e => { (e.currentTarget as HTMLImageElement).src = "https://images.unsplash.com/photo-1562774053-701939374585?w=800&q=75&auto=format&fit=crop"; }}
+          className="w-full h-full object-contain p-4"
+          onError={e => { (e.currentTarget as HTMLImageElement).src = "/images/establishments/placeholder.svg"; }}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-black/40" />
       </div>
 
-      <div className="relative z-10 pt-16 pb-12 px-4 md:px-6 max-w-4xl mx-auto w-full">
+      <div className="pb-12 px-4 md:px-6 max-w-4xl mx-auto w-full">
         {/* Main Info Card */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
