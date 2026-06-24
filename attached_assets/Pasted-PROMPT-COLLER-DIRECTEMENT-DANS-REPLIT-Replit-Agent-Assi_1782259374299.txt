@@ -1,0 +1,88 @@
+PROMPT À COLLER DIRECTEMENT DANS REPLIT (Replit Agent / Assistant)
+====================================================================
+
+Copie-colle tout le texte ci-dessous dans le chat de l'agent Replit de ton projet :
+
+--------------------------------------------------------------------
+
+Je veux mettre à jour la base de données des établissements d'enseignement 
+supérieur dans mon application pour qu'elle affiche de vraies images 
+(logos officiels ou photos de campus) au lieu d'images génériques/placeholder, 
+et je veux aussi supprimer certains établissements obsolètes.
+
+ÉTAPE 1 — Trouve d'abord le fichier de données
+Cherche dans le projet le fichier qui contient la liste des établissements 
+(probablement un fichier .json, .js, .ts, ou une table dans une base de 
+données comme SQLite/Postgres). Montre-moi sa structure actuelle avant de 
+faire quoi que ce soit.
+
+ÉTAPE 2 — Ajoute un champ image pour chaque établissement
+Pour chaque établissement actif listé ci-dessous, ajoute ou mets à jour un 
+champ "imageUrl" (ou équivalent selon la structure existante) pointant vers 
+une vraie image. Utilise le site officiel listé pour identifier et récupérer 
+un logo ou une photo réelle (pas une image générique de stock).
+
+Liste des établissements actifs avec leur site officiel :
+- Université Félix Houphouët-Boigny (UFHB) → https://w.univ-fhb.edu.ci/
+- INPHB (Institut National Polytechnique) → https://inphb.edu.ci/
+- Université Alassane Ouattara (Bouaké) → https://univ-ao.edu.ci/
+- Université Jean Lorougnon Guédé (Daloa) → https://ujlog.edu.ci/
+- Université Péléforo Gon Coulibaly (Korhogo) → https://univ-pgc.edu.ci/
+- ENSEA → https://ensea.ed.ci/
+- INJS (Institut National Jeunesse et Sports) → https://www.injsabidjan.ci/
+- Université Virtuelle de Côte d'Ivoire (UVCI) → https://www.uvci.edu.ci/
+- Université Polytechnique de San Pedro → https://usp.edu.ci/
+- ISTC Polytechnique → https://istcpolytechnique-ci.com/
+- École Supérieure des Mines et de Géologie (ESMG) → https://inphb.edu.ci/nos-ecoles/esmg/
+- Pigier Côte d'Ivoire → https://pigierci.com/
+
+Pour ces établissements, je n'ai pas de site officiel confirmé — laisse un 
+champ image vide ou un placeholder neutre, et signale-les-moi dans ta réponse :
+- ENA (École Nationale d'Administration)
+- INFP (Institut National Formation Professionnelle)
+- INSG (Institut des Sciences et de la Gestion — Côte d'Ivoire)
+- Institut Universitaire d'Abidjan (IUA)
+- Institut des Hautes Études de Communication
+- UCAO (Université Catholique de l'Afrique de l'Ouest)
+
+ÉTAPE 3 — Méthode technique pour les images
+- Si possible, télécharge les images dans un dossier /public/images/establishments/ 
+  (ou /assets/ selon la structure du projet) plutôt que de faire un lien direct 
+  (hotlink) vers les sites externes, pour éviter les problèmes de chargement.
+- Nomme les fichiers de façon cohérente (ex: ufhb.png, inphb.png, ensea.png).
+- Ajoute une gestion d'erreur (onError en React, ou équivalent) pour afficher 
+  une image de remplacement neutre si l'image réelle ne charge pas.
+- Si le projet utilise un composant Card ou ListItem pour afficher chaque 
+  établissement, affiche l'image en haut de la carte.
+
+ÉTAPE 4 — Supprime ces établissements de la base de données
+Retire complètement les entrées suivantes (ils sont obsolètes/inactifs) :
+- Sup de Co Abidjan
+- École Nationale des Postes et Télécommunications
+- Institut supérieur panafricain d'Économie Coopérative
+- Groupe scolaire Sainte Marie
+- Institut technique de Yamoussoukro
+- Institut professionnel de San Pedro
+- École Supérieure de Génie Civil
+- Institut supérieur de management
+- Institut supérieur de la santé
+- École supérieure de Droit et des Affaires
+- Institut universitaire des technologies
+- Lycée technique de Cocody
+
+ÉTAPE 5 — Vérification
+Une fois les modifications faites, montre-moi :
+1. La nouvelle structure du fichier de données (avant/après)
+2. La liste des établissements pour lesquels tu n'as pas trouvé d'image
+3. Un aperçu de comment ça s'affiche dans l'app (si possible avec le preview)
+
+Ne touche à rien d'autre dans le code sans me le signaler d'abord.
+
+--------------------------------------------------------------------
+
+NOTE IMPORTANTE avant d'envoyer ce prompt :
+"Université de San Pedro" apparaissait deux fois dans ma liste d'origine — 
+une fois comme actif, une fois comme "à retirer". Comme elle a bien un site 
+officiel actif (usp.edu.ci), je l'ai gardée dans la liste des actifs et je 
+ne l'ai PAS mise dans la liste de suppression. Si tu voulais vraiment la 
+supprimer, dis-le à l'agent Replit explicitement.
