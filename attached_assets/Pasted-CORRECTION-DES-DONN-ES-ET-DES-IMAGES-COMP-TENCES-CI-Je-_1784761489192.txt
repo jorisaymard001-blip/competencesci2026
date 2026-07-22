@@ -1,0 +1,147 @@
+CORRECTION DES DONNÉES ET DES IMAGES – COMPÉTENCES CI
+
+Je veux corriger plusieurs problèmes dans l'application sans modifier le design actuel.
+
+==================================================
+
+1. SUPPRIMER LES DOUBLONS DES ÉCOLES
+
+==================================================
+
+Vérifier toute la base de données des établissements.
+
+Si une école apparaît plusieurs fois avec exactement les mêmes informations (nom, ville, type, logo...), ne conserver qu'une seule fiche.
+
+Dans mon cas, je constate un doublon concernant l'Université Jean Lorougnon Guédé.
+
+Si deux fiches représentent réellement deux campus ou une antenne différente (par exemple Daloa et Gagnoa), elles doivent être différenciées correctement avec :
+
+- leur propre nom
+
+- leur propre ville
+
+- leur propre image si disponible
+
+- leurs propres informations
+
+Sinon supprimer automatiquement le doublon.
+
+Aucune école ne doit apparaître deux fois par erreur.
+
+==================================================
+
+2. REMPLACER LES IMAGES GÉNÉRIQUES DES CONCOURS
+
+==================================================
+
+Je ne veux plus de photos génériques de bureaux, de réunions ou de personnes.
+
+Chaque concours doit afficher une image réellement liée à son organisme.
+
+Exemples :
+
+CAFOP
+
+→ image ou logo officiel CAFOP
+
+ENA
+
+→ logo officiel ENA Côte d'Ivoire
+
+ENS
+
+→ logo officiel ENS
+
+INFAS
+
+→ logo officiel INFAS
+
+Police Nationale
+
+→ logo officiel Police Nationale
+
+Gendarmerie
+
+→ logo officiel Gendarmerie Nationale
+
+FACI
+
+→ logo officiel des Forces Armées de Côte d'Ivoire
+
+Eaux et Forêts
+
+→ logo officiel des Eaux et Forêts
+
+Fonction Publique
+
+→ logo officiel ou identité visuelle du Ministère de la Fonction Publique
+
+INJS
+
+→ logo officiel INJS
+
+INSFS
+
+→ logo officiel INSFS
+
+ENSEA
+
+→ logo officiel ENSEA
+
+EMPT
+
+→ logo officiel EMPT
+
+AFA
+
+→ logo officiel AFA
+
+Tous les concours doivent avoir une identité visuelle correspondant à leur organisme.
+
+Ne jamais utiliser une image générique lorsqu'un logo ou un visuel officiel existe.
+
+==================================================
+
+3. SI AUCUNE IMAGE OFFICIELLE N'EST DISPONIBLE
+
+==================================================
+
+Utiliser un placeholder moderne avec :
+
+- le nom du concours
+
+- une icône représentant le domaine
+
+- les couleurs officielles de l'organisme si possible
+
+Ne jamais afficher une photo aléatoire.
+
+==================================================
+
+4. VÉRIFICATION AUTOMATIQUE
+
+==================================================
+
+Ajouter une vérification des données afin de détecter automatiquement :
+
+- les écoles en double
+
+- les concours en double
+
+- les logos manquants
+
+- les images manquantes
+
+Afficher ces anomalies dans le tableau de bord administrateur afin de pouvoir les corriger facilement.
+
+==================================================
+
+5. IMPORTANT
+
+==================================================
+
+Ne modifier ni le design, ni les couleurs, ni la navigation actuelle.
+
+Corriger uniquement les données, supprimer les doublons et remplacer les images par des visuels réellement associés aux écoles et aux concours.
+
+Tester que toutes les cartes s'affichent correctement après les modifications.

@@ -4,9 +4,7 @@ import { motion } from "framer-motion";
 import { cn, formatDate } from "@/lib/utils";
 import type { School, Competition } from "@workspace/api-client-react";
 import { getSchoolImage } from "@/lib/school-images";
-import { getCompetitionImage } from "@/lib/competition-images";
-
-const FALLBACK = "https://images.unsplash.com/photo-1562774053-701939374585?w=800&q=75&auto=format&fit=crop";
+import { CompetitionCover } from "@/components/CompetitionCover";
 
 // ── SCHOOL CARD ─────────────────────────────────────────────────────────────
 
@@ -109,7 +107,6 @@ export function CompetitionCard({ competition, index = 0 }: { competition: Compe
     ? (competition.status as keyof typeof STATUS_CONFIG)
     : "closed";
   const status = STATUS_CONFIG[statusKey];
-  const imageUrl = getCompetitionImage(competition);
 
   return (
     <motion.div
@@ -128,12 +125,9 @@ export function CompetitionCard({ competition, index = 0 }: { competition: Compe
       >
         {/* Image header */}
         <div className="relative h-28 overflow-hidden bg-muted">
-          <img
-            src={imageUrl}
-            alt={competition.title}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-            onError={e => { (e.currentTarget as HTMLImageElement).src = FALLBACK; }}
-            loading="lazy"
+          <CompetitionCover
+            competition={competition}
+            className="group-hover:scale-105 transition-transform duration-500"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
 

@@ -52,7 +52,7 @@ async function seed() {
       founded: 1992,
     },
     {
-      name: "Université Lorougnon Guédé",
+      name: "Université Jean Lorougnon Guédé",
       type: "public" as const,
       city: "Daloa",
       address: "BP 150, Daloa",

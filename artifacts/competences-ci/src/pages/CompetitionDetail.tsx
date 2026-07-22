@@ -9,7 +9,7 @@ import { useFavorites } from "@/contexts/FavoritesContext";
 import { getCompetitionInfo } from "@/lib/competition-info";
 import { cn } from "@/lib/utils";
 import { useT } from "@/lib/useT";
-import { getCompetitionImage } from "@/lib/competition-images";
+import { CompetitionCover } from "@/components/CompetitionCover";
 
 export default function CompetitionDetail() {
   const [, params] = useRoute("/competitions/:id");
@@ -59,9 +59,6 @@ export default function CompetitionDetail() {
     </span>
   ) : null;
 
-  const coverImage = getCompetitionImage(comp);
-  const FALLBACK_IMG = "https://images.unsplash.com/photo-1568992687947-868a62a9f521?w=800&q=75&auto=format&fit=crop";
-
   return (
     <Layout showBack noBottomNav>
       <div className="bg-background min-h-screen max-w-4xl mx-auto w-full">
@@ -75,14 +72,20 @@ export default function CompetitionDetail() {
             ? "bg-gradient-to-br from-blue-900 via-slate-900 to-slate-950"
             : "bg-gradient-to-br from-slate-700 via-slate-900 to-slate-950"
         )}>
-          {/* Real cover image as background */}
-          <img
-            src={coverImage}
-            alt=""
-            aria-hidden="true"
-            className="absolute inset-0 w-full h-full object-cover opacity-25 mix-blend-luminosity pointer-events-none"
-            onError={e => { (e.currentTarget as HTMLImageElement).src = FALLBACK_IMG; }}
-          />
+          {/* Background cover: real image if available, otherwise placeholder overlay */}
+          {comp.imageUrl ? (
+            <img
+              src={comp.imageUrl}
+              alt=""
+              aria-hidden="true"
+              className="absolute inset-0 w-full h-full object-cover opacity-25 mix-blend-luminosity pointer-events-none"
+              onError={e => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+            />
+          ) : (
+            <div className="absolute inset-0 pointer-events-none opacity-15 mix-blend-overlay">
+              <CompetitionCover competition={comp} />
+            </div>
+          )}
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent pointer-events-none" />
           <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4 pointer-events-none" />
 

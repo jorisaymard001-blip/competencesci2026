@@ -3,14 +3,14 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard, GraduationCap, Trophy, BookOpen, Wifi,
   LogOut, Plus, Pencil, Trash2, X, Check, Loader2, Eye, EyeOff,
-  RefreshCw, Building2, AlertCircle,
+  RefreshCw, Building2, AlertCircle, ShieldAlert, Link as LinkIcon, Copy, ImageOff,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const API = (import.meta.env.BASE_URL ?? "/").replace(/\/$/, "") + "/api";
 const TOKEN_KEY = "cci_admin_token";
 
-type Tab = "competitions" | "schools" | "articles" | "scraping";
+type Tab = "competitions" | "schools" | "articles" | "scraping" | "quality";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -586,6 +586,239 @@ function ScrapingTab({ fetch: apiFetch, onToast }: { fetch: (p: string, o?: Requ
   );
 }
 
+// ── Data Quality Tab ──────────────────────────────────────────────────────────
+
+type QualityIssue = {
+  id: string;
+  severity: "error" | "warning";
+  category: string;
+  message: string;
+  detail?: string;
+};
+
+function DataQualityTab({ fetch: apiFetch, onToast }: { fetch: (p: string, o?: RequestInit) => Promise<any>; onToast: (m: string, t: "ok" | "err") => void }) {
+  const [issues, setIssues] = useState<QualityIssue[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [ran, setRan] = useState(false);
+
+  const analyze = useCallback(async () => {
+    setLoading(true);
+    try {
+      const [schools, competitions] = await Promise.all([
+        apiFetch("/admin/schools"),
+        apiFetch("/admin/competitions"),
+      ]);
+
+      const found: QualityIssue[] = [];
+
+      // ── School checks ──────────────────────────────────────────────────────
+      // Duplicates by name
+      const schoolNames = new Map<string, number[]>();
+      for (const s of schools) {
+        const key = s.name.toLowerCase().trim();
+        if (!schoolNames.has(key)) schoolNames.set(key, []);
+        schoolNames.get(key)!.push(s.id);
+      }
+      for (const [name, ids] of schoolNames) {
+        if (ids.length > 1) {
+          found.push({
+            id: `school-dup-${ids.join("-")}`,
+            severity: "error",
+            category: "Écoles — Doublons",
+            message: `Doublon détecté : "${name}"`,
+            detail: `IDs concernés : ${ids.join(", ")}`,
+          });
+        }
+      }
+
+      // Schools without website
+      const schoolsNoWeb = schools.filter((s: any) => !s.website);
+      if (schoolsNoWeb.length > 0) {
+        found.push({
+          id: "school-no-website",
+          severity: "warning",
+          category: "Écoles — Informations",
+          message: `${schoolsNoWeb.length} école(s) sans site web`,
+          detail: schoolsNoWeb.map((s: any) => s.name).join(" · "),
+        });
+      }
+
+      // Schools without image
+      const schoolsNoImg = schools.filter((s: any) => !s.imageUrl && !s.logoUrl);
+      if (schoolsNoImg.length > 0) {
+        found.push({
+          id: "school-no-image",
+          severity: "warning",
+          category: "Écoles — Images",
+          message: `${schoolsNoImg.length} école(s) sans image stockée en base`,
+          detail: "Ces écoles utilisent le mapping local ou un placeholder. Ajoutez une imageUrl ou logoUrl pour un affichage optimal.",
+        });
+      }
+
+      // ── Competition checks ─────────────────────────────────────────────────
+      // Duplicates by title
+      const compTitles = new Map<string, number[]>();
+      for (const c of competitions) {
+        const key = c.title.toLowerCase().trim();
+        if (!compTitles.has(key)) compTitles.set(key, []);
+        compTitles.get(key)!.push(c.id);
+      }
+      for (const [title, ids] of compTitles) {
+        if (ids.length > 1) {
+          found.push({
+            id: `comp-dup-${ids.join("-")}`,
+            severity: "error",
+            category: "Concours — Doublons",
+            message: `Doublon détecté : "${title}"`,
+            detail: `IDs concernés : ${ids.join(", ")}`,
+          });
+        }
+      }
+
+      // Competitions without website
+      const compsNoWeb = competitions.filter((c: any) => !c.website);
+      if (compsNoWeb.length > 0) {
+        found.push({
+          id: "comp-no-website",
+          severity: "error",
+          category: "Concours — Liens",
+          message: `${compsNoWeb.length} concours sans lien officiel`,
+          detail: compsNoWeb.map((c: any) => c.title).join(" · "),
+        });
+      }
+
+      // Open competitions without website
+      const openCompsNoWeb = competitions.filter((c: any) => c.status === "open" && !c.website);
+      if (openCompsNoWeb.length > 0) {
+        found.push({
+          id: "open-comp-no-website",
+          severity: "error",
+          category: "Concours — Liens urgents",
+          message: `${openCompsNoWeb.length} concours OUVERT(S) sans lien d'inscription`,
+          detail: openCompsNoWeb.map((c: any) => c.title).join(" · "),
+        });
+      }
+
+      // Competitions without imageUrl in DB (using auto-generated placeholder)
+      const compsNoImg = competitions.filter((c: any) => !c.imageUrl);
+      if (compsNoImg.length > 0) {
+        found.push({
+          id: "comp-no-image",
+          severity: "warning",
+          category: "Concours — Images",
+          message: `${compsNoImg.length} concours affichent un placeholder généré automatiquement`,
+          detail: "Vous pouvez ajouter une imageUrl ou logoUrl pour un affichage personnalisé (logo officiel, visuel de l'organisme).",
+        });
+      }
+
+      if (found.length === 0) {
+        found.push({
+          id: "all-ok",
+          severity: "warning" as const,
+          category: "Résultat",
+          message: "✅ Aucune anomalie détectée",
+          detail: `${schools.length} écoles et ${competitions.length} concours vérifiés — tout est correct.`,
+        });
+      }
+
+      setIssues(found);
+      setRan(true);
+      onToast(`${found.filter(i => i.id !== "all-ok").length} anomalie(s) détectée(s)`, found.some(i => i.severity === "error" && i.id !== "all-ok") ? "err" : "ok");
+    } catch (e: any) {
+      onToast(e.message, "err");
+    } finally {
+      setLoading(false);
+    }
+  }, [apiFetch, onToast]);
+
+  const errors = issues.filter(i => i.severity === "error" && i.id !== "all-ok");
+  const warnings = issues.filter(i => i.severity === "warning" && i.id !== "all-ok");
+
+  return (
+    <div className="space-y-6">
+      {/* Description */}
+      <div className="bg-slate-800/50 border border-slate-700/60 rounded-2xl p-4">
+        <h3 className="text-xs font-black text-slate-400 uppercase tracking-wider mb-2">🔬 Vérifications automatiques</h3>
+        <ul className="space-y-1 text-slate-400 text-sm">
+          <li className="flex items-center gap-2"><Copy className="w-3.5 h-3.5 text-red-400" /> Doublons (écoles &amp; concours)</li>
+          <li className="flex items-center gap-2"><LinkIcon className="w-3.5 h-3.5 text-orange-400" /> Liens officiels manquants</li>
+          <li className="flex items-center gap-2"><ImageOff className="w-3.5 h-3.5 text-yellow-400" /> Images absentes en base de données</li>
+        </ul>
+      </div>
+
+      {/* Run button */}
+      <button
+        onClick={analyze}
+        disabled={loading}
+        className="w-full flex items-center justify-center gap-2 bg-orange-500 text-white py-3 rounded-xl font-black text-sm press disabled:opacity-50"
+      >
+        {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <ShieldAlert className="w-4 h-4" />}
+        {loading ? "Analyse en cours…" : "Lancer l'analyse qualité"}
+      </button>
+
+      {/* Results */}
+      {ran && !loading && (
+        <div className="space-y-4">
+          {/* Summary */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className={cn("rounded-2xl p-4 text-center border", errors.length > 0 ? "bg-red-900/20 border-red-500/30" : "bg-slate-800/50 border-slate-700/50")}>
+              <p className={cn("text-2xl font-black", errors.length > 0 ? "text-red-400" : "text-slate-400")}>{errors.length}</p>
+              <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mt-0.5">Erreurs</p>
+            </div>
+            <div className={cn("rounded-2xl p-4 text-center border", warnings.length > 0 ? "bg-yellow-900/20 border-yellow-500/30" : "bg-slate-800/50 border-slate-700/50")}>
+              <p className={cn("text-2xl font-black", warnings.length > 0 ? "text-yellow-400" : "text-slate-400")}>{warnings.length}</p>
+              <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mt-0.5">Avertissements</p>
+            </div>
+          </div>
+
+          {/* Issue list */}
+          <div className="space-y-2">
+            {issues.map(issue => (
+              <div
+                key={issue.id}
+                className={cn(
+                  "rounded-2xl p-4 border",
+                  issue.id === "all-ok"
+                    ? "bg-green-900/20 border-green-500/30"
+                    : issue.severity === "error"
+                    ? "bg-red-900/15 border-red-500/25"
+                    : "bg-yellow-900/10 border-yellow-500/20"
+                )}
+              >
+                <div className="flex items-start gap-3">
+                  <div className="mt-0.5 shrink-0">
+                    {issue.id === "all-ok" ? (
+                      <Check className="w-4 h-4 text-green-400" />
+                    ) : issue.severity === "error" ? (
+                      <AlertCircle className="w-4 h-4 text-red-400" />
+                    ) : (
+                      <AlertCircle className="w-4 h-4 text-yellow-400" />
+                    )}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[10px] font-black uppercase tracking-wider text-slate-500 mb-0.5">{issue.category}</p>
+                    <p className="text-sm font-bold text-white leading-snug">{issue.message}</p>
+                    {issue.detail && (
+                      <p className="text-xs text-slate-400 mt-1 leading-relaxed">{issue.detail}</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {!ran && !loading && (
+        <div className="text-center py-12">
+          <ShieldAlert className="w-10 h-10 text-slate-700 mx-auto mb-3" />
+          <p className="text-slate-500 text-sm">Lancez l'analyse pour détecter les anomalies.</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── Login ─────────────────────────────────────────────────────────────────────
 
 function AdminLogin({ onLogin }: { onLogin: (token: string) => void }) {
@@ -671,6 +904,7 @@ const TABS: { id: Tab; label: string; icon: React.ElementType }[] = [
   { id: "schools", label: "Écoles", icon: Building2 },
   { id: "articles", label: "Articles", icon: BookOpen },
   { id: "scraping", label: "Scraping", icon: Wifi },
+  { id: "quality", label: "Qualité", icon: ShieldAlert },
 ];
 
 function AdminDashboard({ token, onLogout }: { token: string; onLogout: () => void }) {
@@ -743,6 +977,7 @@ function AdminDashboard({ token, onLogout }: { token: string; onLogout: () => vo
             {tab === "schools" && <SchoolsTab fetch={apiFetch} onToast={showToast} />}
             {tab === "articles" && <ArticlesTab fetch={apiFetch} onToast={showToast} />}
             {tab === "scraping" && <ScrapingTab fetch={apiFetch} onToast={showToast} />}
+            {tab === "quality" && <DataQualityTab fetch={apiFetch} onToast={showToast} />}
           </motion.div>
         </AnimatePresence>
       </div>
