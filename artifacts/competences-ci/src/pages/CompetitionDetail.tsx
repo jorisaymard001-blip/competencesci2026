@@ -200,7 +200,18 @@ export default function CompetitionDetail() {
               <h2 className="font-display text-base font-bold mb-3 text-green-900 dark:text-green-300">{t("comp_more_info")}</h2>
               <div className="space-y-3">
                 {comp.website && (
-                  <a href={comp.website} target="_blank" rel="noopener noreferrer" className="flex items-center text-sm font-medium text-green-800 dark:text-green-400 hover:text-green-600">
+                  <a
+                    href={comp.website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => {
+                      if (!comp.website) {
+                        e.preventDefault();
+                        alert("Le lien d'inscription sera bientôt disponible.");
+                      }
+                    }}
+                    className="flex items-center text-sm font-medium text-green-800 dark:text-green-400 hover:text-green-600"
+                  >
                     <Globe className="w-4 h-4 mr-3" /> {t("comp_register_online")}
                   </a>
                 )}
@@ -284,25 +295,20 @@ export default function CompetitionDetail() {
         {/* Apply Button */}
         {comp.status === 'open' && (
           <div className="px-6 pb-8">
-            {comp.website ? (
-              <a
-                href={comp.website}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block w-full py-4 rounded-2xl bg-secondary text-white font-bold text-center shadow-lg shadow-secondary/30 active:scale-[0.98] transition-all"
-              >
-                {t("register_btn_label")}
-              </a>
-            ) : (
-              <a
-                href="https://www.fonctionpublique.gouv.ci"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block w-full py-4 rounded-2xl bg-secondary text-white font-bold text-center shadow-lg shadow-secondary/30 active:scale-[0.98] transition-all"
-              >
-                {t("register_official")}
-              </a>
-            )}
+            <a
+              href={comp.website || "https://www.fonctionpublique.gouv.ci"}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => {
+                if (!comp.website) {
+                  e.preventDefault();
+                  alert("Le lien d'inscription sera bientôt disponible. Consultez fonctionpublique.gouv.ci pour plus d'informations.");
+                }
+              }}
+              className="block w-full py-4 rounded-2xl bg-secondary text-white font-bold text-center shadow-lg shadow-secondary/30 active:scale-[0.98] transition-all"
+            >
+              {comp.website ? t("register_btn_label") : t("register_official")}
+            </a>
           </div>
         )}
 

@@ -1,0 +1,250 @@
+Je veux mettre à jour complètement la base de données des 
+concours dans mon application Compétences CI : corriger les 
+liens vers les vraies sources officielles, retirer les 
+concours sans source fiable confirmée, et m'assurer que 
+l'affichage de chaque fiche concours est complet et 
+professionnel.
+
+## ÉTAPE 1 — Trouve le fichier de données des concours
+
+Cherche dans le projet le fichier qui contient la liste des 
+concours (probablement un fichier .json, .js, .ts, ou une 
+table dans une base de données comme SQLite/Postgres). 
+Montre-moi sa structure actuelle complète avant de faire 
+quoi que ce soit, y compris tous les champs existants 
+(nom, ministère, dates, postes, niveau, conditions, etc.).
+
+## ÉTAPE 2 — Mets à jour ces concours avec leur source 
+## officielle confirmée et leurs vraies informations
+
+Pour chaque concours actif ci-dessous, mets à jour le champ 
+lien/source officielle (urlInscription ou équivalent) ET 
+enrichis les autres champs disponibles avec les informations 
+réelles trouvées :
+
+### 1. Concours de recrutement d'Administrateurs Civils
+- urlInscription: https://fonctionpublique.gouv.ci/
+- ministere: "Ministère de la Fonction Publique et de la 
+  Modernisation de l'Administration (MEMFPMA)"
+- note: "Fait partie des concours administratifs annuels. 
+  Inscriptions généralement de mars à avril. Frais 
+  d'inscription environ 23 500 FCFA + kit numérique 
+  7 500 FCFA."
+- ageMax: "42 ans pour les grades D1 à A3, 47 ans pour 
+  le grade A4"
+
+### 2. Concours de Techniciens Supérieurs des Travaux Publics
+- urlInscription: https://fonctionpublique.gouv.ci/
+- ministere: "Ministère des Infrastructures Économiques / 
+  Ministère de la Fonction Publique"
+- note: "Concours administratif de recrutement nouveau, 
+  même portail et même calendrier que les autres concours 
+  administratifs."
+
+### 3. Concours d'entrée à l'École Nationale d'Administration
+- urlInscription: https://ena.ci/
+- ministere: "École Nationale d'Administration (ENA)"
+- note: "6 concours d'entrée par session : 3 concours 
+  directs et 3 concours professionnels, donnant accès aux 
+  3 cycles de formation (Cycle Moyen, Cycle Moyen Supérieur, 
+  Cycle Supérieur). Inscriptions généralement en mars-avril, 
+  épreuves écrites en mai, résultats en juillet."
+- postesIndicatifs: "Environ 600 places par session 
+  (450 places concours directs, 150 places concours 
+  professionnels)"
+
+### 4. Recrutement des Agents de Police
+- urlInscription: https://policenationale-ci.com/
+- ministere: "Direction Générale de la Police Nationale"
+- note: "Inscription en ligne avec paiement Mobile Money 
+  (MOOV Money, MTN Mobile Money). Épreuves : visite 
+  médicale, tests sportifs (course 1500m, pompes, 
+  abdominaux, grimper de corde), épreuves écrites, 
+  oral pour les Officiers et Commissaires."
+
+### 5. Concours de recrutement de Sages-Femmes d'État
+- urlInscription: https://fonctionpublique.gouv.ci/
+- ministere: "Institut National de Formation des Agents 
+  de Santé (INFAS) / Ministère de la Fonction Publique"
+- note: "Concours géré via le portail centralisé de la 
+  Fonction Publique. Préparez votre dossier médical en 
+  avance, la visite médicale INFAS est stricte."
+
+### 6. Recrutement d'Agents de Sécurité Pénitentiaire
+- urlInscription: https://infj.ciconcours.com/
+- ministere: "Institut National de Formation Judiciaire 
+  (INFJ) / Ministère de la Justice"
+- note: "Cycle d'agents d'encadrement des établissements 
+  pénitentiaires. Inscription en ligne, dépôt de dossier 
+  physique requis ensuite."
+
+### 7. Recrutement d'Inspecteurs des Douanes
+- urlInscription: https://fonctionpublique.gouv.ci/
+- ministere: "Direction Générale des Douanes / 
+  Ministère de la Fonction Publique"
+- note: "Concours administratif de recrutement, même 
+  portail et calendrier que les autres concours 
+  administratifs annuels."
+
+### 8. Recrutement d'Infirmiers d'État
+- urlInscription: https://fonctionpublique.gouv.ci/
+- ministere: "Institut National de Formation des Agents 
+  de Santé (INFAS) / Ministère de la Fonction Publique"
+- note: "L'un des plus gros contingents de recrutement 
+  annuel. Déploiement dans hôpitaux, CHR, CSU et centres 
+  de santé sur tout le territoire."
+
+### 9. Recrutement d'Agents de l'Administration Fiscale
+- urlInscription: https://fonctionpublique.gouv.ci/
+- ministere: "Direction Générale des Impôts / 
+  Ministère de la Fonction Publique"
+- note: "Concours administratif de recrutement nouveau."
+
+### 10. Concours de recrutement d'Enseignants du Secondaire
+- urlInscription: https://ens.mesrs-ci.net/
+- ministere: "École Normale Supérieure (ENS) Abidjan / 
+  Ministère de l'Éducation Nationale"
+- note: "Concours pour Professeur de Lycée, Professeur de 
+  Collège et Professeur Bivalent de Collège. Plusieurs 
+  centaines de places disponibles selon les options 
+  (lettres, sciences, etc.)."
+
+### 11. Concours de recrutement d'Assistants Sociaux
+- urlInscription: https://fonctionpublique.gouv.ci/
+- ministere: "Ministère de la Solidarité / 
+  Ministère de la Fonction Publique"
+- note: "Concours administratif de recrutement nouveau."
+
+### 12. Recrutement d'Ingénieurs du Génie Civil
+- urlInscription: https://fonctionpublique.gouv.ci/
+- ministere: "Ministère des Infrastructures Économiques / 
+  Ministère de la Fonction Publique"
+- note: "Concours de recrutement exceptionnel spécifique, 
+  catégorie 'Ingénieur des Travaux Publics' avec options 
+  Bâtiment et Routes & Transports. Poste très demandé par 
+  l'administration."
+
+### 13. Concours d'entrée à l'INJS
+- urlInscription: https://concours.injsabidjan.net/
+- ministere: "Institut National de la Jeunesse et des 
+  Sports (INJS)"
+- note: "Préinscription exclusivement en ligne. Frais : 
+  35 000 FCFA d'inscription + 40 000 FCFA pour la visite 
+  médicale obligatoire au Centre de Médecine du Sport. 
+  Tatouages désormais interdits selon le règlement officiel. 
+  9 documents requis dont CNI et casier judiciaire récent."
+
+## ÉTAPE 3 — Retire ces concours sans source fiable 
+## confirmée
+
+Pour les 2 concours suivants, aucune source officielle 
+fiable n'a été trouvée organisant un concours grand public 
+sous ce nom exact en Côte d'Ivoire. RETIRE-LES complètement 
+de la base de données :
+
+### Concours d'entrée à l'ENSEA
+Raison : L'ENSEA (École Nationale Supérieure de Statistique 
+et d'Économie Appliquée) recrute principalement ses élèves-
+ingénieurs via des voies spécifiques (concours communs 
+sous-régionaux, admission sur dossier), pas via un grand 
+concours public national grand public comme les autres 
+concours listés dans l'application. Aucune page 
+d'inscription publique équivalente et confirmée n'a été 
+trouvée. À supprimer de la base de données.
+
+### Recrutement de chercheurs scientifiques au CNRST
+Raison : Aucune trace d'un concours de recrutement grand 
+public organisé par le CNRST (Centre National de Recherche 
+Scientifique et Technologique) n'a été trouvée dans les 
+sources disponibles. Ce type de recrutement, si réel, 
+passerait probablement par appel à candidatures spécifique 
+et non par un concours classique. À supprimer de la base 
+de données.
+
+Vérifie qu'aucune image, lien, carte ou référence à ces 
+2 concours ne reste nulle part dans le code après 
+suppression : composants de liste, pages détail, favoris, 
+notifications, recherche. Fais une recherche globale dans 
+le projet avec les termes "ENSEA" et "CNRST" pour confirmer 
+qu'il ne reste aucune trace orpheline.
+
+## ÉTAPE 4 — Corrige le format d'affichage des cards 
+## concours si nécessaire
+
+Vérifie que chaque card de concours dans la liste affiche 
+proprement, sans débordement ni troncature :
+
+<div className="bg-gray-800 border border-gray-700 
+  rounded-2xl p-4 mb-3">
+  <div className="flex justify-between items-start mb-2">
+    <span className="px-2.5 py-1 rounded-full text-xs 
+      font-black bg-green-950 text-green-400">
+      STATUT
+    </span>
+    <span className="bg-gray-700 text-gray-300 px-2.5 
+      py-1 rounded-full text-xs font-medium">
+      💼 X postes
+    </span>
+  </div>
+  <h3 className="text-white font-bold text-base 
+    leading-tight mt-2">
+    {concours.nom}
+  </h3>
+  <p className="text-gray-400 text-sm mt-1 
+    line-clamp-2">
+    {concours.ministere}
+  </p>
+</div>
+
+Le nom du ministère ne doit jamais être tronqué de façon 
+illisible — utilise line-clamp-2 plutôt qu'une troncature 
+sur une seule ligne si le texte est long.
+
+## ÉTAPE 5 — Ajoute un système de gestion d'erreur pour 
+## les liens externes
+
+Quand l'utilisateur clique sur "Plus d'informations" ou un 
+lien externe vers le site officiel d'un concours, ajoute une 
+vérification basique pour éviter un lien mort silencieux :
+
+<a 
+  href={concours.urlInscription}
+  target="_blank"
+  rel="noopener noreferrer"
+  onClick={(e) => {
+    if (!concours.urlInscription) {
+      e.preventDefault();
+      alert('Le lien d\'inscription sera bientôt disponible.');
+    }
+  }}
+  className="..."
+>
+  S'inscrire sur le site officiel →
+</a>
+
+## ÉTAPE 6 — Vérification finale complète
+
+Une fois toutes les modifications faites, montre-moi 
+impérativement :
+
+1. La nouvelle structure complète du fichier de données 
+   (avant/après), avec tous les champs mis à jour pour 
+   les 13 concours actifs
+2. Confirmation explicite que "Concours d'entrée à l'ENSEA" 
+   et "Recrutement de chercheurs scientifiques au CNRST" 
+   ont bien été supprimés, avec le résultat de ta recherche 
+   globale ("ENSEA" et "CNRST" → 0 résultat restant)
+3. La liste finale complète des 13 concours restants avec 
+   leur lien source, ministère et note mise à jour
+4. Un aperçu visuel d'au moins 3 fiches concours différentes 
+   (liste ET page détail) pour vérifier que tout s'affiche 
+   correctement sans troncature ni débordement
+5. Si tu rencontres une quelconque ambiguïté ou un concours 
+   pour lequel les informations semblent contradictoires, 
+   arrête-toi et demande-moi confirmation avant de valider 
+   définitivement la modification.
+
+Ne touche à rien d'autre dans le code (pages écoles, profil, 
+accueil, etc.) sans me le signaler d'abord. Concentre-toi 
+uniquement sur la base de données et l'affichage des 
+concours dans cette tâche.

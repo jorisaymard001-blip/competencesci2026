@@ -147,7 +147,7 @@ export function CompetitionCard({ competition, index = 0 }: { competition: Compe
 
           {/* Ministry at bottom of image */}
           <div className="absolute bottom-0 inset-x-0 px-3 pb-2">
-            <p className="text-white/85 text-[11px] font-medium truncate">{competition.ministry}</p>
+            <p className="text-white/85 text-[11px] font-medium line-clamp-2 leading-tight">{competition.ministry}</p>
           </div>
         </div>
 

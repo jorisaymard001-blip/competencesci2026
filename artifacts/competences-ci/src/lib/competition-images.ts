@@ -57,7 +57,7 @@ export function getCompetitionImage(comp: CompEntry): string {
   if (text.includes("ingénieur") || text.includes("génie civil") || text.includes("btp") || text.includes("mines") || text.includes("infrastructure")) return IMAGES.engineering;
   if (text.includes("informatique") || text.includes("numérique") || text.includes("système d'information") || text.includes("data")) return IMAGES.it;
   if (text.includes("agriculture") || text.includes("agronomie") || text.includes("élevage") || text.includes("pêche") || text.includes("forêt")) return IMAGES.agriculture;
-  if (text.includes("statistique") || text.includes("économie") || text.includes("économiste") || text.includes("ensea")) return IMAGES.statistics;
+  if (text.includes("statistique") || text.includes("économie") || text.includes("économiste")) return IMAGES.statistics;
   if (text.includes("sport") || text.includes("injs") || text.includes("éducation physique")) return IMAGES.sports;
   if (text.includes("télécommunication") || text.includes("télécom") || text.includes("postes")) return IMAGES.telecom;
   if (text.includes("journaliste") || text.includes("communication") || text.includes("audiovisuel") || text.includes("media") || text.includes("presse")) return IMAGES.media;
