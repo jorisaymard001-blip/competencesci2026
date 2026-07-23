@@ -71,15 +71,7 @@ export function Layout({
   return (
     <div className="min-h-[100dvh] flex bg-background">
 
-      {/* ── SIDEBAR (lg+) ──────────────────────────────────────────── */}
-      {user && (
-        <aside className="hidden lg:flex flex-col fixed inset-y-0 left-0 w-[280px] bg-card border-r border-border/60 z-50 shadow-sm">
-          <SidebarContent t={t} navigate={navigate} user={user} unreadCount={unreadCount}
-            theme={theme} toggleTheme={toggleTheme} language={language} setLanguage={setLanguage} />
-        </aside>
-      )}
-
-      {/* ── MOBILE DRAWER ─────────────────────────────────────────── */}
+      {/* ── DRAWER (all screen sizes) ─────────────────────────────── */}
       <AnimatePresence>
         {drawerOpen && user && (
           <>
@@ -88,14 +80,14 @@ export function Layout({
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setDrawerOpen(false)}
-              className="fixed inset-0 z-[60] bg-black/50 lg:hidden"
+              className="fixed inset-0 z-[60] bg-black/50"
             />
             <motion.aside
               initial={{ x: "-100%" }}
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
               transition={{ type: "spring", damping: 30, stiffness: 280 }}
-              className="fixed inset-y-0 left-0 z-[70] w-[85%] max-w-xs bg-card border-r border-border/60 shadow-2xl flex flex-col lg:hidden"
+              className="fixed inset-y-0 left-0 z-[70] w-[85%] max-w-xs bg-card border-r border-border/60 shadow-2xl flex flex-col"
             >
               <button
                 onClick={() => setDrawerOpen(false)}
@@ -114,8 +106,7 @@ export function Layout({
 
       {/* ── MAIN CONTENT WRAPPER ──────────────────────────────────── */}
       <div className={cn(
-        "flex-1 flex flex-col min-h-[100dvh] min-w-0 overflow-x-hidden",
-        user && "lg:ml-[280px]"
+        "flex-1 flex flex-col min-h-[100dvh] min-w-0 overflow-x-hidden"
       )}>
 
         {/* ── HEADER ─────────────────────────────────────────────── */}
@@ -145,7 +136,7 @@ export function Layout({
                   <button
                     onClick={() => setDrawerOpen(true)}
                     className={cn(
-                      "p-2 -ml-2 rounded-full transition-colors active:scale-95 min-w-[40px] min-h-[40px] flex items-center justify-center lg:hidden",
+                      "p-2 -ml-2 rounded-full transition-colors active:scale-95 min-w-[40px] min-h-[40px] flex items-center justify-center",
                       transparentHeader ? "hover:bg-white/20" : "hover:bg-muted"
                     )}
                     aria-label={t("nav_menu")}
@@ -164,8 +155,8 @@ export function Layout({
                 )}
               </div>
 
-              {/* RIGHT: bell + avatar (mobile/tablet only — sidebar handles desktop) */}
-              <div className="flex items-center justify-end gap-2 min-w-[40px] lg:hidden">
+              {/* RIGHT: bell + avatar */}
+              <div className="flex items-center justify-end gap-2 min-w-[40px]">
                 {user && (
                   <>
                     <button
@@ -191,23 +182,6 @@ export function Layout({
                 )}
               </div>
 
-              {/* Desktop bell on subpages */}
-              {user && showBack && (
-                <div className="hidden lg:flex items-center justify-end col-start-3">
-                  <button
-                    onClick={() => navigate("/notifications")}
-                    className="relative p-2 rounded-full hover:bg-muted transition-colors"
-                    aria-label={t("notif_title")}
-                  >
-                    <Bell className="w-5 h-5 text-muted-foreground" />
-                    {unreadCount > 0 && (
-                      <span className="absolute top-1 right-1 min-w-[18px] h-[18px] px-1 bg-red-500 text-white text-[10px] font-bold flex items-center justify-center rounded-full ring-2 ring-background">
-                        {unreadCount > 9 ? "9+" : unreadCount}
-                      </span>
-                    )}
-                  </button>
-                </div>
-              )}
             </div>
           </header>
         )}

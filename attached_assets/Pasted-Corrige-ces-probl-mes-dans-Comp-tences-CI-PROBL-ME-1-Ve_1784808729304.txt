@@ -1,0 +1,198 @@
+Corrige ces problèmes dans Compétences CI :
+
+## PROBLÈME 1 — Version ordinateur : layout cassé
+
+Sur grand écran (ordinateur), la sidebar gauche 
+s'affiche en permanence et prend trop de place. 
+Le contenu principal n'est pas bien mis en page 
+(affichage en liste simple au lieu d'une mise en 
+page desktop propre).
+
+### Ce qui doit changer :
+
+La sidebar gauche (menu avec Accueil, Écoles, 
+Concours, Mes outils, etc.) ne doit PAS être 
+visible par défaut quand on ouvre l'application 
+sur ordinateur.
+
+À la place, mets un bouton hamburger (☰) en haut 
+à gauche comme sur mobile. Quand l'utilisateur 
+clique dessus, le menu latéral s'ouvre en panneau 
+glissant (drawer) par-dessus le contenu, exactement 
+comme sur mobile.
+
+Le contenu principal (accueil, écoles, concours, 
+etc.) doit occuper TOUTE la largeur de l'écran 
+sur ordinateur, sans sidebar fixe à gauche.
+
+### Code à appliquer :
+
+/* Cache la sidebar fixe sur tous les écrans */
+.sidebar-desktop {
+  display: none !important;
+}
+
+/* Le contenu principal prend toute la largeur */
+main, .main-content {
+  margin-left: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+/* Affiche le bouton hamburger sur tous les écrans */
+.hamburger-button {
+  display: flex !important;
+}
+
+/* Le drawer (menu glissant) s'ouvre sur tous 
+   les écrans de la même façon */
+.drawer-overlay {
+  display: block;
+}
+
+En React/JSX, assure-toi que :
+- Le bouton hamburger ☰ est toujours visible 
+  en haut à gauche quel que soit l'écran
+- Le menu s'ouvre en drawer par-dessus le 
+  contenu quand on clique sur ☰
+- Le menu se ferme quand on clique en dehors
+- Il n'y a AUCUNE sidebar fixe permanente 
+  sur aucune taille d'écran
+
+### Pour le contenu de la page d'accueil 
+### sur grand écran :
+
+Le contenu doit être centré et limité en largeur 
+pour ne pas être trop étiré sur grand écran :
+
+.page-content {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 24px 32px;
+}
+
+Les cards "Explorer" (Annuaire des Écoles, 
+Concours Publics, etc.) doivent s'afficher en 
+grille 2 colonnes sur grand écran, pas en liste 
+verticale :
+
+.explorer-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+@media (min-width: 1024px) {
+  .explorer-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+Les stats (25 Écoles, Concours Ouverts, Villes) 
+doivent être dans une ligne horizontale qui ne 
+déborde pas, avec overflow hidden sur chaque card :
+
+.stats-container {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+}
+
+.stat-card {
+  flex-shrink: 0;
+  min-width: 140px;
+  overflow: hidden;
+}
+
+.stat-card p, .stat-card span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+
+## PROBLÈME 2 — Page Contact : mets à jour 
+## les vrais liens et corrige la section Créateur
+
+### Mets à jour ces liens dans ContactPage.jsx :
+
+/* WhatsApp — remplace le lien actuel par : */
+href="https://wa.me/message/SIZLNMAWWDNLG1"
+
+/* Instagram — remplace le lien actuel par : */
+href="https://www.instagram.com/competences_ci?igsh=M3B1dGNqOWU2cnR5&utm_source=qr"
+
+/* Facebook — remplace le lien actuel par : */
+href="https://www.facebook.com/profile.php?id=61585422781932&mibextid=wwXIfr"
+
+Assure-toi que chaque lien a :
+target="_blank"
+rel="noopener noreferrer"
+
+### Corrige la section Créateur :
+
+Supprime complètement cette ligne :
+"Fait avec 🧡 pour la Côte d'Ivoire"
+et tous les emojis cœur (❤️ 🧡 💛) 
+associés à cette section.
+
+Remplace toute la card Créateur par 
+cette version professionnelle :
+
+<div className="bg-gray-800 border border-gray-700 
+  rounded-2xl p-5">
+  
+  <div className="flex items-center gap-3 mb-4">
+    <div className="w-10 h-10 bg-orange-950 
+      border border-orange-800 rounded-xl 
+      flex items-center justify-center">
+      <span className="text-lg">👨‍💻</span>
+    </div>
+    <div>
+      <p className="text-white font-bold text-base">
+        Développeur
+      </p>
+      <p className="text-gray-500 text-xs">
+        Conception & Développement
+      </p>
+    </div>
+  </div>
+
+  <p className="text-gray-300 text-sm 
+    leading-relaxed mb-4">
+    Compétences CI a été conçue et développée 
+    par Yao Brou Joris Aymard, dans le but de 
+    faciliter l'orientation académique et 
+    professionnelle des étudiants ivoiriens.
+  </p>
+
+  <div className="border-t border-gray-700 pt-3">
+    <p className="text-gray-500 text-xs">
+      © 2026 Compétences CI — Tous droits réservés
+    </p>
+  </div>
+
+</div>
+
+Supprime aussi les emojis cœur sur les boutons 
+Instagram et Facebook. Remplace-les par des 
+icônes appropriées ou du texte seul.
+
+
+## VÉRIFICATION FINALE
+
+Après les corrections, vérifie :
+1. Sur ordinateur, la sidebar n'est plus visible 
+   au démarrage — seul le bouton ☰ est visible
+2. Quand on clique sur ☰, le menu s'ouvre 
+   correctement par-dessus le contenu
+3. Le contenu de l'accueil est centré et en 
+   grille 2 colonnes sur grand écran
+4. Les stats ne débordent plus à droite de l'écran
+5. Les liens WhatsApp, Instagram et Facebook 
+   pointent vers les bons URLs
+6. La section Créateur ne contient plus aucun 
+   emoji cœur ni la phrase "Fait avec ❤️ 
+   pour la Côte d'Ivoire"
+7. La page Contact s'affiche correctement sur 
+   ordinateur et mobile
