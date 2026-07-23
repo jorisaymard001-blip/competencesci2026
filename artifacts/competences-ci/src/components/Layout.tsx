@@ -71,7 +71,15 @@ export function Layout({
   return (
     <div className="min-h-[100dvh] flex bg-background">
 
-      {/* ── DRAWER (all screen sizes) ─────────────────────────────── */}
+      {/* ── SIDEBAR (desktop fixe) ────────────────────────────────── */}
+      {user && (
+        <aside className="hidden lg:flex flex-col fixed inset-y-0 left-0 w-[280px] bg-card border-r border-border/60 z-50 shadow-sm">
+          <SidebarContent t={t} navigate={navigate} user={user} unreadCount={unreadCount}
+            theme={theme} toggleTheme={toggleTheme} language={language} setLanguage={setLanguage} />
+        </aside>
+      )}
+
+      {/* ── DRAWER (mobile + tablette) ────────────────────────────── */}
       <AnimatePresence>
         {drawerOpen && user && (
           <>
@@ -106,7 +114,8 @@ export function Layout({
 
       {/* ── MAIN CONTENT WRAPPER ──────────────────────────────────── */}
       <div className={cn(
-        "flex-1 flex flex-col min-h-[100dvh] min-w-0 overflow-x-hidden"
+        "flex-1 flex flex-col min-h-[100dvh] min-w-0 overflow-x-hidden",
+        user && "lg:ml-[280px]"
       )}>
 
         {/* ── HEADER ─────────────────────────────────────────────── */}
@@ -136,7 +145,7 @@ export function Layout({
                   <button
                     onClick={() => setDrawerOpen(true)}
                     className={cn(
-                      "p-2 -ml-2 rounded-full transition-colors active:scale-95 min-w-[40px] min-h-[40px] flex items-center justify-center",
+                      "p-2 -ml-2 rounded-full transition-colors active:scale-95 min-w-[40px] min-h-[40px] flex items-center justify-center lg:hidden",
                       transparentHeader ? "hover:bg-white/20" : "hover:bg-muted"
                     )}
                     aria-label={t("nav_menu")}
@@ -188,8 +197,7 @@ export function Layout({
 
         {/* ── PAGE CONTENT ───────────────────────────────────────── */}
         <main className={cn(
-          "flex-1 w-full flex flex-col relative mx-auto",
-          "lg:max-w-[900px]",
+          "flex-1 w-full flex flex-col relative",
           !noBottomNav && "pb-20 lg:pb-6"
         )}>
           {children}

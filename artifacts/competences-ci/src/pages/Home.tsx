@@ -81,7 +81,7 @@ export default function Home() {
     <Layout>
       <GlobalSearch open={showSearch} onClose={() => setShowSearch(false)} />
 
-      <div className="max-w-md mx-auto w-full pb-10">
+      <div className="w-full pb-10 max-w-5xl mx-auto">
 
         {/* ── Hero */}
         <motion.div
@@ -122,15 +122,15 @@ export default function Home() {
           </button>
         </motion.div>
 
-        {/* ── Stats — horizontal scrollable pills */}
-        <div className="flex gap-3 overflow-x-auto px-4 pb-2 scrollbar-hide">
+        {/* ── Stats — grille 2 cols (mobile) / 4 cols (desktop) */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 px-4 mb-1">
           {stats.map((s, i) => (
             <motion.div
               key={i}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 + i * 0.07 }}
-              className={`flex-shrink-0 ${s.pill} border rounded-2xl px-4 py-3 flex items-center gap-3`}
+              className={`${s.pill} border rounded-2xl px-4 py-3 flex items-center gap-3`}
             >
               <span className="text-xl">{s.icon}</span>
               <div>

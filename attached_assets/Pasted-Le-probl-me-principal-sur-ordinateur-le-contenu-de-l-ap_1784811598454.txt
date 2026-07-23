@@ -1,0 +1,579 @@
+Le problème principal sur ordinateur : le contenu 
+de l'application est affiché dans un petit bloc 
+centré qui ne remplit pas l'écran. Sur ordinateur, 
+l'application doit détecter l'appareil et adapter 
+son affichage pour occuper TOUT l'espace disponible.
+
+## COMPORTEMENT ATTENDU PAR APPAREIL
+
+### Sur téléphone (< 768px) :
+- Affichage actuel conservé tel quel
+- Bottom navigation visible en bas
+- Bouton hamburger ☰ en haut à gauche
+- Contenu pleine largeur
+
+### Sur ordinateur (>= 1024px) :
+- Sidebar fixe à gauche (280px) toujours visible
+- Le contenu principal remplit TOUT le reste 
+  de l'espace (calc(100% - 280px))
+- Pas de bottom navigation
+- Pas de bouton hamburger
+- Grilles adaptées pour grand écran
+
+### Sur tablette (768px - 1023px) :
+- Bouton hamburger visible
+- Drawer qui s'ouvre par-dessus
+- Contenu pleine largeur
+
+
+## ÉTAPE 1 — Détection de l'appareil
+
+Crée src/hooks/useDevice.js :
+
+import { useState, useEffect } from 'react';
+
+export function useDevice() {
+  const [device, setDevice] = useState({
+    isMobile: window.innerWidth < 768,
+    isTablet: window.innerWidth >= 768 && 
+              window.innerWidth < 1024,
+    isDesktop: window.innerWidth >= 1024,
+  });
+
+  useEffect(() => {
+    const handleResize = () => {
+      const width = window.innerWidth;
+      setDevice({
+        isMobile: width < 768,
+        isTablet: width >= 768 && width < 1024,
+        isDesktop: width >= 1024,
+      });
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener(
+      'resize', handleResize
+    );
+  }, []);
+
+  return device;
+}
+
+
+## ÉTAPE 2 — Layout principal adaptatif
+
+Modifie le composant layout principal 
+(App.jsx ou Layout.jsx) :
+
+import { useDevice } from '../hooks/useDevice';
+
+export default function AppLayout({ children }) {
+  const { isDesktop, isMobile } = useDevice();
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
+  if (isDesktop) {
+    return (
+      <div style={{ 
+        display: 'flex', 
+        height: '100vh',
+        width: '100vw',
+        overflow: 'hidden',
+        backgroundColor: '#0D1117'
+      }}>
+        
+        {/* Sidebar fixe gauche — toujours visible 
+            sur desktop */}
+        <aside style={{
+          width: '280px',
+          flexShrink: 0,
+          height: '100vh',
+          overflowY: 'auto',
+          backgroundColor: '#161B22',
+          borderRight: '1px solid #30363D'
+        }}>
+          <SidebarDesktop />
+        </aside>
+
+        {/* Contenu principal — prend tout 
+            l'espace restant */}
+        <main style={{
+          flex: 1,
+          height: '100vh',
+          overflowY: 'auto',
+          width: 'calc(100% - 280px)'
+        }}>
+          <div style={{
+            maxWidth: '1200px',
+            margin: '0 auto',
+            padding: '32px 40px'
+          }}>
+            {children}
+          </div>
+        </main>
+
+      </div>
+    );
+  }
+
+  /* Mobile et tablette : layout actuel conservé */
+  return (
+    <div style={{ 
+      minHeight: '100vh',
+      backgroundColor: '#0D1117'
+    }}>
+      {/* Header mobile */}
+      <header style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '12px 16px',
+        borderBottom: '1px solid #30363D',
+        backgroundColor: '#161B22'
+      }}>
+        <button onClick={() => setDrawerOpen(true)}>
+          ☰
+        </button>
+        <span style={{ color: 'white', fontWeight: 'bold' }}>
+          Compétences CI
+        </span>
+        <div style={{ width: 36 }} />
+      </header>
+
+      {/* Drawer mobile */}
+      {drawerOpen && (
+        <>
+          <div 
+            onClick={() => setDrawerOpen(false)}
+            style={{
+              position: 'fixed', inset: 0,
+              backgroundColor: 'rgba(0,0,0,0.6)',
+              zIndex: 40
+            }}
+          />
+          <aside style={{
+            position: 'fixed',
+            left: 0, top: 0, bottom: 0,
+            width: '280px',
+            backgroundColor: '#161B22',
+            borderRight: '1px solid #30363D',
+            zIndex: 50,
+            overflowY: 'auto'
+          }}>
+            <SidebarDesktop 
+              onClose={() => setDrawerOpen(false)} 
+            />
+          </aside>
+        </>
+      )}
+
+      {/* Contenu pleine largeur */}
+      <div style={{ paddingBottom: '80px' }}>
+        {children}
+      </div>
+
+      {/* Bottom navigation mobile */}
+      <BottomNavigation />
+    </div>
+  );
+}
+
+
+## ÉTAPE 3 — Grilles adaptatives sur toutes les pages
+
+Applique ces grilles sur TOUTES les pages en 
+remplaçant les classes CSS actuelles :
+
+### Page Accueil — Stats :
+/* Mobile : 2 colonnes / Desktop : 4 colonnes */
+<div className="grid grid-cols-2 lg:grid-cols-4 
+  gap-3 mb-6">
+  {/* Cards stats */}
+</div>
+
+### Page Accueil — Explorer :
+/* Mobile : 1 colonne / Desktop : 2 colonnes */
+<div className="grid grid-cols-1 md:grid-cols-2 
+  lg:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
+  {/* Cards Explorer */}
+</div>
+
+### Page Écoles — Liste :
+/* Mobile : 1 colonne / Tablette : 2 / 
+   Desktop : 3 colonnes */
+<div className="grid grid-cols-1 md:grid-cols-2 
+  xl:grid-cols-3 gap-4">
+  {ecoles.map(e => <EcoleCard key={e.id} ecole={e}/>)}
+</div>
+
+### Page Concours — Liste :
+/* Mobile : 1 colonne / Desktop : 2 colonnes */
+<div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+  {concours.map(c => 
+    <ConcoursCard key={c.id} concours={c}/>
+  )}
+</div>
+
+### Page Conseils — Articles :
+/* Mobile : 1 colonne / Tablette : 2 / 
+   Desktop : 3 colonnes */
+<div className="grid grid-cols-1 md:grid-cols-2 
+  xl:grid-cols-3 gap-4">
+  {articles.map(a => 
+    <ArticleCard key={a.id} article={a}/>
+  )}
+</div>
+
+### Pages Détail (École, Concours, Article) :
+/* Sur desktop, layout 2 colonnes : 
+   contenu principal + panneau latéral */
+<div className="flex flex-col lg:flex-row gap-6">
+  
+  {/* Colonne principale (2/3) */}
+  <div className="flex-1 min-w-0">
+    {/* Contenu principal */}
+  </div>
+
+  {/* Panneau latéral sticky (1/3) — 
+      visible seulement sur desktop */}
+  <div className="hidden lg:block w-80 flex-shrink-0">
+    <div className="sticky top-6 space-y-4">
+      {/* Actions, coût, contact */}
+    </div>
+  </div>
+
+</div>
+
+### Page Profil — Desktop :
+/* 2 colonnes sur grand écran */
+<div className="flex flex-col lg:flex-row gap-6">
+  <div className="flex-1">
+    {/* Infos profil */}
+  </div>
+  <div className="w-full lg:w-80">
+    {/* Paramètres */}
+  </div>
+</div>
+
+
+## ÉTAPE 4 — Sidebar Desktop complète
+
+Crée ou mets à jour src/components/SidebarDesktop.jsx 
+avec navigation complète :
+
+export default function SidebarDesktop({ onClose }) {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const handleNav = (path) => {
+    navigate(path);
+    if (onClose) onClose();
+  };
+
+  return (
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      height: '100%',
+      padding: '16px'
+    }}>
+      
+      {/* Logo */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '12px',
+        padding: '12px',
+        marginBottom: '24px',
+        borderBottom: '1px solid #30363D'
+      }}>
+        <img 
+          src="/icon-192x192.png"
+          alt="Compétences CI"
+          style={{ width: 40, height: 40, 
+            borderRadius: 12 }}
+        />
+        <div>
+          <p style={{ color: 'white', fontWeight: 900, 
+            fontSize: 15 }}>
+            Compétences CI
+          </p>
+          <p style={{ color: '#8B949E', fontSize: 11 }}>
+            L'orientation en CI
+          </p>
+        </div>
+      </div>
+
+      {/* Navigation */}
+      <nav style={{ flex: 1, overflowY: 'auto' }}>
+        
+        {/* Section DÉCOUVRIR */}
+        <p style={{ color: '#4B5563', fontSize: 10,
+          fontWeight: 900, letterSpacing: '0.1em',
+          textTransform: 'uppercase', padding: '0 12px',
+          marginBottom: 8 }}>
+          Découvrir
+        </p>
+        {[
+          { icon: '🏠', label: 'Accueil', path: '/' },
+          { icon: '🎓', label: 'Écoles', path: '/ecoles' },
+          { icon: '🏆', label: 'Concours', 
+            path: '/concours' },
+        ].map(item => (
+          <button key={item.path}
+            onClick={() => handleNav(item.path)}
+            style={{
+              width: '100%',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 12,
+              padding: '10px 12px',
+              borderRadius: 12,
+              marginBottom: 4,
+              border: 'none',
+              cursor: 'pointer',
+              textAlign: 'left',
+              backgroundColor: location.pathname === 
+                item.path ? '#431407' : 'transparent',
+              color: location.pathname === item.path 
+                ? '#F97316' : '#D1D5DB',
+              fontWeight: 600,
+              fontSize: 14
+            }}>
+            <span style={{ fontSize: 18 }}>
+              {item.icon}
+            </span>
+            {item.label}
+          </button>
+        ))}
+
+        {/* Section MES OUTILS */}
+        <p style={{ color: '#4B5563', fontSize: 10,
+          fontWeight: 900, letterSpacing: '0.1em',
+          textTransform: 'uppercase', padding: '12px 12px 8px',
+          marginTop: 8 }}>
+          Mes outils
+        </p>
+        {[
+          { icon: '🧭', label: 'Trouver ma voie', 
+            path: '/trouver-ma-voie' },
+          { icon: '📋', label: 'Mes candidatures', 
+            path: '/mes-candidatures' },
+          { icon: '❤️', label: 'Mes favoris', 
+            path: '/favoris' },
+          { icon: '📚', label: 'Conseils', 
+            path: '/conseils' },
+          { icon: '🔔', label: 'Notifications', 
+            path: '/notifications' },
+        ].map(item => (
+          <button key={item.path}
+            onClick={() => handleNav(item.path)}
+            style={{
+              width: '100%',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 12,
+              padding: '10px 12px',
+              borderRadius: 12,
+              marginBottom: 4,
+              border: 'none',
+              cursor: 'pointer',
+              textAlign: 'left',
+              backgroundColor: location.pathname === 
+                item.path ? '#431407' : 'transparent',
+              color: location.pathname === item.path 
+                ? '#F97316' : '#D1D5DB',
+              fontWeight: 600,
+              fontSize: 14
+            }}>
+            <span style={{ fontSize: 18 }}>
+              {item.icon}
+            </span>
+            {item.label}
+          </button>
+        ))}
+
+        {/* Section AUTRES */}
+        <p style={{ color: '#4B5563', fontSize: 10,
+          fontWeight: 900, letterSpacing: '0.1em',
+          textTransform: 'uppercase', padding: '12px 12px 8px',
+          marginTop: 8 }}>
+          Autres
+        </p>
+        {[
+          { icon: '👤', label: 'Profil', 
+            path: '/profil' },
+          { icon: '📞', label: 'Contact', 
+            path: '/contact' },
+          { icon: 'ℹ️', label: 'À propos', 
+            path: '/a-propos' },
+        ].map(item => (
+          <button key={item.path}
+            onClick={() => handleNav(item.path)}
+            style={{
+              width: '100%',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 12,
+              padding: '10px 12px',
+              borderRadius: 12,
+              marginBottom: 4,
+              border: 'none',
+              cursor: 'pointer',
+              textAlign: 'left',
+              backgroundColor: location.pathname === 
+                item.path ? '#431407' : 'transparent',
+              color: location.pathname === item.path 
+                ? '#F97316' : '#D1D5DB',
+              fontWeight: 600,
+              fontSize: 14
+            }}>
+            <span style={{ fontSize: 18 }}>
+              {item.icon}
+            </span>
+            {item.label}
+          </button>
+        ))}
+
+      </nav>
+
+      {/* Footer sidebar */}
+      <div style={{ borderTop: '1px solid #30363D',
+        paddingTop: 16, marginTop: 16 }}>
+        
+        {/* Toggle thème */}
+        <div style={{ display: 'flex', 
+          justifyContent: 'space-between',
+          alignItems: 'center', marginBottom: 12 }}>
+          <span style={{ color: '#9CA3AF', fontSize: 13 }}>
+            Mode sombre
+          </span>
+          <ThemeToggle />
+        </div>
+
+        {/* Langue */}
+        <div style={{ display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center', marginBottom: 16 }}>
+          <span style={{ color: '#9CA3AF', fontSize: 13 }}>
+            Langue
+          </span>
+          <div style={{ display: 'flex', gap: 4 }}>
+            <button onClick={() => changeLanguage('fr')}
+              style={{ background: '#F97316', color: 'white',
+                border: 'none', borderRadius: 8,
+                padding: '4px 10px', fontSize: 12,
+                fontWeight: 'bold', cursor: 'pointer' }}>
+              FR
+            </button>
+            <button onClick={() => changeLanguage('en')}
+              style={{ background: '#374151', color: '#9CA3AF',
+                border: 'none', borderRadius: 8,
+                padding: '4px 10px', fontSize: 12,
+                fontWeight: 'bold', cursor: 'pointer' }}>
+              EN
+            </button>
+          </div>
+        </div>
+
+        {/* User info */}
+        <div style={{ display: 'flex', alignItems: 'center',
+          gap: 12, padding: 12, backgroundColor: '#1C2333',
+          borderRadius: 16, marginBottom: 12 }}>
+          <img src={user?.photo || '/icon-192x192.png'}
+            style={{ width: 36, height: 36, 
+              borderRadius: 10, objectFit: 'cover',
+              flexShrink: 0 }}/>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <p style={{ color: 'white', fontWeight: 700,
+              fontSize: 13, overflow: 'hidden',
+              textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {user?.nom || user?.displayName}
+            </p>
+            <p style={{ color: '#6B7280', fontSize: 11,
+              overflow: 'hidden', textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap' }}>
+              {user?.email}
+            </p>
+          </div>
+        </div>
+
+        {/* Déconnexion */}
+        <button onClick={handleLogout}
+          style={{ width: '100%', display: 'flex',
+            alignItems: 'center', gap: 8,
+            padding: '10px 12px', borderRadius: 12,
+            border: 'none', cursor: 'pointer',
+            backgroundColor: 'transparent',
+            color: '#F87171', fontWeight: 600,
+            fontSize: 14 }}>
+          <span>🚪</span>
+          Se déconnecter
+        </button>
+      </div>
+    </div>
+  );
+}
+
+
+## ÉTAPE 5 — Cache la bottom navigation sur desktop
+
+Dans BottomNavigation.jsx :
+
+/* Ajoute cette classe ou style */
+<nav className="fixed bottom-0 left-0 right-0 
+  lg:hidden ...">
+  {/* Contenu bottom nav */}
+</nav>
+
+Ou en CSS :
+@media (min-width: 1024px) {
+  .bottom-navigation {
+    display: none !important;
+  }
+}
+
+
+## ÉTAPE 6 — Empêche tout débordement horizontal
+
+Ajoute dans le CSS global (index.css ou App.css) :
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+img {
+  max-width: 100%;
+}
+
+
+## VÉRIFICATION FINALE
+
+Après les corrections, vérifie que :
+1. Sur ordinateur (>= 1024px) :
+   - La sidebar gauche est visible en permanence
+   - Le contenu remplit TOUT l'espace à droite 
+     de la sidebar sans espace vide
+   - Les grilles sont en 2-3-4 colonnes selon 
+     les pages
+   - Aucun débordement horizontal
+   - Pas de bottom navigation visible
+
+2. Sur mobile (< 768px) :
+   - Comportement identique à avant
+   - Bottom navigation visible
+   - Bouton hamburger ☰ fonctionnel
+
+3. Sur tablette (768px - 1023px) :
+   - Bouton hamburger ☰ visible
+   - Contenu pleine largeur
+   - Grilles 2 colonnes
+
+4. Toutes les pages sont concernées :
+   Accueil, Écoles, Détail École, Concours,
+   Détail Concours, Quiz, Conseils, 
+   Détail Article, Profil, Contact, À propos
