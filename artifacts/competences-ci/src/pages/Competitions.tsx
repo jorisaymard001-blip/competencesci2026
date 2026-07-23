@@ -90,7 +90,7 @@ export default function Competitions() {
       {/* ── Content */}
       <div className="px-4 md:px-6 py-5 max-w-6xl mx-auto w-full">
         {isLoading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-3">
             {Array.from({ length: 6 }).map((_, i) => <CompetitionCardSkeleton key={i} />)}
           </div>
         ) : error ? (
@@ -111,7 +111,7 @@ export default function Competitions() {
             )}
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-3">
             {competitions?.map((comp, i) => (
               <CompetitionCard key={comp.id} competition={comp} index={i} />
             ))}

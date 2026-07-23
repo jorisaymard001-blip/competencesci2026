@@ -92,7 +92,7 @@ export default function Schools() {
         {isLoading ? (
           <div>
             <div className="h-4 w-24 bg-muted rounded-lg animate-pulse mb-4" />
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
               {Array.from({ length: 6 }).map((_, i) => <SchoolCardSkeleton key={i} />)}
             </div>
           </div>
@@ -122,7 +122,7 @@ export default function Schools() {
             <p className="text-sm font-semibold text-muted-foreground mb-4 px-0.5">
               {filteredSchools?.length} {filteredSchools?.length !== 1 ? t("schools_count_many") : t("schools_count_one")}
             </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
               {filteredSchools?.map((school, i) => (
                 <SchoolCard key={school.id} school={school} index={i} />
               ))}

@@ -81,7 +81,7 @@ export default function Home() {
     <Layout>
       <GlobalSearch open={showSearch} onClose={() => setShowSearch(false)} />
 
-      <div className="w-full pb-10 max-w-5xl mx-auto">
+      <div className="w-full pb-10 max-w-7xl mx-auto">
 
         {/* ── Hero */}
         <motion.div
@@ -144,7 +144,7 @@ export default function Home() {
         {/* ── Explorer — 2×2 compact grid */}
         <div className="px-4 mt-5 mb-4">
           <h2 className="font-display font-bold text-lg text-foreground mb-3">{t("home_explore")}</h2>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
             {categories.map((cat, i) => (
               <motion.button
                 key={cat.href}

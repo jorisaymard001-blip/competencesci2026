@@ -1,0 +1,336 @@
+Problème urgent à corriger sur la version 
+ordinateur de Compétences CI.
+
+Actuellement sur ordinateur : la sidebar 
+gauche (avec Accueil, Écoles, Concours, 
+Mes outils, etc.) est toujours visible 
+et occupe 280px à gauche, ce qui réduit 
+l'espace du contenu principal.
+
+## CE QUI DOIT CHANGER
+
+### Comportement souhaité sur ordinateur :
+- La sidebar gauche doit être CACHÉE 
+  par défaut
+- Seul un bouton ☰ (trois tirets) doit 
+  être visible en haut à gauche
+- Quand on clique sur ☰, la sidebar 
+  s'ouvre par-dessus le contenu 
+  (comme un drawer/panneau glissant)
+- Quand on clique en dehors ou sur ✕, 
+  la sidebar se referme
+- Le contenu principal doit occuper 
+  100% de la largeur de l'écran 
+  en permanence
+
+### Ce comportement doit être IDENTIQUE 
+### sur tous les écrans (mobile, tablette, 
+### ordinateur) — même système de drawer 
+### partout, pas de sidebar fixe jamais
+
+## CORRECTIONS À APPORTER
+
+### 1. Supprime toute sidebar fixe permanente
+
+Trouve et supprime ou commente tout code 
+qui affiche une sidebar fixe sur grand écran.
+
+Cherche dans le code ces patterns et 
+supprime-les :
+
+/* Supprime ou commente ces classes/styles */
+.sidebar-desktop { display: none !important; }
+aside.fixed { display: none !important; }
+.lg\:block { display: none !important; }
+.hidden.lg\:flex { display: none !important; }
+
+Dans le layout principal (App.jsx, 
+Layout.jsx ou MainLayout.jsx), remplace 
+le code desktop par :
+
+export default function AppLayout({ children }) {
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
+  return (
+    <div style={{
+      minHeight: '100vh',
+      width: '100vw',
+      backgroundColor: '#0D1117',
+      overflow: 'hidden'
+    }}>
+
+      {/* Header fixe en haut — visible 
+          sur TOUS les écrans */}
+      <header style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        height: '56px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '0 16px',
+        backgroundColor: '#161B22',
+        borderBottom: '1px solid #30363D',
+        zIndex: 30
+      }}>
+        {/* Bouton hamburger ☰ */}
+        <button
+          onClick={() => setDrawerOpen(true)}
+          style={{
+            width: 36,
+            height: 36,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: '#1C2333',
+            border: '1px solid #30363D',
+            borderRadius: 10,
+            cursor: 'pointer',
+            color: 'white',
+            fontSize: 18
+          }}>
+          ☰
+        </button>
+
+        {/* Logo centré */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8
+        }}>
+          <img
+            src="/icon-192x192.png"
+            alt="Compétences CI"
+            style={{
+              width: 28,
+              height: 28,
+              borderRadius: 8
+            }}
+          />
+          <span style={{
+            color: 'white',
+            fontWeight: 900,
+            fontSize: 15
+          }}>
+            Compétences CI
+          </span>
+        </div>
+
+        {/* Actions droite */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8
+        }}>
+          <button style={{
+            width: 36,
+            height: 36,
+            backgroundColor: '#1C2333',
+            border: '1px solid #30363D',
+            borderRadius: 10,
+            cursor: 'pointer',
+            color: 'white',
+            fontSize: 16
+          }}>
+            🔔
+          </button>
+          <img
+            src={user?.photoURL || '/icon-192x192.png'}
+            style={{
+              width: 36,
+              height: 36,
+              borderRadius: 10,
+              objectFit: 'cover'
+            }}
+          />
+        </div>
+      </header>
+
+      {/* Overlay sombre quand drawer ouvert */}
+      {drawerOpen && (
+        <div
+          onClick={() => setDrawerOpen(false)}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            backgroundColor: 'rgba(0,0,0,0.7)',
+            zIndex: 40,
+            backdropFilter: 'blur(2px)'
+          }}
+        />
+      )}
+
+      {/* Drawer — s'ouvre par-dessus le contenu */}
+      <aside style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        bottom: 0,
+        width: '280px',
+        backgroundColor: '#161B22',
+        borderRight: '1px solid #30363D',
+        zIndex: 50,
+        overflowY: 'auto',
+        transform: drawerOpen 
+          ? 'translateX(0)' 
+          : 'translateX(-100%)',
+        transition: 'transform 0.3s ease',
+      }}>
+        {/* Bouton fermer */}
+        <div style={{
+          display: 'flex',
+          justifyContent: 'flex-end',
+          padding: '12px 16px'
+        }}>
+          <button
+            onClick={() => setDrawerOpen(false)}
+            style={{
+              width: 32,
+              height: 32,
+              backgroundColor: '#1C2333',
+              border: '1px solid #30363D',
+              borderRadius: 8,
+              cursor: 'pointer',
+              color: '#9CA3AF',
+              fontSize: 14
+            }}>
+            ✕
+          </button>
+        </div>
+
+        {/* Contenu du menu */}
+        <SidebarContent 
+          onNavigate={() => setDrawerOpen(false)} 
+        />
+      </aside>
+
+      {/* Contenu principal — 
+          occupe 100% de la largeur */}
+      <main style={{
+        marginTop: '56px',
+        width: '100%',
+        minHeight: 'calc(100vh - 56px)',
+        overflowY: 'auto',
+        paddingBottom: '80px'
+      }}>
+        {children}
+      </main>
+
+      {/* Bottom navigation — 
+          visible sur mobile seulement */}
+      <nav style={{
+        position: 'fixed',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        backgroundColor: '#161B22',
+        borderTop: '1px solid #30363D',
+        display: 'flex',
+        justifyContent: 'space-around',
+        padding: '8px 0',
+        zIndex: 30
+      }}>
+        <BottomNavigation />
+      </nav>
+
+    </div>
+  );
+}
+
+
+### 2. Le contenu de chaque page doit 
+### occuper toute la largeur disponible
+
+Dans chaque page (Accueil, Écoles, 
+Concours, Profil, etc.), le wrapper 
+principal doit être :
+
+/* Sur mobile */
+.page-wrapper {
+  width: 100%;
+  padding: 16px;
+}
+
+/* Sur grand écran */
+@media (min-width: 1024px) {
+  .page-wrapper {
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 32px 48px;
+  }
+}
+
+En Tailwind :
+<div className="w-full max-w-7xl mx-auto 
+  px-4 lg:px-12 py-4 lg:py-8">
+  {children}
+</div>
+
+
+### 3. Les grilles s'adaptent à la largeur 
+### totale disponible
+
+Page Accueil — Stats :
+<div className="grid grid-cols-2 lg:grid-cols-4 
+  gap-3 mb-6">
+
+Page Accueil — Explorer :
+<div className="grid grid-cols-1 md:grid-cols-2 
+  xl:grid-cols-4 gap-4">
+
+Page Écoles :
+<div className="grid grid-cols-1 md:grid-cols-2 
+  xl:grid-cols-3 gap-4">
+
+Page Concours :
+<div className="grid grid-cols-1 lg:grid-cols-2 
+  xl:grid-cols-3 gap-4">
+
+Page Conseils :
+<div className="grid grid-cols-1 md:grid-cols-2 
+  xl:grid-cols-3 gap-4">
+
+
+### 4. Empêche tout débordement horizontal
+
+Dans index.css ou le CSS global :
+
+* {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+
+## VÉRIFICATION FINALE
+
+Après correction, vérifie que :
+
+1. Au démarrage sur ordinateur :
+   - Aucune sidebar visible
+   - Le bouton ☰ est visible en haut à gauche
+   - Le contenu occupe 100% de la largeur
+
+2. Quand on clique sur ☰ :
+   - La sidebar glisse depuis la gauche
+   - Un fond sombre apparaît derrière
+   - Le contenu reste visible derrière
+
+3. Quand on clique en dehors :
+   - La sidebar se referme
+   - Le contenu reprend toute la largeur
+
+4. Sur toutes les pages (Accueil, Écoles,
+   Concours, Profil, Contact, etc.) :
+   - Même comportement
+   - Contenu toujours pleine largeur
+   - Grilles adaptées au grand écran
