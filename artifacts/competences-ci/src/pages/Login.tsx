@@ -22,7 +22,10 @@ export default function Login() {
         navigate("/");
       },
       onError: (err: any) => {
-        setError(err?.message || t("login_error"));
+        const msg = err?.message ?? "";
+        // Ne jamais afficher du HTML brut ou des messages techniques
+        const isClean = msg && !msg.includes("<") && !msg.includes("DOCTYPE") && msg.length < 200;
+        setError(isClean ? msg : t("login_error"));
       },
     },
   });
