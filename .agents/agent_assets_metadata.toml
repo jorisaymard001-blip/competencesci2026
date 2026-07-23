@@ -1,0 +1,8 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "Qa84Tt_tXHcQHOuTX5_pm"
+uri = "file://competences-ci-dist.zip"
+type = "unspecified"
+title = "competences-ci-dist.zip"
