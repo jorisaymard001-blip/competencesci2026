@@ -1,0 +1,283 @@
+Mon application Compétences CI est déployée 
+sur Netlify mais la connexion et l'inscription 
+ne fonctionnent pas — les utilisateurs 
+reçoivent des erreurs.
+
+## DIAGNOSTIC DU PROBLÈME
+
+Le problème vient du fait que Netlify héberge 
+uniquement les fichiers statiques (HTML, CSS, JS) 
+mais pas le backend (authentification, base de 
+données). Les appels API vers le serveur 
+échouent car ils pointent encore vers 
+localhost ou vers Replit qui est éteint.
+
+## ÉTAPE 1 — Identifie le système 
+## d'authentification utilisé
+
+Cherche dans le code quel système 
+d'authentification est utilisé :
+
+- Firebase Authentication ?
+  → Cherche "firebase", "initializeApp", 
+    "getAuth" dans le code
+    
+- Supabase ?
+  → Cherche "supabase", "createClient" 
+    dans le code
+    
+- API custom (Express/Node) ?
+  → Cherche "fetch('/api/auth')" ou 
+    "axios.post('/api'" dans le code
+
+- Auth0 ?
+  → Cherche "Auth0Provider" dans le code
+
+Dis-moi exactement quel système est utilisé 
+avant de continuer.
+
+
+## ÉTAPE 2A — Si Firebase est utilisé
+
+Firebase est la solution idéale car elle 
+fonctionne parfaitement avec Netlify sans 
+backend supplémentaire.
+
+Vérifie que la configuration Firebase 
+utilise des variables d'environnement 
+et non des valeurs en dur :
+
+### Crée .env.production à la racine :
+VITE_FIREBASE_API_KEY=ta_vraie_clé
+VITE_FIREBASE_AUTH_DOMAIN=ton-projet.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=ton-projet-id
+VITE_FIREBASE_STORAGE_BUCKET=ton-projet.appspot.com
+VITE_FIREBASE_MESSAGING_SENDER_ID=ton-sender-id
+VITE_FIREBASE_APP_ID=ton-app-id
+
+### Dans src/firebase.js ou src/config/firebase.js :
+import { initializeApp } from 'firebase/app';
+import { getAuth } from 'firebase/auth';
+import { getFirestore } from 'firebase/firestore';
+
+const firebaseConfig = {
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+};
+
+const app = initializeApp(firebaseConfig);
+export const auth = getAuth(app);
+export const db = getFirestore(app);
+export default app;
+
+### Dans Firebase Console, autorise 
+### le domaine Netlify :
+1. Va sur https://console.firebase.google.com
+2. Sélectionne ton projet
+3. Va dans Authentication → Settings → 
+   Authorized domains
+4. Clique "Add domain"
+5. Ajoute : ton-app.netlify.app
+6. Ajoute aussi : localhost
+
+### Vérifie les règles Firestore :
+Va dans Firestore → Rules et assure-toi 
+que les règles permettent la lecture/écriture 
+aux utilisateurs authentifiés :
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{userId} {
+      allow read, write: if request.auth != null 
+        && request.auth.uid == userId;
+    }
+    match /ecoles/{document=**} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    match /concours/{document=**} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    match /candidatures/{document=**} {
+      allow read, write: if request.auth != null;
+    }
+    match /favoris/{document=**} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}
+
+
+## ÉTAPE 2B — Si Supabase est utilisé
+
+Vérifie la configuration dans le code :
+
+### Crée .env.production :
+VITE_SUPABASE_URL=https://ton-projet.supabase.co
+VITE_SUPABASE_ANON_KEY=ta_clé_publique_anon
+
+### Dans src/supabase.js :
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+export const supabase = createClient(
+  supabaseUrl, 
+  supabaseKey
+);
+
+### Dans Supabase Dashboard :
+1. Va sur https://supabase.com/dashboard
+2. Ton projet → Settings → API
+3. Copie l'URL et la clé anon/public
+4. Va dans Authentication → URL Configuration
+5. Dans "Site URL" mets : 
+   https://ton-app.netlify.app
+6. Dans "Redirect URLs" ajoute :
+   https://ton-app.netlify.app/**
+   https://ton-app.netlify.app/auth/callback
+
+
+## ÉTAPE 2C — Si backend custom 
+## (Express/Node/API maison) est utilisé
+
+C'est le cas le plus complexe. Un backend 
+Express ne peut pas tourner sur Netlify 
+(qui est statique uniquement).
+
+### Solution — Migre vers Firebase Auth :
+
+Installe Firebase :
+npm install firebase
+
+Crée src/config/firebase.js avec 
+le code de l'étape 2A ci-dessus.
+
+Remplace toutes les fonctions 
+d'authentification actuelles :
+
+/* AVANT — appels API custom */
+const login = async (email, password) => {
+  const res = await fetch('/api/auth/login', {
+    method: 'POST',
+    body: JSON.stringify({ email, password })
+  });
+  return res.json();
+};
+
+/* APRÈS — Firebase Auth */
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../config/firebase';
+
+const login = async (email, password) => {
+  try {
+    const userCredential = await 
+      signInWithEmailAndPassword(auth, email, password);
+    return userCredential.user;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
+/* Inscription */
+import { createUserWithEmailAndPassword, 
+  updateProfile } from 'firebase/auth';
+
+const register = async (email, password, nom) => {
+  try {
+    const userCredential = await 
+      createUserWithEmailAndPassword(auth, email, password);
+    await updateProfile(userCredential.user, {
+      displayName: nom
+    });
+    return userCredential.user;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
+/* Déconnexion */
+import { signOut } from 'firebase/auth';
+
+const logout = async () => {
+  await signOut(auth);
+};
+
+/* État de connexion */
+import { onAuthStateChanged } from 'firebase/auth';
+
+useEffect(() => {
+  const unsubscribe = onAuthStateChanged(auth, (user) => {
+    if (user) {
+      setCurrentUser(user);
+    } else {
+      setCurrentUser(null);
+    }
+  });
+  return unsubscribe;
+}, []);
+
+
+## ÉTAPE 3 — Configure les variables 
+## d'environnement sur Netlify
+
+Les variables .env ne sont PAS automatiquement 
+envoyées à Netlify. Tu dois les configurer 
+manuellement :
+
+1. Va sur https://app.netlify.com
+2. Clique sur ton site
+3. Va dans Site settings → Environment variables
+4. Clique "Add a variable" pour chaque variable :
+
+   VITE_FIREBASE_API_KEY → ta valeur
+   VITE_FIREBASE_AUTH_DOMAIN → ta valeur
+   VITE_FIREBASE_PROJECT_ID → ta valeur
+   VITE_FIREBASE_STORAGE_BUCKET → ta valeur
+   VITE_FIREBASE_MESSAGING_SENDER_ID → ta valeur
+   VITE_FIREBASE_APP_ID → ta valeur
+
+5. Après avoir ajouté toutes les variables,
+   retourne dans "Deploys" et clique 
+   "Trigger deploy" → "Clear cache and 
+   deploy site"
+
+
+## ÉTAPE 4 — Rebuild et redéploie
+
+Après toutes les corrections :
+
+1. Lance le build :
+npm run build
+
+2. Vérifie qu'il n'y a aucune erreur
+
+3. Donne-moi le contenu du dossier dist/ 
+   généré pour que je puisse le 
+   re-uploader sur Netlify
+
+
+## ÉTAPE 5 — Test de connexion
+
+Après redéploiement, vérifie que :
+1. La page de connexion s'affiche 
+   correctement
+2. La création de compte fonctionne
+3. La connexion avec email/mot de passe 
+   fonctionne
+4. Après connexion, l'utilisateur est 
+   bien redirigé vers l'accueil
+5. Les données (écoles, concours) 
+   s'affichent bien
+
+Dis-moi d'abord quel système 
+d'authentification est utilisé dans 
+le projet (Firebase, Supabase, ou API 
+custom) avant de faire quoi que ce soit.
