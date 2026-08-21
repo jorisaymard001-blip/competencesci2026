@@ -1,16 +1,19 @@
 import { Link } from "wouter";
-import { MapPin, Briefcase, Calendar, GraduationCap } from "lucide-react";
+import { MapPin, Briefcase, Calendar, GraduationCap, Scale } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn, formatDate } from "@/lib/utils";
 import type { School, Competition } from "@workspace/api-client-react";
 import { getSchoolImage } from "@/lib/school-images";
 import { CompetitionCover } from "@/components/CompetitionCover";
+import { useComparison } from "@/contexts/ComparisonContext";
 
 // ── SCHOOL CARD ─────────────────────────────────────────────────────────────
 
 export function SchoolCard({ school, index = 0 }: { school: School; index?: number }) {
   const isPublic = school.type === "public";
   const imageUrl = getSchoolImage(school);
+  const { add, remove, isSelected } = useComparison();
+  const selected = isSelected(school.id);
 
   return (
     <motion.div
@@ -58,6 +61,21 @@ export function SchoolCard({ school, index = 0 }: { school: School; index?: numb
               </span>
             )}
           </div>
+          <button
+            onClick={event => {
+              event.preventDefault();
+              event.stopPropagation();
+              if (selected) remove(school.id);
+              else add(school);
+            }}
+            className={cn(
+              "mt-3 inline-flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-bold transition-colors",
+              selected ? "border-primary bg-primary text-white" : "border-border text-muted-foreground hover:border-primary hover:text-primary"
+            )}
+          >
+            <Scale className="w-3.5 h-3.5" />
+            {selected ? "Sélectionnée" : "Comparer"}
+          </button>
         </div>
       </Link>
     </motion.div>

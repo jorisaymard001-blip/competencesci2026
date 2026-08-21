@@ -2,7 +2,7 @@ import { ReactNode, useState, useEffect } from "react";
 import { Link, useRoute, useLocation } from "wouter";
 import {
   Home, GraduationCap, Briefcase, ChevronLeft, Bell, User,
-  Compass, ClipboardList, BookOpen, MessageCircle, Info,
+  Compass, ClipboardList, BookOpen, MessageCircle, Info, Scale,
   Moon, Sun, Globe, Menu, X, Heart, LogOut,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -12,6 +12,7 @@ import { useNotifications } from "@/contexts/NotificationsContext";
 import { useSettings } from "@/contexts/SettingsContext";
 import { useT } from "@/lib/useT";
 import { InAppNotificationToast } from "./InAppNotificationToast";
+import { ComparisonBar } from "./ComparisonBar";
 
 function getStoredAvatar(): { type: "emoji" | "photo"; value: string } {
   try {
@@ -195,6 +196,7 @@ export function Layout({
         {/* ── BOTTOM NAV (mobile + tablet, hidden on lg+) ─────────── */}
         {!noBottomNav && <BottomNav />}
       </div>
+      <ComparisonBar />
 
       {/* In-app notification toast (shown on app open if unread) */}
       {user && <InAppNotificationToast />}
@@ -246,6 +248,7 @@ function SidebarContent({
         <SidebarLink href="/orientation" icon={Compass} label={t("nav_orientation")} />
         <SidebarLink href="/candidatures" icon={ClipboardList} label={t("nav_candidatures")} />
         <SidebarLink href="/favorites" icon={Heart} label={t("nav_favorites")} />
+        <SidebarLink href="/comparer" icon={Scale} label="Comparer des écoles" />
         <SidebarLink href="/conseils" icon={BookOpen} label={t("nav_conseils")} />
         <SidebarLink href="/notifications" icon={Bell} label={t("nav_notifications")} badge={unreadCount} />
 

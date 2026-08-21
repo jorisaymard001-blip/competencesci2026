@@ -35,6 +35,25 @@ interface Candidature {
   addedAt: string;
   notes?: string;
   verif?: VerifResult | null;
+  timelineStep?: number;
+  timelineDates?: Record<number, string>;
+}
+
+const TIMELINE_STEPS = [
+  { id: 1, label: "Candidature envoyée", icon: "📝" },
+  { id: 2, label: "Dossier reçu", icon: "📨" },
+  { id: 3, label: "Convocation au concours", icon: "🧪" },
+  { id: 4, label: "Épreuve passée", icon: "✏️" },
+  { id: 5, label: "Admissible", icon: "✅" },
+  { id: 6, label: "Épreuve orale", icon: "🎤" },
+  { id: 7, label: "Résultat final", icon: "🎉" },
+] as const;
+
+function getTimelineStep(candidature: Candidature) {
+  if (candidature.timelineStep) return candidature.timelineStep;
+  if (candidature.status === "admis" || candidature.status === "refuse") return 7;
+  if (candidature.status === "inscrit") return 2;
+  return 1;
 }
 
 const STATUS_CONFIG: Record<Status, {
@@ -113,7 +132,26 @@ export default function Candidatures() {
   };
 
   const updateStatus = (id: string, status: Status) =>
-    save(candidatures.map(c => c.id === id ? { ...c, status } : c));
+    save(candidatures.map(c => c.id === id ? {
+      ...c,
+      status,
+      timelineStep: status === "admis" || status === "refuse"
+        ? 7
+        : status === "inscrit" ? Math.max(getTimelineStep(c), 2) : c.timelineStep,
+    } : c));
+
+  const advanceTimeline = (id: string) => {
+    save(candidatures.map(c => {
+      if (c.id !== id) return c;
+      const next = Math.min(getTimelineStep(c) + 1, TIMELINE_STEPS.length);
+      return {
+        ...c,
+        timelineStep: next,
+        timelineDates: { ...(c.timelineDates ?? {}), [next]: new Date().toISOString() },
+        status: next === TIMELINE_STEPS.length ? "admis" : c.status,
+      };
+    }));
+  };
 
   const saveNotes = () => {
     if (!editingNotes) return;
@@ -266,6 +304,48 @@ export default function Candidatures() {
                           {t(config.labelKey)}
                         </button>
                       ))}
+                    </div>
+                  </div>
+
+                  {/* Progression timeline */}
+                  <div className="mx-4 mb-4 rounded-2xl border border-border/50 bg-muted/20 p-4">
+                    <div className="flex items-center justify-between mb-4">
+                      <p className="text-sm font-bold text-foreground">Progression du dossier</p>
+                      <span className="text-[10px] font-bold text-primary">
+                        Étape {getTimelineStep(c)}/{TIMELINE_STEPS.length}
+                      </span>
+                    </div>
+                    <div className="space-y-0">
+                      {TIMELINE_STEPS.map((step, index) => {
+                        const currentStep = getTimelineStep(c);
+                        const isDone = step.id <= currentStep;
+                        const isCurrent = step.id === currentStep;
+                        const date = c.timelineDates?.[step.id];
+                        return (
+                          <div key={step.id} className="flex gap-3 min-h-12">
+                            <div className="flex flex-col items-center">
+                              <div className={cn(
+                                "w-8 h-8 rounded-full flex items-center justify-center shrink-0 text-sm",
+                                isDone ? "bg-primary text-white" : "bg-muted border border-border text-muted-foreground"
+                              )}>
+                                {isDone ? <Check className="w-4 h-4" /> : step.icon}
+                              </div>
+                              {index < TIMELINE_STEPS.length - 1 && (
+                                <div className={cn("w-0.5 flex-1 min-h-4", step.id < currentStep ? "bg-primary" : "bg-border")} />
+                              )}
+                            </div>
+                            <div className="pb-3 pt-1">
+                              <p className={cn("text-xs font-semibold", isDone ? "text-foreground" : "text-muted-foreground")}>{step.label}</p>
+                              {date && <p className="text-[10px] text-muted-foreground">{new Date(date).toLocaleDateString(locale)}</p>}
+                              {isCurrent && step.id < TIMELINE_STEPS.length && (
+                                <button onClick={() => advanceTimeline(c.id)} className="mt-1.5 text-[10px] font-bold text-primary hover:underline">
+                                  Marquer comme terminé →
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
 

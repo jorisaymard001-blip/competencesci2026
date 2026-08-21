@@ -4,6 +4,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { FavoritesProvider } from "@/contexts/FavoritesContext";
+import { ComparisonProvider } from "@/contexts/ComparisonContext";
 import { NotificationsProvider } from "@/contexts/NotificationsContext";
 import { SettingsProvider } from "@/contexts/SettingsContext";
 import { InstallPrompt } from "@/components/InstallPrompt";
@@ -25,6 +26,7 @@ import Orientation from "@/pages/Orientation";
 import Candidatures from "@/pages/Candidatures";
 import Conseils from "@/pages/Conseils";
 import Contact from "@/pages/Contact";
+import CompareSchools from "@/pages/CompareSchools";
 import Login from "@/pages/Login";
 import Register from "@/pages/Register";
 import Admin from "@/pages/Admin";
@@ -59,10 +61,12 @@ function Router() {
       <Route path="/register"><PublicOnlyRoute component={Register} /></Route>
 
       <Route path="/"><ProtectedRoute component={Home} /></Route>
-      <Route path="/schools"><ProtectedRoute component={Schools} /></Route>
-      <Route path="/schools/:id"><ProtectedRoute component={SchoolDetail} /></Route>
-      <Route path="/competitions"><ProtectedRoute component={Competitions} /></Route>
-      <Route path="/competitions/:id"><ProtectedRoute component={CompetitionDetail} /></Route>
+      {/* Exploration publique : le compte est seulement requis pour les actions personnelles. */}
+      <Route path="/schools"><Schools /></Route>
+      <Route path="/schools/:id"><SchoolDetail /></Route>
+      <Route path="/comparer"><ProtectedRoute component={CompareSchools} /></Route>
+      <Route path="/competitions"><Competitions /></Route>
+      <Route path="/competitions/:id"><CompetitionDetail /></Route>
       <Route path="/favorites"><ProtectedRoute component={Favorites} /></Route>
       <Route path="/messages"><ProtectedRoute component={Messages} /></Route>
       <Route path="/notifications"><ProtectedRoute component={Notifications} /></Route>
@@ -72,7 +76,7 @@ function Router() {
       <Route path="/diplomas/:name"><ProtectedRoute component={DiplomaDetail} /></Route>
       <Route path="/orientation"><ProtectedRoute component={Orientation} /></Route>
       <Route path="/candidatures"><ProtectedRoute component={Candidatures} /></Route>
-      <Route path="/conseils"><ProtectedRoute component={Conseils} /></Route>
+      <Route path="/conseils"><Conseils /></Route>
       <Route path="/contact"><ProtectedRoute component={Contact} /></Route>
 
       <Route component={NotFound} />
@@ -87,13 +91,15 @@ function App() {
         <SettingsProvider>
           <AuthProvider>
             <FavoritesProvider>
-              <NotificationsProvider>
-                <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-                  <Router />
-                  <InstallPrompt />
-                </WouterRouter>
-                <Toaster />
-              </NotificationsProvider>
+              <ComparisonProvider>
+                <NotificationsProvider>
+                  <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+                    <Router />
+                    <InstallPrompt />
+                  </WouterRouter>
+                  <Toaster />
+                </NotificationsProvider>
+              </ComparisonProvider>
             </FavoritesProvider>
           </AuthProvider>
         </SettingsProvider>

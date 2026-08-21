@@ -157,7 +157,9 @@ export async function notifyOnAppOpen(unreadCount: number, latestTitle?: string)
   }
 }
 
-// ── Strategic daily reminders ────────────────────────────────────────────────
+// ── Legacy daily reminders ───────────────────────────────────────────────────
+// Les rappels à heures fixes sont volontairement désactivés : les notifications
+// doivent être déclenchées par un événement utile (concours, résultat, dossier).
 
 function pickDailyMessage(hour?: number): { title: string; body: string } {
   const pool = hour !== undefined && MESSAGES_BY_HOUR[hour]
@@ -210,18 +212,6 @@ function scheduleNextDailyReminder(): void {
 export function startPushScheduler(): void {
   if (!notificationsSupported()) return;
   if (!notifsAllowedBySettings()) return;
-
-  // Re-arm strategic reminders every time the app loads
-  if (getPermission() === "granted") {
-    scheduleNextDailyReminder();
-  }
-
-  // Re-arm when tab becomes visible after long idle
-  document.addEventListener("visibilitychange", () => {
-    if (document.visibilityState === "visible" && getPermission() === "granted") {
-      scheduleNextDailyReminder();
-    }
-  });
 }
 
 export function stopPushScheduler(): void {
