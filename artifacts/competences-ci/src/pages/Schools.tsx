@@ -7,6 +7,7 @@ import { Search, SlidersHorizontal } from "lucide-react";
 import { useListSchools, useListCities, useListDiplomas, type ListSchoolsParams } from "@workspace/api-client-react";
 import { cn } from "@/lib/utils";
 import { useT } from "@/lib/useT";
+import { getSchoolCost, getDefaultCost } from "@/lib/school-costs";
 
 const TYPE_FILTERS = [
   { value: undefined,   label: "Tous" },
@@ -19,6 +20,8 @@ export default function Schools() {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [quickType, setQuickType] = useState<"public" | "private" | undefined>(undefined);
+  const [domainFilter, setDomainFilter] = useState("");
+  const [budgetMax, setBudgetMax] = useState("");
 
   const { filters, updateFilter, clearFilters } = useFilters<ListSchoolsParams>({});
   const { data: schools, isLoading, error } = useListSchools({ ...filters, type: quickType ?? filters.type });
@@ -35,9 +38,16 @@ export default function Schools() {
     searchQuery === "" ||
     s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     s.domains.some(d => d.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
+  ).filter(s =>
+    !domainFilter || s.domains.some(d => d.toLowerCase().includes(domainFilter.toLowerCase()))
+  ).filter(s => {
+    if (!budgetMax) return true;
+    const cost = getSchoolCost(s.name) ?? getDefaultCost(s.type);
+    return (cost.tuitionMax ?? Infinity) + (cost.registrationFee ?? 0) <= Number(budgetMax);
+  });
 
-  const activeFiltersCount = Object.values(filters).filter(v => v !== undefined && v !== "").length;
+  const activeFiltersCount = Object.values(filters).filter(v => v !== undefined && v !== "").length
+    + (quickType ? 1 : 0) + (domainFilter ? 1 : 0) + (budgetMax ? 1 : 0);
 
   return (
     <Layout title={t("schools_title")}>
@@ -110,7 +120,7 @@ export default function Schools() {
             <p className="text-muted-foreground text-sm">{t("schools_no_results_sub")}</p>
             {(activeFiltersCount > 0 || quickType) && (
               <button
-                onClick={() => { clearFilters(); setQuickType(undefined); }}
+               onClick={() => { clearFilters(); setQuickType(undefined); setDomainFilter(""); setBudgetMax(""); }}
                 className="mt-5 px-6 py-2.5 bg-primary/10 text-primary font-bold rounded-full active:scale-95 press"
               >
                 {t("schools_clear_filters")}
@@ -136,7 +146,7 @@ export default function Schools() {
         isOpen={isFilterOpen}
         onClose={() => setIsFilterOpen(false)}
         onApply={applyFilters}
-        onReset={() => setLocalFilters({})}
+         onReset={() => { setLocalFilters({}); setQuickType(undefined); setDomainFilter(""); setBudgetMax(""); }}
       >
         <FilterSection title={t("schools_filter_city")}>
           <FilterSelect
@@ -153,6 +163,27 @@ export default function Schools() {
             value={localFilters.diploma}
             onChange={v => setLocalFilters(prev => ({ ...prev, diploma: v }))}
           />
+        </FilterSection>
+        <FilterSection title="Domaine de formation">
+          <FilterSelect
+            placeholder="Tous les domaines"
+            options={Array.from(new Set((schools ?? []).flatMap(s => s.domains))).sort()}
+            value={domainFilter || undefined}
+            onChange={v => setDomainFilter(v ?? "")}
+          />
+        </FilterSection>
+        <FilterSection title="Budget annuel maximum">
+          <FilterSelect
+            placeholder="Tous les budgets"
+            options={["200000", "600000", "1000000"]}
+            value={budgetMax || undefined}
+            onChange={v => setBudgetMax(v ?? "")}
+          />
+          {budgetMax && (
+            <p className="text-xs text-muted-foreground">
+              Jusqu'à {Number(budgetMax).toLocaleString("fr-FR")} FCFA/an
+            </p>
+          )}
         </FilterSection>
       </FilterDrawer>
     </Layout>
