@@ -1,0 +1,1352 @@
+Ajoute et améliore ces fonctionnalités 
+dans Compétences CI. Fais tout dans 
+l'ordre indiqué.
+
+## FONCTIONNALITÉ 1 — RECHERCHE GLOBALE
+
+### Barre de recherche intelligente
+
+La barre de recherche existante doit 
+devenir une vraie recherche globale 
+qui retourne des résultats de toutes 
+les catégories simultanément.
+
+Quand l'utilisateur tape "Génie Civil", 
+l'app retourne :
+
+{
+  ecoles: [...écoles avec Génie Civil],
+  concours: [...concours accessibles],
+  articles: [...articles sur le sujet]
+}
+
+### Crée src/hooks/useGlobalSearch.js :
+
+import { useState, useCallback } from 'react';
+import { useDebounce } from './useDebounce';
+
+export function useGlobalSearch(
+  ecoles, concours, articles
+) {
+  const [query, setQuery] = useState('');
+  const [results, setResults] = useState(null);
+  const debouncedQuery = useDebounce(query, 300);
+
+  useEffect(() => {
+    if (!debouncedQuery || 
+        debouncedQuery.length < 2) {
+      setResults(null);
+      return;
+    }
+
+    const q = debouncedQuery.toLowerCase();
+
+    const ecolesFound = ecoles.filter(e =>
+      e.nom?.toLowerCase().includes(q) ||
+      e.ville?.toLowerCase().includes(q) ||
+      e.domainesFormation?.some(f => 
+        f.toLowerCase().includes(q)
+      ) ||
+      e.type?.toLowerCase().includes(q)
+    );
+
+    const concoursFound = concours.filter(c =>
+      c.nom?.toLowerCase().includes(q) ||
+      c.ministere?.toLowerCase().includes(q) ||
+      c.niveau?.toLowerCase().includes(q) ||
+      c.description?.toLowerCase().includes(q)
+    );
+
+    const articlesFound = articles.filter(a =>
+      a.titre?.toLowerCase().includes(q) ||
+      a.categorie?.toLowerCase().includes(q) ||
+      a.resume?.toLowerCase().includes(q)
+    );
+
+    setResults({
+      ecoles: ecolesFound.slice(0, 5),
+      concours: concoursFound.slice(0, 5),
+      articles: articlesFound.slice(0, 3),
+      total: ecolesFound.length + 
+             concoursFound.length + 
+             articlesFound.length
+    });
+  }, [debouncedQuery, ecoles, concours, articles]);
+
+  return { query, setQuery, results };
+}
+
+### Crée src/hooks/useDebounce.js :
+
+import { useState, useEffect } from 'react';
+
+export function useDebounce(value, delay) {
+  const [debouncedValue, setDebouncedValue] = 
+    useState(value);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+    return () => clearTimeout(timer);
+  }, [value, delay]);
+
+  return debouncedValue;
+}
+
+### Interface de recherche avec résultats :
+
+<div className="relative">
+  
+  {/* Barre de recherche */}
+  <div className="flex items-center gap-3 
+    bg-gray-800 border border-gray-700 
+    rounded-2xl px-4 py-3">
+    <span className="text-gray-400">🔍</span>
+    <input
+      value={query}
+      onChange={(e) => setQuery(e.target.value)}
+      placeholder="Rechercher une école, un 
+        concours, une filière..."
+      className="flex-1 bg-transparent text-white 
+        outline-none text-sm placeholder-gray-500"
+    />
+    {query && (
+      <button onClick={() => setQuery('')}
+        className="text-gray-500 text-sm">
+        ✕
+      </button>
+    )}
+  </div>
+
+  {/* Résultats en dropdown */}
+  {results && (
+    <div className="absolute top-14 left-0 right-0 
+      bg-gray-900 border border-gray-700 rounded-2xl 
+      shadow-2xl z-50 max-h-96 overflow-y-auto">
+
+      {results.total === 0 ? (
+        <div className="p-6 text-center">
+          <p className="text-gray-400 text-sm">
+            Aucun résultat pour "{query}"
+          </p>
+        </div>
+      ) : (
+        <>
+          {/* Écoles */}
+          {results.ecoles.length > 0 && (
+            <div className="p-3">
+              <p className="text-gray-500 text-xs 
+                font-black uppercase tracking-wider 
+                mb-2 px-1">
+                🎓 Écoles ({results.ecoles.length})
+              </p>
+              {results.ecoles.map(ecole => (
+                <button key={ecole.id}
+                  onClick={() => {
+                    navigate(`/ecoles/${ecole.id}`);
+                    setQuery('');
+                  }}
+                  className="w-full flex items-center 
+                    gap-3 p-2 rounded-xl hover:bg-gray-800 
+                    text-left press">
+                  <span className="text-xl 
+                    flex-shrink-0">🏫</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-white font-semibold 
+                      text-sm truncate">
+                      {ecole.nom}
+                    </p>
+                    <p className="text-gray-500 text-xs">
+                      {ecole.ville} · {ecole.type}
+                    </p>
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* Concours */}
+          {results.concours.length > 0 && (
+            <div className="p-3 border-t 
+              border-gray-800">
+              <p className="text-gray-500 text-xs 
+                font-black uppercase tracking-wider 
+                mb-2 px-1">
+                🏆 Concours ({results.concours.length})
+              </p>
+              {results.concours.map(c => (
+                <button key={c.id}
+                  onClick={() => {
+                    navigate(`/concours/${c.id}`);
+                    setQuery('');
+                  }}
+                  className="w-full flex items-center 
+                    gap-3 p-2 rounded-xl hover:bg-gray-800 
+                    text-left press">
+                  <span className="text-xl 
+                    flex-shrink-0">🏆</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-white font-semibold 
+                      text-sm truncate">{c.nom}</p>
+                    <p className="text-gray-500 text-xs 
+                      truncate">{c.ministere}</p>
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* Articles */}
+          {results.articles.length > 0 && (
+            <div className="p-3 border-t 
+              border-gray-800">
+              <p className="text-gray-500 text-xs 
+                font-black uppercase tracking-wider 
+                mb-2 px-1">
+                📚 Articles ({results.articles.length})
+              </p>
+              {results.articles.map(a => (
+                <button key={a.id}
+                  onClick={() => {
+                    navigate(`/conseils/${a.id}`);
+                    setQuery('');
+                  }}
+                  className="w-full flex items-center 
+                    gap-3 p-2 rounded-xl hover:bg-gray-800 
+                    text-left press">
+                  <span className="text-2xl 
+                    flex-shrink-0">{a.emoji}</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-white font-semibold 
+                      text-sm truncate">{a.titre}</p>
+                    <p className="text-gray-500 text-xs">
+                      {a.categorie}
+                    </p>
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  )}
+</div>
+
+### Filtres avancés sur la page Écoles :
+
+Ajoute un panneau de filtres qui s'ouvre 
+quand on clique sur ⚙️ Filtrer :
+
+const [filtres, setFiltres] = useState({
+  ville: '',
+  domaine: '',
+  type: '',
+  niveauMin: '',
+  budgetMax: '',
+  diplome: '',
+});
+
+<div className="grid grid-cols-2 gap-3 p-4 
+  bg-gray-800 rounded-2xl mb-4">
+  
+  {/* Ville */}
+  <select
+    value={filtres.ville}
+    onChange={(e) => setFiltres({
+      ...filtres, ville: e.target.value
+    })}
+    className="bg-gray-700 text-white rounded-xl 
+      px-3 py-2 text-sm outline-none">
+    <option value="">📍 Toutes villes</option>
+    <option value="Abidjan">Abidjan</option>
+    <option value="Bouaké">Bouaké</option>
+    <option value="Yamoussoukro">Yamoussoukro</option>
+    <option value="Daloa">Daloa</option>
+    <option value="San Pedro">San Pedro</option>
+    <option value="Korhogo">Korhogo</option>
+    <option value="Man">Man</option>
+    <option value="Gagnoa">Gagnoa</option>
+  </select>
+
+  {/* Type */}
+  <select
+    value={filtres.type}
+    onChange={(e) => setFiltres({
+      ...filtres, type: e.target.value
+    })}
+    className="bg-gray-700 text-white rounded-xl 
+      px-3 py-2 text-sm outline-none">
+    <option value="">🏛️ Tous types</option>
+    <option value="PUBLIC">Public</option>
+    <option value="PRIVÉ">Privé</option>
+  </select>
+
+  {/* Domaine */}
+  <select
+    value={filtres.domaine}
+    onChange={(e) => setFiltres({
+      ...filtres, domaine: e.target.value
+    })}
+    className="bg-gray-700 text-white rounded-xl 
+      px-3 py-2 text-sm outline-none">
+    <option value="">📚 Tous domaines</option>
+    <option value="Génie Civil">Génie Civil</option>
+    <option value="Informatique">Informatique</option>
+    <option value="Droit">Droit</option>
+    <option value="Médecine">Médecine</option>
+    <option value="Commerce">Commerce</option>
+    <option value="Finance">Finance</option>
+    <option value="Agriculture">Agriculture</option>
+    <option value="Sciences">Sciences</option>
+  </select>
+
+  {/* Diplôme */}
+  <select
+    value={filtres.diplome}
+    onChange={(e) => setFiltres({
+      ...filtres, diplome: e.target.value
+    })}
+    className="bg-gray-700 text-white rounded-xl 
+      px-3 py-2 text-sm outline-none">
+    <option value="">🎓 Tous diplômes</option>
+    <option value="BTS">BTS</option>
+    <option value="Licence">Licence</option>
+    <option value="Master">Master</option>
+    <option value="Doctorat">Doctorat</option>
+    <option value="Ingénieur">Ingénieur</option>
+  </select>
+
+  {/* Budget */}
+  <select
+    value={filtres.budgetMax}
+    onChange={(e) => setFiltres({
+      ...filtres, budgetMax: e.target.value
+    })}
+    className="bg-gray-700 text-white rounded-xl 
+      px-3 py-2 text-sm outline-none col-span-2">
+    <option value="">💰 Tous budgets</option>
+    <option value="200000">
+      Moins de 200 000 FCFA/an
+    </option>
+    <option value="600000">
+      Moins de 600 000 FCFA/an
+    </option>
+    <option value="1000000">
+      Moins de 1 000 000 FCFA/an
+    </option>
+  </select>
+
+  {/* Bouton réinitialiser */}
+  <button
+    onClick={() => setFiltres({
+      ville: '', domaine: '', type: '',
+      niveauMin: '', budgetMax: '', diplome: ''
+    })}
+    className="col-span-2 bg-gray-700 text-gray-300 
+      rounded-xl py-2 text-sm font-semibold press">
+    ↺ Réinitialiser les filtres
+  </button>
+</div>
+
+### Filtre sur les concours :
+
+Ajoute ces filtres sur la page Concours :
+
+const [filtresConcours, setFiltresConcours] = 
+  useState({
+    niveau: '',
+    ministere: '',
+    dateLimit: '',
+  });
+
+Filtres à afficher :
+- Niveau requis (BTS, Licence, Master, Doctorat)
+- Ministère organisateur
+- Date limite (concours fermant dans 7j, 30j, 60j)
+
+
+## FONCTIONNALITÉ 2 — TROUVER MA VOIE AMÉLIORÉ
+
+Transforme le quiz de 5 questions en un 
+vrai outil d'orientation complet.
+
+### Nouvelle structure du quiz (9 étapes) :
+
+const quizSteps = [
+  {
+    id: 1,
+    question: "Quel est ton niveau d'études actuel ?",
+    type: "single",
+    options: [
+      "BEPC / Brevet",
+      "BAC (en cours)",
+      "BAC obtenu",
+      "BTS obtenu",
+      "Licence obtenue",
+      "Master obtenu"
+    ]
+  },
+  {
+    id: 2,
+    question: "Quelle est ta série au BAC ?",
+    type: "single",
+    options: [
+      "A (Lettres)",
+      "B (Économie)",
+      "C (Maths)",
+      "D (Sciences)",
+      "E / F / G (Technique)",
+      "Je n'ai pas encore le BAC"
+    ]
+  },
+  {
+    id: 3,
+    question: "Dans quelle ville es-tu ?",
+    type: "single",
+    options: [
+      "Abidjan",
+      "Bouaké",
+      "Yamoussoukro",
+      "Daloa",
+      "San Pedro",
+      "Korhogo",
+      "Autre ville"
+    ]
+  },
+  {
+    id: 4,
+    question: "Quels domaines t'intéressent le plus ?",
+    type: "multi",
+    options: [
+      "🏗️ Génie Civil / BTP",
+      "💻 Informatique / Numérique",
+      "⚕️ Médecine / Santé",
+      "⚖️ Droit / Administration",
+      "💰 Finance / Commerce",
+      "🌾 Agriculture / Environnement",
+      "🎓 Éducation / Enseignement",
+      "🔬 Sciences / Recherche"
+    ]
+  },
+  {
+    id: 5,
+    question: "Quelles sont tes matières préférées ?",
+    type: "multi",
+    options: [
+      "Mathématiques",
+      "Physique-Chimie",
+      "SVT / Biologie",
+      "Français / Littérature",
+      "Histoire-Géographie",
+      "Économie",
+      "Informatique",
+      "Langues étrangères"
+    ]
+  },
+  {
+    id: 6,
+    question: "Quel est ton budget annuel " +
+      "pour les études ?",
+    type: "single",
+    options: [
+      "Faible — moins de 200 000 FCFA/an",
+      "Moyen — 200 000 à 600 000 FCFA/an",
+      "Élevé — plus de 600 000 FCFA/an",
+      "Je ne sais pas encore"
+    ]
+  },
+  {
+    id: 7,
+    question: "Quel type d'établissement " +
+      "préfères-tu ?",
+    type: "single",
+    options: [
+      "Public uniquement",
+      "Privé uniquement",
+      "Les deux m'intéressent"
+    ]
+  },
+  {
+    id: 8,
+    question: "Quel est ton objectif " +
+      "professionnel principal ?",
+    type: "single",
+    options: [
+      "🏛️ Intégrer la fonction publique",
+      "🏢 Travailler dans le privé",
+      "🚀 Créer ma propre entreprise",
+      "🎓 Poursuivre les études à l'étranger",
+      "Je ne sais pas encore"
+    ]
+  },
+  {
+    id: 9,
+    question: "Quand veux-tu commencer tes études ?",
+    type: "single",
+    options: [
+      "Dès cette année",
+      "L'année prochaine",
+      "Dans 2 ans ou plus",
+      "Je cherche juste à m'informer"
+    ]
+  }
+];
+
+### Algorithme de recommandation :
+
+const calculateRecommendations = (answers) => {
+  const scores = {};
+  
+  ecoles.forEach(ecole => {
+    let score = 0;
+    
+    // Compatibilité ville (20 points)
+    if (ecole.ville === answers.ville) score += 20;
+    
+    // Compatibilité domaine (30 points)
+    const domainesChoisis = answers.domaines || [];
+    ecole.domainesFormation?.forEach(domaine => {
+      if (domainesChoisis.some(d => 
+        d.toLowerCase().includes(
+          domaine.toLowerCase()
+        )
+      )) score += 30 / domainesChoisis.length;
+    });
+    
+    // Compatibilité budget (25 points)
+    const budgetMax = {
+      'Faible': 200000,
+      'Moyen': 600000,
+      'Élevé': Infinity
+    }[answers.budget] || Infinity;
+    
+    const frais = parseInt(
+      ecole.fraisScolarite?.replace(/\D/g, '') || 0
+    );
+    if (frais <= budgetMax) score += 25;
+    
+    // Type établissement (15 points)
+    if (answers.typeEtab === 'Les deux m\'intéressent' ||
+        ecole.type === answers.typeEtab) score += 15;
+    
+    // Diplôme selon niveau (10 points)
+    if (answers.niveau === 'BTS obtenu' &&
+        ecole.diplomes?.some(d => 
+          d.nom === 'Licence'
+        )) score += 10;
+    
+    scores[ecole.id] = {
+      ecole,
+      score: Math.min(Math.round(score), 100),
+      raisons: generateReasons(ecole, answers)
+    };
+  });
+  
+  return Object.values(scores)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 5);
+};
+
+const generateReasons = (ecole, answers) => {
+  const raisons = [];
+  
+  if (ecole.ville === answers.ville) {
+    raisons.push(`📍 Située à ${ecole.ville}, 
+      ta ville`);
+  }
+  if (ecole.type === 'PUBLIC') {
+    raisons.push('💰 Frais accessibles 
+      (établissement public)');
+  }
+  answers.domaines?.forEach(domaine => {
+    if (ecole.domainesFormation?.some(d => 
+      d.toLowerCase().includes(
+        domaine.toLowerCase()
+      )
+    )) {
+      raisons.push(`✅ Propose ${domaine}`);
+    }
+  });
+  
+  return raisons;
+};
+
+### Page de résultats du quiz :
+
+<div className="min-h-screen bg-gray-950 px-4 py-6">
+  
+  {/* Header résultats */}
+  <div className="text-center mb-6">
+    <span className="text-5xl block mb-3">🎯</span>
+    <h1 className="text-white font-black text-2xl 
+      mb-2">
+      Ton profil d'orientation
+    </h1>
+    <div className="bg-gray-800 border border-gray-700 
+      rounded-2xl p-3 inline-block">
+      <p className="text-orange-400 font-bold text-sm">
+        {answers.domaines?.join(' · ')}
+      </p>
+    </div>
+  </div>
+
+  {/* Recommandations */}
+  <h2 className="text-white font-bold text-lg mb-3">
+    🏫 Écoles recommandées
+  </h2>
+  
+  {recommendations.map((rec, index) => (
+    <div key={rec.ecole.id}
+      className="bg-gray-800 border border-gray-700 
+        rounded-2xl p-4 mb-3">
+      
+      {/* Rang et score */}
+      <div className="flex items-center 
+        justify-between mb-2">
+        <div className="flex items-center gap-2">
+          <span className="text-2xl">
+            {index === 0 ? '🥇' : 
+             index === 1 ? '🥈' : 
+             index === 2 ? '🥉' : '⭐'}
+          </span>
+          <p className="text-white font-black text-base">
+            {rec.ecole.nom}
+          </p>
+        </div>
+        <div className="bg-orange-950 border 
+          border-orange-800 rounded-full px-3 py-1">
+          <p className="text-orange-400 font-black 
+            text-sm">
+            {rec.score}%
+          </p>
+        </div>
+      </div>
+
+      {/* Barre de compatibilité */}
+      <div className="h-2 bg-gray-700 rounded-full 
+        mb-3">
+        <div
+          className="h-2 bg-gradient-to-r 
+            from-orange-500 to-orange-400 
+            rounded-full transition-all"
+          style={{ width: `${rec.score}%` }}
+        />
+      </div>
+
+      {/* Raisons */}
+      <div className="space-y-1 mb-3">
+        {rec.raisons.map((raison, i) => (
+          <p key={i} className="text-gray-300 
+            text-xs">{raison}</p>
+        ))}
+      </div>
+
+      {/* Actions */}
+      <div className="flex gap-2">
+        <button
+          onClick={() => navigate(
+            `/ecoles/${rec.ecole.id}`
+          )}
+          className="flex-1 bg-orange-500 text-white 
+            rounded-xl py-2 text-sm font-bold press">
+          Voir la fiche →
+        </button>
+        <button
+          onClick={() => addToComparison(rec.ecole)}
+          className="bg-gray-700 text-gray-300 
+            rounded-xl py-2 px-3 text-sm press">
+          ⚖️
+        </button>
+      </div>
+    </div>
+  ))}
+
+  {/* Bouton refaire */}
+  <button
+    onClick={() => resetQuiz()}
+    className="w-full bg-gray-800 border border-gray-700 
+      text-white rounded-2xl py-3 font-bold mt-2 press">
+    ↺ Refaire le quiz
+  </button>
+</div>
+
+
+## FONCTIONNALITÉ 3 — BUDGET SUR LES FICHES ÉCOLE
+
+Sur chaque fiche école, améliore la section 
+coût avec compatibilité budget utilisateur :
+
+### Composant BudgetSection :
+
+const BudgetSection = ({ ecole, userBudget }) => {
+  const fraisTotal = (
+    parseInt(ecole.fraisScolarite?.replace(/\D/g, '') 
+      || 0) +
+    parseInt(ecole.fraisInscription?.replace(/\D/g, '') 
+      || 0) +
+    50000 // autres frais estimés
+  );
+
+  const compatible = !userBudget || 
+    fraisTotal <= userBudget;
+
+  return (
+    <div className="bg-gray-800 border border-gray-700 
+      rounded-2xl p-4 mb-3">
+      
+      <h2 className="text-orange-500 font-bold 
+        mb-3 flex items-center gap-2">
+        <span>💰</span> Coût de la formation
+      </h2>
+
+      <div className="space-y-2 mb-3">
+        <div className="flex justify-between 
+          py-2 border-b border-gray-700">
+          <span className="text-gray-300 text-sm">
+            Frais d'inscription
+          </span>
+          <span className="text-white font-bold text-sm">
+            {ecole.fraisInscription || '—'}
+          </span>
+        </div>
+        <div className="flex justify-between 
+          py-2 border-b border-gray-700">
+          <span className="text-gray-300 text-sm">
+            Frais de scolarité
+          </span>
+          <span className="text-orange-500 font-black 
+            text-sm">
+            {ecole.fraisScolarite || '—'}
+          </span>
+        </div>
+        <div className="flex justify-between py-2">
+          <span className="text-gray-300 text-sm">
+            Autres frais estimés
+          </span>
+          <span className="text-white font-bold text-sm">
+            ~50 000 FCFA
+          </span>
+        </div>
+      </div>
+
+      {/* Budget total estimé */}
+      <div className="bg-gray-900 rounded-xl p-3 mb-3">
+        <div className="flex justify-between 
+          items-center">
+          <p className="text-gray-400 text-sm">
+            💵 Budget annuel estimé
+          </p>
+          <p className="text-white font-black text-base">
+            ≈ {fraisTotal.toLocaleString('fr-FR')} FCFA
+          </p>
+        </div>
+      </div>
+
+      {/* Badge compatibilité */}
+      {userBudget && (
+        <div className={`rounded-xl p-3 flex 
+          items-center gap-2
+          ${compatible
+            ? 'bg-green-950 border border-green-800'
+            : 'bg-orange-950 border border-orange-800'
+          }`}>
+          <span className="text-xl">
+            {compatible ? '🟢' : '🟠'}
+          </span>
+          <p className={`text-sm font-bold
+            ${compatible 
+              ? 'text-green-400' 
+              : 'text-orange-400'
+            }`}>
+            {compatible
+              ? 'Compatible avec votre budget'
+              : 'Dépasse votre budget estimé'
+            }
+          </p>
+        </div>
+      )}
+    </div>
+  );
+};
+
+
+## FONCTIONNALITÉ 4 — COMPARATEUR D'ÉCOLES
+
+### Hook useComparison :
+
+Crée src/hooks/useComparison.js :
+
+import { createContext, useContext, useState } 
+  from 'react';
+
+const ComparisonContext = createContext();
+
+export function ComparisonProvider({ children }) {
+  const [list, setList] = useState([]);
+
+  const add = (ecole) => {
+    if (list.length >= 3) {
+      alert('Maximum 3 écoles à comparer');
+      return;
+    }
+    if (!list.find(e => e.id === ecole.id)) {
+      setList(prev => [...prev, ecole]);
+    }
+  };
+
+  const remove = (id) => {
+    setList(prev => prev.filter(e => e.id !== id));
+  };
+
+  const clear = () => setList([]);
+
+  const isIn = (id) => list.some(e => e.id === id);
+
+  return (
+    <ComparisonContext.Provider value={{
+      list, add, remove, clear, isIn
+    }}>
+      {children}
+    </ComparisonContext.Provider>
+  );
+}
+
+export const useComparison = () => 
+  useContext(ComparisonContext);
+
+### Bouton sur chaque card école :
+
+<button
+  onClick={() => isIn(ecole.id) 
+    ? remove(ecole.id) 
+    : add(ecole)
+  }
+  className={`flex items-center gap-1 px-3 
+    py-1.5 rounded-xl text-xs font-bold 
+    border press transition-all
+    ${isIn(ecole.id)
+      ? 'bg-orange-500 text-white border-orange-500'
+      : 'bg-transparent text-gray-400 border-gray-600'
+    }`}>
+  {isIn(ecole.id) ? '✓ Sélectionné' : '⚖️ Comparer'}
+</button>
+
+### Barre flottante de comparaison :
+
+{list.length > 0 && (
+  <div className="fixed bottom-20 left-4 right-4 
+    bg-gray-900 border border-orange-500 
+    rounded-2xl p-4 z-40 shadow-xl">
+    
+    <div className="flex items-center 
+      justify-between mb-3">
+      <p className="text-white font-bold text-sm">
+        ⚖️ Comparaison ({list.length}/3)
+      </p>
+      <button onClick={clear}
+        className="text-gray-400 text-xs">
+        Tout effacer
+      </button>
+    </div>
+
+    <div className="flex gap-2 mb-3">
+      {list.map(ecole => (
+        <div key={ecole.id}
+          className="flex-1 bg-gray-800 rounded-xl 
+            p-2 flex items-center justify-between">
+          <p className="text-white text-xs font-bold 
+            truncate flex-1">
+            {ecole.nom.substring(0, 12)}...
+          </p>
+          <button onClick={() => remove(ecole.id)}
+            className="text-gray-500 text-xs ml-1">
+            ✕
+          </button>
+        </div>
+      ))}
+      {Array(3 - list.length).fill(0).map((_, i) => (
+        <div key={i}
+          className="flex-1 bg-gray-800/50 border 
+            border-dashed border-gray-600 rounded-xl 
+            p-2 flex items-center justify-center">
+          <p className="text-gray-600 text-xs">
+            + École
+          </p>
+        </div>
+      ))}
+    </div>
+
+    <button
+      onClick={() => navigate('/comparer')}
+      disabled={list.length < 2}
+      className={`w-full py-3 rounded-xl font-bold 
+        text-sm
+        ${list.length >= 2
+          ? 'bg-orange-500 text-white'
+          : 'bg-gray-700 text-gray-500 cursor-not-allowed'
+        }`}>
+      {list.length >= 2
+        ? 'Comparer maintenant →'
+        : `Sélectionne encore 
+          ${2 - list.length} école(s)`
+      }
+    </button>
+  </div>
+)}
+
+### Page de comparaison (ComparaisonPage.jsx) :
+
+const criteres = [
+  { key: 'ville', label: 'Ville', icon: '📍',
+    render: (e) => e.ville || '—' },
+  { key: 'type', label: 'Type', icon: '🏛️',
+    render: (e) => e.type || '—' },
+  { key: 'anneeFondation', label: 'Fondé en', 
+    icon: '📅', render: (e) => e.anneeFondation || '—' },
+  { key: 'filieres', label: 'Filières', icon: '📚',
+    render: (e) => e.domainesFormation?.length 
+      ? `${e.domainesFormation.length} filière(s)` 
+      : '—' },
+  { key: 'diplomes', label: 'Diplômes', icon: '🎓',
+    render: (e) => e.diplomes?.map(d => d.nom)
+      .join(', ') || '—' },
+  { key: 'fraisScolarite', label: 'Frais scolarité',
+    icon: '💰', highlight: true,
+    render: (e) => e.fraisScolarite || '—' },
+  { key: 'fraisInscription', label: "Frais inscription",
+    icon: '💵', render: (e) => e.fraisInscription || '—' },
+  { key: 'accreditation', label: 'Accréditation',
+    icon: '🏅', render: (e) => e.accreditation || '—' },
+  { key: 'telephone', label: 'Contact', icon: '📞',
+    render: (e) => e.telephone || '—' },
+];
+
+Affiche le tableau comme dans l'image fournie :
+- Colonne gauche : critères avec icônes
+- Colonnes droites : une par école sélectionnée
+- Alternance de couleurs sur les lignes
+- Frais en orange (highlight)
+- En-têtes avec logo et badge PUBLIC/PRIVÉ
+- Bouton "Voir la fiche →" sous chaque école
+- Bouton "Partager sur WhatsApp" en bas
+
+
+## FONCTIONNALITÉ 5 — NOTIFICATIONS INTELLIGENTES
+
+Supprime les notifications automatiques 
+à heures fixes (8h, 12h, 16h, 20h).
+
+Remplace par un système d'alertes 
+intelligentes basées sur les actions 
+de l'utilisateur :
+
+### Types d'alertes :
+
+const ALERT_TYPES = {
+  CONCOURS_BIENTOT_CLOS: {
+    label: 'Concours bientôt clôturé',
+    icon: '⚠️',
+    color: 'red',
+    condition: (concours) => {
+      const jours = Math.floor(
+        (new Date(concours.dateCloture) - new Date()) 
+        / (1000 * 60 * 60 * 24)
+      );
+      return jours <= 14 && jours >= 0;
+    }
+  },
+  NOUVELLE_ECOLE: {
+    label: 'Nouvelle école ajoutée',
+    icon: '🏫',
+    color: 'blue'
+  },
+  NOUVEAU_CONCOURS: {
+    label: 'Nouveau concours ouvert',
+    icon: '🏆',
+    color: 'green'
+  },
+  RESULTAT_DISPONIBLE: {
+    label: 'Résultat disponible',
+    icon: '🎉',
+    color: 'orange'
+  },
+  RAPPEL_CANDIDATURE: {
+    label: 'Rappel candidature',
+    icon: '📋',
+    color: 'purple'
+  },
+};
+
+### Page Paramètres notifications :
+
+L'utilisateur choisit quelles alertes 
+il veut recevoir :
+
+<div className="bg-gray-800 border border-gray-700 
+  rounded-2xl overflow-hidden">
+  {Object.entries(ALERT_TYPES).map(([key, alert]) => (
+    <div key={key}
+      className="flex items-center justify-between 
+        px-4 py-3.5 border-b border-gray-700 
+        last:border-0">
+      <div className="flex items-center gap-3">
+        <span className="text-xl">{alert.icon}</span>
+        <p className="text-white font-semibold text-sm">
+          {alert.label}
+        </p>
+      </div>
+      <Switch
+        checked={preferences[key]}
+        onChange={(val) => setPreferences({
+          ...preferences, [key]: val
+        })}
+      />
+    </div>
+  ))}
+</div>
+
+
+## FONCTIONNALITÉ 6 — MON PARCOURS AVEC TIMELINE
+
+Améliore la page "Mon Parcours" avec 
+une vraie timeline visuelle :
+
+### Étapes de la timeline :
+
+const ETAPES_TIMELINE = [
+  { id: 1, label: 'Candidature envoyée', icon: '📝' },
+  { id: 2, label: 'Dossier reçu', icon: '📨' },
+  { id: 3, label: 'Convocation au concours', 
+    icon: '🧪' },
+  { id: 4, label: 'Épreuve passée', icon: '✏️' },
+  { id: 5, label: 'Admissible', icon: '✅' },
+  { id: 6, label: 'Épreuve orale', icon: '🎤' },
+  { id: 7, label: 'Résultat final', icon: '🎉' },
+];
+
+### Composant Timeline :
+
+<div className="relative">
+  {ETAPES_TIMELINE.map((etape, index) => {
+    const isDone = etape.id <= candidature.etapeActuelle;
+    const isCurrent = etape.id === 
+      candidature.etapeActuelle;
+
+    return (
+      <div key={etape.id} 
+        className="flex gap-4 mb-4">
+        
+        {/* Icône étape */}
+        <div className="flex flex-col items-center">
+          <div className={`w-10 h-10 rounded-full 
+            flex items-center justify-center 
+            text-base font-bold flex-shrink-0
+            ${isDone 
+              ? 'bg-orange-500 text-white' 
+              : isCurrent
+              ? 'bg-orange-950 border-2 border-orange-500 text-orange-500'
+              : 'bg-gray-800 border border-gray-600 text-gray-500'
+            }`}>
+            {isDone ? '✓' : etape.icon}
+          </div>
+          {index < ETAPES_TIMELINE.length - 1 && (
+            <div className={`w-0.5 flex-1 mt-1 
+              min-h-8
+              ${isDone 
+                ? 'bg-orange-500' 
+                : 'bg-gray-700'
+              }`}
+            />
+          )}
+        </div>
+
+        {/* Contenu étape */}
+        <div className="flex-1 pb-4">
+          <p className={`font-bold text-sm
+            ${isDone 
+              ? 'text-white' 
+              : 'text-gray-500'
+            }`}>
+            {etape.label}
+          </p>
+          {candidature.dates?.[etape.id] && (
+            <p className="text-gray-500 text-xs mt-0.5">
+              {candidature.dates[etape.id]}
+            </p>
+          )}
+          {isCurrent && (
+            <button
+              onClick={() => updateEtape(
+                candidature.id, etape.id + 1
+              )}
+              className="mt-2 bg-orange-950 border 
+                border-orange-800 text-orange-400 
+                rounded-xl px-3 py-1.5 text-xs 
+                font-bold press">
+              Marquer comme terminé →
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  })}
+</div>
+
+
+## FONCTIONNALITÉ 7 — ARTICLES CONNECTÉS 
+## AU RESTE DE L'APP
+
+À la fin de chaque article, ajoute une 
+section de liens vers le reste de l'app :
+
+<div className="border-t border-gray-800 
+  pt-6 mt-6">
+  
+  <h3 className="text-white font-bold mb-4">
+    🔗 Aller plus loin
+  </h3>
+
+  {/* Écoles liées au sujet de l'article */}
+  {articleEcoles.length > 0 && (
+    <div className="mb-4">
+      <p className="text-gray-400 text-xs 
+        font-bold uppercase tracking-wider mb-2">
+        🎓 Écoles recommandées
+      </p>
+      {articleEcoles.slice(0, 3).map(ecole => (
+        <button key={ecole.id}
+          onClick={() => navigate(`/ecoles/${ecole.id}`)}
+          className="w-full flex items-center gap-3 
+            p-3 bg-gray-800 rounded-xl mb-2 
+            text-left press">
+          <span className="text-xl">🏫</span>
+          <p className="text-white font-semibold 
+            text-sm flex-1 truncate">
+            {ecole.nom}
+          </p>
+          <span className="text-orange-500">›</span>
+        </button>
+      ))}
+    </div>
+  )}
+
+  {/* Bouton quiz */}
+  <button
+    onClick={() => navigate('/trouver-ma-voie')}
+    className="w-full bg-orange-950 border 
+      border-orange-800 rounded-2xl p-4 
+      flex items-center gap-3 mb-3 press">
+    <span className="text-2xl">🧭</span>
+    <div className="text-left">
+      <p className="text-orange-400 font-bold text-sm">
+        Faire mon test d'orientation
+      </p>
+      <p className="text-gray-500 text-xs">
+        Trouve les formations adaptées à ton profil
+      </p>
+    </div>
+    <span className="text-orange-500 ml-auto">›</span>
+  </button>
+
+  {/* Voir concours liés */}
+  <button
+    onClick={() => navigate('/concours')}
+    className="w-full bg-gray-800 border 
+      border-gray-700 rounded-2xl p-4 
+      flex items-center gap-3 press">
+    <span className="text-2xl">🏆</span>
+    <div className="text-left">
+      <p className="text-white font-bold text-sm">
+        Voir les concours disponibles
+      </p>
+      <p className="text-gray-500 text-xs">
+        15+ concours de la fonction publique
+      </p>
+    </div>
+    <span className="text-orange-500 ml-auto">›</span>
+  </button>
+</div>
+
+
+## FONCTIONNALITÉ 8 — NAVIGATION SANS COMPTE
+
+L'utilisateur peut explorer l'app sans 
+créer un compte. Le compte n'est demandé 
+que pour les actions personnelles.
+
+### Crée src/hooks/useAuthGate.js :
+
+export function useAuthGate() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  const requireAuth = (action) => {
+    if (!user) {
+      // Affiche une modal invitation 
+      // à se connecter
+      showAuthModal();
+      return false;
+    }
+    action();
+    return true;
+  };
+
+  return { requireAuth, isAuthenticated: !!user };
+}
+
+### Modal invitation à se connecter :
+
+const AuthModal = ({ onClose, reason }) => (
+  <div className="fixed inset-0 bg-black/80 
+    flex items-end z-50">
+    <div className="bg-gray-900 border-t 
+      border-gray-800 rounded-t-3xl p-6 w-full">
+      
+      <div className="text-center mb-4">
+        <span className="text-4xl block mb-3">
+          {reason === 'favoris' ? '❤️' :
+           reason === 'candidature' ? '📋' : '🧭'}
+        </span>
+        <h3 className="text-white font-black 
+          text-xl mb-2">
+          {reason === 'favoris' 
+            ? 'Sauvegarde tes favoris'
+            : reason === 'candidature'
+            ? 'Suis tes candidatures'
+            : 'Sauvegarde ton orientation'
+          }
+        </h3>
+        <p className="text-gray-400 text-sm">
+          Crée un compte gratuit pour accéder 
+          à cette fonctionnalité.
+        </p>
+      </div>
+
+      <button
+        onClick={() => navigate('/inscription')}
+        className="w-full bg-orange-500 text-white 
+          rounded-2xl py-4 font-bold mb-3 press">
+        Créer un compte gratuit →
+      </button>
+      
+      <button
+        onClick={() => navigate('/connexion')}
+        className="w-full bg-gray-800 text-gray-300 
+          rounded-2xl py-3 font-bold press">
+        J'ai déjà un compte
+      </button>
+
+      <button onClick={onClose}
+        className="w-full text-gray-500 text-sm 
+          mt-3 press">
+        Continuer sans compte
+      </button>
+    </div>
+  </div>
+);
+
+### Applique cette logique sur :
+- Bouton ❤️ Ajouter aux favoris → requireAuth
+- Bouton 📋 Ajouter à Mon Parcours → requireAuth
+- Sauvegarde quiz orientation → requireAuth
+- Les pages Écoles, Concours, Articles 
+  → accessibles SANS compte
+
+
+## FONCTIONNALITÉ 9 — BADGE VÉRIFIÉ 
+## SUR LES DONNÉES
+
+Sur chaque école et concours, ajoute 
+un badge de fiabilité :
+
+### Composant VerifiedBadge :
+
+const VerifiedBadge = ({ lastVerified, source }) => (
+  <div className="flex items-center gap-2 
+    bg-green-950 border border-green-800 
+    rounded-xl px-3 py-2">
+    <span className="text-green-400 text-sm">
+      🟢
+    </span>
+    <div>
+      <p className="text-green-400 text-xs font-bold">
+        Vérifié
+      </p>
+      <p className="text-green-600 text-xs">
+        Dernière vérification : {lastVerified}
+      </p>
+    </div>
+  </div>
+);
+
+Affiche ce badge sur :
+- Chaque fiche école (en haut, sous le nom)
+- Chaque fiche concours (sous le titre)
+- Avec la source : "établissement / 
+  ministère / site officiel"
+
+Pour les données non vérifiées, affiche :
+<div className="flex items-center gap-2 
+  bg-orange-950 border border-orange-800 
+  rounded-xl px-3 py-2">
+  <span className="text-orange-400 text-sm">🟡</span>
+  <p className="text-orange-400 text-xs font-bold">
+    En cours de vérification
+  </p>
+</div>
+
+### Ajoute ces champs dans la base de données :
+- dateVerification: Date de dernière vérification
+- sourceVerification: "Site officiel" ou 
+  "Ministère" ou "Établissement"
+- estVerifie: boolean
+
+
+## ÉTAPE FINALE — Intégration complète
+
+### Dans App.jsx, entoure tout avec les providers :
+
+import { ComparisonProvider } from 
+  './hooks/useComparison';
+import { AuthProvider } from 
+  './contexts/AuthContext';
+
+<AuthProvider>
+  <ComparisonProvider>
+    <Router>
+      {/* Routes existantes */}
+      <Route path="/comparer" 
+        element={<ComparaisonPage />} />
+    </Router>
+  </ComparisonProvider>
+</AuthProvider>
+
+### Dans le menu latéral, ajoute :
+{ icon: '⚖️', label: 'Comparer des écoles', 
+  path: '/comparer' }
+
+### Lance npm run build à la fin pour 
+### vérifier zéro erreur.
+
+
+## VÉRIFICATION FINALE
+
+Après toutes les modifications, confirme :
+1. La recherche globale retourne des résultats 
+   de toutes les catégories
+2. Les filtres fonctionnent sur Écoles 
+   et Concours
+3. Le quiz d'orientation a bien 9 étapes 
+   et génère des recommandations avec 
+   pourcentages et raisons
+4. Le comparateur fonctionne avec 2-3 écoles
+5. La section budget affiche la compatibilité
+6. La timeline de Mon Parcours est visible
+7. Les articles ont une section "Aller plus loin"
+8. On peut naviguer sans compte et la modal 
+   s'affiche pour les actions personnelles
+9. Les badges "Vérifié" s'affichent sur 
+   les fiches
+10. npm run build passe sans erreur

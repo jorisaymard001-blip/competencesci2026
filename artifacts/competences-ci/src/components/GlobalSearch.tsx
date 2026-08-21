@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, X, GraduationCap, Briefcase, BookOpen, Clock, Trash2, ArrowRight } from "lucide-react";
+import { Search, X, GraduationCap, Briefcase, BookOpen, Clock, Trash2, ArrowRight, Newspaper } from "lucide-react";
 import { useListSchools, useListCompetitions, useListDiplomas } from "@workspace/api-client-react";
 import { useSettings } from "@/contexts/SettingsContext";
 import { useT } from "@/lib/useT";
 import { cn } from "@/lib/utils";
+import { articles } from "@/lib/articles";
 
 interface Props {
   open: boolean;
@@ -48,7 +49,12 @@ export function GlobalSearch({ open, onClose }: Props) {
     d.toLowerCase().includes(q)
   ).slice(0, 4);
 
-  const hasResults = matchedSchools.length > 0 || matchedCompetitions.length > 0 || matchedDiplomas.length > 0;
+  const matchedArticles = q.length < 2 ? [] : articles.filter(article =>
+    `${article.title} ${article.intro} ${article.category}`.toLowerCase().includes(q)
+  ).slice(0, 4);
+
+  const hasResults = matchedSchools.length > 0 || matchedCompetitions.length > 0 ||
+    matchedDiplomas.length > 0 || matchedArticles.length > 0;
   const showHistory = q.length === 0 && searchHistory.length > 0;
 
   const goTo = (path: string, histQuery: string, type: "school" | "competition") => {
@@ -242,6 +248,33 @@ export function GlobalSearch({ open, onClose }: Props) {
                   </div>
                 </div>
               )}
+
+               {/* Articles results */}
+               {matchedArticles.length > 0 && (
+                 <div className="px-4 pt-4">
+                   <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-2 flex items-center gap-1.5">
+                     <Newspaper className="w-3.5 h-3.5" /> {t("search_articles")}
+                   </p>
+                   <div className="space-y-1">
+                     {matchedArticles.map(article => (
+                       <button
+                         key={article.id}
+                         onClick={() => goTo("/conseils", q, "school")}
+                         className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-muted/60 transition-colors text-left active:scale-[0.98]"
+                       >
+                         <div className="w-8 h-8 bg-violet-500/10 rounded-lg flex items-center justify-center shrink-0 text-lg">
+                           {article.emoji}
+                         </div>
+                         <div className="flex-1 min-w-0">
+                           <p className="text-sm font-semibold text-foreground leading-tight truncate">{article.title}</p>
+                           <p className="text-xs text-muted-foreground truncate">{article.category} · {article.readTime} min</p>
+                         </div>
+                         <ArrowRight className="w-4 h-4 text-muted-foreground/50 shrink-0" />
+                       </button>
+                     ))}
+                   </div>
+                 </div>
+               )}
 
               {/* Suggestions quand vide */}
               {!showHistory && q.length === 0 && (

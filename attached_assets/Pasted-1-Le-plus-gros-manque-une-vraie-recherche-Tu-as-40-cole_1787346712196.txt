@@ -1,0 +1,361 @@
+1. Le plus gros manque : une vraie recherche
+Tu as 40+ écoles et 15+ concours.
+Mais comment l’utilisateur trouve exactement ce qu’il cherche ?
+Il faut une recherche globale :
+🔎 Que recherchez-vous ?
+L’utilisateur écrit :
+Génie civil
+Et l’application lui retourne :
+🎓 Écoles
+	•	établissements proposant Génie Civil
+🏆 Concours
+	•	concours accessibles avec les diplômes concernés
+📚 Articles
+	•	articles sur le Génie Civil
+📍 Localisation
+	•	établissements proches
+Et surtout des filtres :
+	•	ville ;
+	•	domaine ;
+	•	niveau ;
+	•	public/privé ;
+	•	frais ;
+	•	diplôme ;
+	•	concours ;
+	•	date limite.
+👉 Pour moi, c’est une fonctionnalité V1 indispensable.
+ 
+⸻
+ 
+🧭 2. “Trouver ma voie” doit devenir LE cœur de l’application
+Actuellement :
+Quiz de 5 questions → recommandations.
+C’est bien.
+Mais 5 questions, c’est trop peu pour donner une orientation réellement convaincante.
+Je transformerais ça en :
+🧭 Mon orientation
+L’utilisateur renseigne progressivement :
+Niveau d’études Série BAC Ville Domaines qui l’intéressent Matières préférées Budget approximatif Type d’établissement souhaité Objectif professionnel Disponibilité
+Puis :
+🎯 Ton profil
+Profil scientifique Intérêt élevé pour le bâtiment Budget modéré Préférence Abidjan
+Recommandations
+🥇 Génie Civil — 94 %
+🥈 Architecture — 86 %
+🥉 Urbanisme — 78 %
+Et surtout :
+Pourquoi nous te recommandons cette voie ?
+Ça rend le résultat beaucoup plus crédible.
+ 
+⸻
+ 
+💰 3. Il manque une fonctionnalité extrêmement importante : le budget
+Pour l’orientation en Côte d’Ivoire, le coût est déterminant.
+Sur chaque école, je voudrais voir :
+💰 Coût estimatif
+Inscription : 50 000 FCFA Scolarité : 350 000 FCFA/an Autres frais : ~50 000 FCFA
+💵 Budget annuel estimé
+≈ 450 000 FCFA
+Puis :
+🟢 Compatible avec votre budget
+ou
+🟠 Dépasse votre budget estimé
+Cela transforme l’annuaire en outil de décision.
+ 
+⸻
+ 
+🏫 4. Les fiches écoles doivent être beaucoup plus puissantes
+La fiche ne devrait pas seulement contenir :
+Nom Filières Frais Contact Localisation
+Je ferais :
+🏫 Établissement
+Présentation
+🎓 Formations
+💰 Frais
+📋 Conditions d’admission
+📅 Dates importantes
+📍 Localisation
+☎️ Contacts
+🌐 Site officiel
+🏅 Accréditation
+📸 Photos
+⭐ Avis / retours (éventuellement plus tard)
+Et surtout :
+❤️ Ajouter aux favoris
+📤 Partager
+📌 Comparer
+ 
+⸻
+ 
+⚖️ 5. Une fonctionnalité qui pourrait être exceptionnelle : COMPARER
+L’utilisateur sélectionne :
+INP-HB vs UVCI vs une école privée
+Et Compétences CI affiche :
+￼
+
+Quelle école correspond le mieux à votre profil ?
+
+C’est extrêmement utile.
+
+⸻
+
+📅 6. Ton système de notifications doit être revu
+
+Tu proposes :
+
+8h / 12h / 16h / 20h
+
+Personnellement, je supprimerais ça en V1.
+
+Recevoir quatre notifications quotidiennes peut très vite devenir agaçant.
+
+Je préférerais :
+
+🔔 Alertes intelligentes
+
+	•	concours bientôt clôturé ;
+	•	nouvelle école ajoutée ;
+	•	nouvelle formation ;
+	•	modification d’une information ;
+	•	rappel d’une candidature ;
+	•	résultat publié ;
+	•	date importante.
+
+Et surtout :
+
+L’utilisateur choisit ce qu’il veut recevoir.
+
+⸻
+
+📆 7. Ton “Mon Parcours” peut devenir énorme
+
+Actuellement :
+
+ajouter écoles/concours → suivre le statut.
+
+Très bien.
+
+Mais ajoute une timeline.
+
+🎓 Mon parcours
+
+15 août
+
+📝 Candidature envoyée
+
+↓
+
+18 août
+
+📨 Dossier reçu
+
+↓
+
+25 août
+
+🧪 Convocation au concours
+
+↓
+
+2 septembre
+
+📝 Épreuve
+
+↓
+
+15 septembre
+
+🎉 Admis
+
+Cela donne une vraie sensation de progression.
+
+⸻
+
+📂 8. Ajoute un gestionnaire de documents
+
+Très utile.
+
+Dans :
+
+📁 Mes documents
+
+	•	CV
+	•	Lettre de motivation
+	•	BAC
+	•	BTS
+	•	Licence
+	•	relevés
+	•	pièces d’identité
+	•	certificats
+
+L’utilisateur peut ensuite associer des documents à une candidature.
+
+Attention : si tu stockes des documents personnels, la sécurité et le chiffrement deviennent une priorité absolue.
+
+⸻
+
+🧠 9. Une IA, mais seulement si elle sert réellement
+
+Je mettrais :
+
+🤖 Assistant Compétences CI
+
+L’utilisateur demande :
+
+« J’ai un BAC D, j’aime les maths et l’informatique, mais mon budget est limité. Quelles formations me conseilles-tu ? »
+
+L’assistant utilise les données vérifiées de Compétences CI, pas simplement des connaissances générales.
+
+Il répond :
+
+Voici 5 parcours adaptés à ton profil.
+
+Puis :
+
+Voir les écoles
+
+Voir les conditions
+
+Ajouter à mon parcours
+
+Là, l’IA devient vraiment intéressante.
+
+⸻
+
+🇨🇮 10. Le plus gros avantage concurrentiel : la fiabilité
+
+Pour moi, c’est probablement le point numéro 1 après l’UX.
+
+Une application d’orientation ivoirienne doit inspirer confiance.
+
+Chaque information importante devrait afficher :
+
+🟢 Vérifié
+
+Dernière vérification : 12 août 2026
+
+Source : établissement / ministère / site officiel
+
+Et pour les concours :
+
+🔗 Source officielle
+
+Parce qu’une erreur sur :
+
+	•	une date de concours ;
+	•	un montant ;
+	•	une condition ;
+	•	une filière ;
+	•	une accréditation ;
+
+peut réellement faire rater une opportunité à quelqu’un.
+
+La confiance peut devenir ta marque.
+
+⸻
+
+📰 11. Les articles doivent être reliés au reste
+
+Ne fais pas simplement :
+
+Articles
+Article 1
+Article 2
+Article 3
+
+Il faut connecter le contenu.
+
+Exemple :
+
+Article
+
+“Comment réussir son orientation après le BAC D ?”
+
+À la fin :
+
+🎓 Écoles recommandées
+
+🧭 Faire mon test d’orientation
+
+📚 Voir les formations scientifiques
+
+💼 Voir les débouchés
+
+L’article devient donc une porte d’entrée vers l’application.
+
+⸻
+
+⭐ 12. Favoris
+
+Indispensable.
+
+L’utilisateur doit pouvoir sauvegarder :
+
+❤️ Écoles
+❤️ Concours
+❤️ Formations
+❤️ Articles
+
+Puis retrouver tout dans :
+
+🔖 Mes favoris
+
+⸻
+
+📤 13. Partage
+
+Très important en Côte d’Ivoire.
+
+Chaque école, concours ou article doit pouvoir être partagé facilement :
+
+WhatsApp
+Facebook
+Telegram
+copier le lien
+
+Exemple :
+
+“Regarde ce concours sur Compétences CI 👇”
+
+Ça peut devenir un énorme moteur de croissance organique.
+
+⸻
+
+📶 14. Et je garderais absolument le mode PWA
+
+C’est un très bon choix.
+
+Mais il faut aller jusqu’au bout :
+
+	•	cache des pages importantes ;
+	•	consultation hors connexion ;
+	•	synchronisation automatique ;
+	•	installation rapide ;
+	•	faible consommation de données ;
+	•	images compressées.
+
+Une personne peut consulter les informations d’une école même avec une connexion mauvaise.
+
+⸻
+
+🔐 15. Une chose que je changerais dans l’inscription
+
+Ne force pas l’utilisateur à créer un compte pour tout.
+
+Il devrait pouvoir :
+
+Explorer les écoles → sans compte.
+
+Consulter les concours → sans compte.
+
+Lire les articles → sans compte.
+
+Puis :
+
+❤️ Ajouter aux favoris → créer un compte.
+
+🧭 Sauvegarder mon orientation → créer un compte.
+
+📌 Suivre une candidature → créer un compte.
+
+Ça réduit énormément la friction.
