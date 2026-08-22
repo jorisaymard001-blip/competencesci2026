@@ -31,6 +31,7 @@ import Login from "@/pages/Login";
 import Register from "@/pages/Register";
 import Admin from "@/pages/Admin";
 import NotFound from "@/pages/not-found";
+import Documents from "@/pages/Documents";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -76,6 +77,7 @@ function Router() {
       <Route path="/diplomas/:name"><ProtectedRoute component={DiplomaDetail} /></Route>
       <Route path="/orientation"><ProtectedRoute component={Orientation} /></Route>
       <Route path="/candidatures"><ProtectedRoute component={Candidatures} /></Route>
+      <Route path="/documents"><ProtectedRoute component={Documents} /></Route>
       <Route path="/conseils"><Conseils /></Route>
       <Route path="/contact"><ProtectedRoute component={Contact} /></Route>
 

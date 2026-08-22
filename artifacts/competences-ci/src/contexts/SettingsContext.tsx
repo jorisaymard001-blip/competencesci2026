@@ -22,12 +22,21 @@ interface SettingsContextType {
   setLanguage: (l: Language) => void;
   notificationsEnabled: boolean;
   setNotificationsEnabled: (v: boolean) => void;
+  notificationPreferences: NotificationPreferences;
+  setNotificationPreference: (key: keyof NotificationPreferences, value: boolean) => void;
   searchHistory: SearchEntry[];
   addSearch: (query: string, type: SearchEntry["type"]) => void;
   clearSearchHistory: () => void;
   usageData: UsageData;
   getTodaySeconds: () => number;
   getThisYearSeconds: () => number;
+}
+
+export interface NotificationPreferences {
+  competitions: boolean;
+  deadlines: boolean;
+  results: boolean;
+  recommendations: boolean;
 }
 
 const SETTINGS_KEY = "competences_ci_settings";
@@ -65,6 +74,14 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
       return s.notificationsEnabled ?? true;
     } catch { return true; }
   });
+  const [notificationPreferences, setNotificationPreferences] = useState<NotificationPreferences>(() => {
+    try {
+      const s = JSON.parse(localStorage.getItem(SETTINGS_KEY) || "{}");
+      return { competitions: true, deadlines: true, results: true, recommendations: false, ...(s.notificationPreferences || {}) };
+    } catch {
+      return { competitions: true, deadlines: true, results: true, recommendations: false };
+    }
+  });
 
   const [searchHistory, setSearchHistory] = useState<SearchEntry[]>(() => {
     try {
@@ -93,8 +110,8 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
 
   // Persist settings
   useEffect(() => {
-    localStorage.setItem(SETTINGS_KEY, JSON.stringify({ theme, language, notificationsEnabled }));
-  }, [theme, language, notificationsEnabled]);
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify({ theme, language, notificationsEnabled, notificationPreferences }));
+  }, [theme, language, notificationsEnabled, notificationPreferences]);
 
   // Track usage time
   useEffect(() => {
@@ -132,6 +149,9 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   const setNotificationsEnabled = (v: boolean) => {
     setNotificationsEnabledState(v);
   };
+  const setNotificationPreference = (key: keyof NotificationPreferences, value: boolean) => {
+    setNotificationPreferences(previous => ({ ...previous, [key]: value }));
+  };
 
   const addSearch = (query: string, type: SearchEntry["type"]) => {
     if (!query.trim()) return;
@@ -168,6 +188,8 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
       setLanguage,
       notificationsEnabled,
       setNotificationsEnabled,
+      notificationPreferences,
+      setNotificationPreference,
       searchHistory,
       addSearch,
       clearSearchHistory,

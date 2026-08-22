@@ -6,6 +6,7 @@ import type { School, Competition } from "@workspace/api-client-react";
 import { getSchoolImage } from "@/lib/school-images";
 import { CompetitionCover } from "@/components/CompetitionCover";
 import { useComparison } from "@/contexts/ComparisonContext";
+import { VerifiedBadge } from "@/components/VerifiedBadge";
 
 // ── SCHOOL CARD ─────────────────────────────────────────────────────────────
 
@@ -42,9 +43,10 @@ export function SchoolCard({ school, index = 0 }: { school: School; index?: numb
         </div>
 
         <div className="p-4">
-          <h3 className="font-black text-sm text-foreground leading-tight line-clamp-2 group-hover:text-primary transition-colors mb-1.5">
-            {school.name}
-          </h3>
+           <div className="flex items-start justify-between gap-2 mb-1.5">
+             <h3 className="font-black text-sm text-foreground leading-tight line-clamp-2 group-hover:text-primary transition-colors">{school.name}</h3>
+             <VerifiedBadge item={school as any} />
+           </div>
           <div className="flex items-center text-muted-foreground text-xs mb-3 gap-1">
             <MapPin className="w-3 h-3 shrink-0" />
             <span>{school.city}</span>
@@ -165,9 +167,10 @@ export function CompetitionCard({ competition, index = 0 }: { competition: Compe
 
         {/* Content */}
         <div className="p-3.5">
-          <h3 className="font-black text-sm text-foreground leading-tight line-clamp-2 group-hover:text-secondary transition-colors mb-3">
-            {competition.title}
-          </h3>
+           <div className="flex items-start justify-between gap-2 mb-3">
+             <h3 className="font-black text-sm text-foreground leading-tight line-clamp-2 group-hover:text-secondary transition-colors">{competition.title}</h3>
+             <VerifiedBadge item={competition as any} />
+           </div>
 
           <div className="flex items-center justify-between pt-2.5 border-t border-border/50">
             <div className="flex items-center text-xs text-muted-foreground gap-1 min-w-0">

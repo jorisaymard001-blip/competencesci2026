@@ -49,7 +49,7 @@ function Avatar({ size = "lg" }: { size?: "sm" | "lg" }) {
 export default function Profile() {
   const { user, logout } = useAuth();
   const { favoriteSchools, favoriteCompetitions } = useFavorites();
-  const { theme, toggleTheme, language, setLanguage, notificationsEnabled, setNotificationsEnabled, searchHistory, clearSearchHistory, getTodaySeconds, getThisYearSeconds } = useSettings();
+  const { theme, toggleTheme, language, setLanguage, notificationsEnabled, setNotificationsEnabled, notificationPreferences, setNotificationPreference, searchHistory, clearSearchHistory, getTodaySeconds, getThisYearSeconds } = useSettings();
   const [, navigate] = useLocation();
 
   const [avatar, setAvatar] = useState(getStoredAvatar);
@@ -286,6 +286,24 @@ export default function Profile() {
 
             {/* Push permission control */}
             {notificationsEnabled && <PushPermissionRow userId={user?.id ?? null} />}
+            {notificationsEnabled && (
+              <div className="px-4 py-3 border-b border-border/40">
+                <p className="text-xs font-bold uppercase tracking-wide text-muted-foreground mb-2">Types d’alertes</p>
+                {([
+                  ["competitions", "Nouveaux concours"],
+                  ["deadlines", "Dates limites imminentes"],
+                  ["results", "Résultats et candidatures"],
+                  ["recommendations", "Recommandations personnalisées"],
+                ] as const).map(([key, label]) => (
+                  <button key={key} onClick={() => setNotificationPreference(key, !notificationPreferences[key])} className="w-full flex items-center justify-between py-2 text-sm text-foreground">
+                    <span>{label}</span>
+                    <span className={cn("relative w-9 h-5 rounded-full transition-colors", notificationPreferences[key] ? "bg-primary" : "bg-muted-foreground/30")}>
+                      <span className={cn("absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform", notificationPreferences[key] ? "translate-x-4" : "translate-x-0.5")} />
+                    </span>
+                  </button>
+                ))}
+              </div>
+            )}
 
             {/* Mode */}
             <div className="flex items-center justify-between px-4 py-3.5 border-b border-border/40">

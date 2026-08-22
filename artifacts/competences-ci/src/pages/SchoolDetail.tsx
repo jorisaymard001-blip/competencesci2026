@@ -1,6 +1,7 @@
 import { useRoute, useLocation } from "wouter";
 import { useState, useEffect } from "react";
 import { Layout } from "@/components/Layout";
+import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { useGetSchool } from "@workspace/api-client-react";
 import { Loader2, MapPin, Globe, Phone, Mail, Award, BookOpen, GraduationCap, Building2, ChevronRight, Heart, Info, Banknote, Star, Send } from "lucide-react";
 import { getSchoolImage } from "@/lib/school-images";
@@ -11,6 +12,7 @@ import { useFavorites } from "@/contexts/FavoritesContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
 import { useT } from "@/lib/useT";
+import { AuthRequiredModal } from "@/components/AuthRequiredModal";
 
 interface Review { userId: number; userName: string; rating: number; comment: string; date: string; }
 function getReviews(schoolId: number): Review[] {
@@ -51,6 +53,7 @@ export default function SchoolDetail() {
   const [myRating, setMyRating] = useState(0);
   const [myComment, setMyComment] = useState("");
   const [showReviewForm, setShowReviewForm] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
 
   useEffect(() => {
     if (school) setReviews(getReviews(school.id));
@@ -132,7 +135,7 @@ export default function SchoolDetail() {
                 </div>
               )}
               <button
-                onClick={() => toggleSchool(school.id)}
+                onClick={() => user ? toggleSchool(school.id) : setShowAuthModal(true)}
                 className={cn(
                   "w-9 h-9 rounded-full flex items-center justify-center border transition-all active:scale-90",
                   isFav
@@ -147,7 +150,7 @@ export default function SchoolDetail() {
           </div>
 
           <h1 className="font-display text-2xl font-bold text-foreground mb-3 leading-tight">
-            {school.name}
+            {school.name} <VerifiedBadge item={school as any} />
           </h1>
 
           <div className="flex items-start text-muted-foreground text-sm mb-6">
@@ -375,7 +378,7 @@ export default function SchoolDetail() {
 
           {/* Favorite Toggle CTA */}
           <button
-            onClick={() => toggleSchool(school.id)}
+            onClick={() => user ? toggleSchool(school.id) : setShowAuthModal(true)}
             className={cn(
               "w-full py-4 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 border-2 transition-all active:scale-[0.98]",
               isFav
@@ -389,6 +392,7 @@ export default function SchoolDetail() {
 
         </div>
       </div>
+      <AuthRequiredModal open={showAuthModal} onClose={() => setShowAuthModal(false)} action="enregistrer cette école" />
     </Layout>
   );
 }

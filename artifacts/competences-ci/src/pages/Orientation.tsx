@@ -7,19 +7,25 @@ import { Compass, GraduationCap, Briefcase, ChevronRight, RotateCcw, Sparkles } 
 import { cn } from "@/lib/utils";
 import { useT } from "@/lib/useT";
 
-type Step = 0 | 1 | 2 | 3 | 4 | 5;
+type Step = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
 
 interface Answers {
+  studyLevel: string;
   bac: string;
+  domains: string[];
   subjects: string[];
   budget: string;
+  schoolType: string;
   city: string;
   goal: string;
+  availability: string;
 }
 
 // Internal values (French) are used by the scoring engine — do NOT translate these
 const BAC_SERIES_VALUES = ["A (Lettres)", "B (Éco)", "C (Maths)", "D (Sciences)", "E (Technique)", "F (Technique)", "G (Gestion)"];
-const SUBJECT_VALUES = ["Mathématiques", "Sciences", "Informatique", "Droit / Économie", "Lettres / Communication", "Art / Culture", "Commerce / Gestion", "Agriculture"];
+const STUDY_LEVELS = ["BEPC / Brevet", "BAC (en cours)", "BAC obtenu", "BTS obtenu", "Licence obtenue", "Master obtenu"];
+const DOMAIN_VALUES = ["Génie Civil / BTP", "Informatique / Numérique", "Médecine / Santé", "Droit / Administration", "Finance / Commerce", "Agriculture / Environnement", "Éducation / Enseignement", "Sciences / Recherche"];
+const SUBJECT_VALUES = ["Mathématiques", "Physique-Chimie", "SVT / Biologie", "Français / Littérature", "Histoire-Géographie", "Économie", "Informatique", "Langues étrangères"];
 const CITIES = ["Abidjan", "Bouaké", "Daloa", "Korhogo", "San-Pédro", "Yamoussoukro"];
 
 function arr(v: unknown): string[] {
@@ -54,29 +60,31 @@ function scoreSchool(
   if (answers.budget === "low" && school.type === "public") score += 4;
   if (answers.budget === "medium") score += 2;
   if (answers.budget === "high" && school.type === "private") score += 2;
+  if (answers.schoolType === "public" && school.type === "public") score += 4;
+  if (answers.schoolType === "private" && school.type === "private") score += 4;
 
   if (answers.goal === "fast" && (diplomas.includes("bts") || diplomas.includes("dut") || diplomas.includes("licence"))) score += 3;
   if (answers.goal === "long" && (diplomas.includes("master") || diplomas.includes("doctorat") || diplomas.includes("ingénieur"))) score += 3;
 
-  if (answers.subjects.includes("Mathématiques") || answers.subjects.includes("Sciences")) {
+  if (answers.subjects.includes("Mathématiques") || answers.subjects.includes("Physique-Chimie")) {
     if (haystack.includes("polytechnique") || haystack.includes("mines") || haystack.includes("ingéni") || haystack.includes("technique") || haystack.includes("sciences")) score += 3;
   }
   if (answers.subjects.includes("Informatique")) {
     if (haystack.includes("informatique") || haystack.includes("numérique") || haystack.includes("technologie") || haystack.includes("esatic")) score += 3;
   }
-  if (answers.subjects.includes("Droit / Économie")) {
+  if (answers.subjects.includes("Économie") || answers.domains.some(d => d.includes("Droit"))) {
     if (haystack.includes("droit") || haystack.includes("économie") || haystack.includes("administration") || haystack.includes("gestion")) score += 3;
   }
-  if (answers.subjects.includes("Lettres / Communication")) {
+  if (answers.subjects.includes("Français / Littérature")) {
     if (haystack.includes("lettres") || haystack.includes("communication") || haystack.includes("arts") || haystack.includes("istc")) score += 3;
   }
-  if (answers.subjects.includes("Commerce / Gestion")) {
+  if (answers.subjects.includes("Économie") || answers.domains.some(d => d.includes("Finance"))) {
     if (haystack.includes("commerce") || haystack.includes("gestion") || haystack.includes("management") || haystack.includes("iam") || haystack.includes("esca")) score += 3;
   }
-  if (answers.subjects.includes("Agriculture")) {
+  if (answers.domains.some(d => d.includes("Agriculture"))) {
     if (haystack.includes("agriculture") || haystack.includes("agronomie") || haystack.includes("nangui")) score += 3;
   }
-  if (answers.subjects.includes("Art / Culture")) {
+  if (answers.domains.some(d => d.includes("Éducation"))) {
     if (haystack.includes("art") || haystack.includes("culture") || haystack.includes("musique") || haystack.includes("design")) score += 3;
   }
 
@@ -108,7 +116,7 @@ function scoreCompetition(
   if (answers.subjects.includes("Droit / Économie")) {
     if (haystack.includes("magistrat") || haystack.includes("trésor") || haystack.includes("impôt") || haystack.includes("douane") || haystack.includes("administrat") || haystack.includes("économie") || haystack.includes("droit")) score += 3;
   }
-  if (answers.subjects.includes("Mathématiques") || answers.subjects.includes("Sciences")) {
+  if (answers.subjects.includes("Mathématiques") || answers.subjects.includes("Physique-Chimie")) {
     if (haystack.includes("génie") || haystack.includes("statistique") || haystack.includes("informatique") || haystack.includes("ingéni") || haystack.includes("polytechnique")) score += 3;
   }
   if (answers.subjects.includes("Informatique")) {
@@ -130,28 +138,27 @@ function scoreCompetition(
 export default function Orientation() {
   const { t } = useT();
   const [step, setStep] = useState<Step>(0);
-  const [answers, setAnswers] = useState<Answers>({ bac: "", subjects: [], budget: "", city: "", goal: "" });
+  const [answers, setAnswers] = useState<Answers>({
+    studyLevel: "", bac: "", domains: [], subjects: [], budget: "",
+    schoolType: "", city: "", goal: "", availability: "",
+  });
   const [showResults, setShowResults] = useState(false);
 
   const { data: schools = [] } = useListSchools();
   const { data: competitions = [] } = useListCompetitions();
 
   // Translated option lists — values stay French for scoring engine
+  const studyLevelOptions = STUDY_LEVELS.map(v => ({ value: v, label: v }));
+
   const bacOptions = [
     ...BAC_SERIES_VALUES.map(v => ({ value: v, label: v })),
     { value: "Autre", label: t("orient_other") },
   ];
 
   const subjectOptions = [
-    { value: "Mathématiques", label: t("orient_subject_math") },
-    { value: "Sciences", label: t("orient_subject_sciences") },
-    { value: "Informatique", label: t("orient_subject_cs") },
-    { value: "Droit / Économie", label: t("orient_subject_law") },
-    { value: "Lettres / Communication", label: t("orient_subject_lit") },
-    { value: "Art / Culture", label: t("orient_subject_art") },
-    { value: "Commerce / Gestion", label: t("orient_subject_business") },
-    { value: "Agriculture", label: t("orient_subject_agri") },
+    ...SUBJECT_VALUES.map(value => ({ value, label: value })),
   ];
+  const domainOptions = DOMAIN_VALUES.map(value => ({ value, label: value }));
 
   const budgetOptions = [
     { value: "low", label: t("orient_budget_low_label"), sub: t("orient_budget_low_sub") },
@@ -168,24 +175,39 @@ export default function Orientation() {
     { value: "fast", label: t("orient_goal_fast"), sub: t("orient_goal_fast_sub") },
     { value: "long", label: t("orient_goal_long"), sub: t("orient_goal_long_sub") },
   ];
+  const schoolTypeOptions = [
+    { value: "public", label: "Public uniquement" },
+    { value: "private", label: "Privé uniquement" },
+    { value: "both", label: "Les deux m'intéressent" },
+  ];
+  const availabilityOptions = [
+    { value: "now", label: "Dès cette année" },
+    { value: "next", label: "L'année prochaine" },
+    { value: "later", label: "Dans 2 ans ou plus" },
+    { value: "info", label: "Je cherche juste à m'informer" },
+  ];
 
   const handleNext = () => {
-    if (step < 5) setStep((s) => (s + 1) as Step);
+    if (step < 9) setStep((s) => (s + 1) as Step);
     else setShowResults(true);
   };
 
   const handleReset = () => {
     setStep(0);
-    setAnswers({ bac: "", subjects: [], budget: "", city: "", goal: "" });
+    setAnswers({ studyLevel: "", bac: "", domains: [], subjects: [], budget: "", schoolType: "", city: "", goal: "", availability: "" });
     setShowResults(false);
   };
 
   const canContinue = (): boolean => {
-    if (step === 1) return !!answers.bac;
-    if (step === 2) return answers.subjects.length > 0;
-    if (step === 3) return !!answers.budget;
-    if (step === 4) return !!answers.city;
-    if (step === 5) return !!answers.goal;
+    if (step === 1) return !!answers.studyLevel;
+    if (step === 2) return !!answers.bac;
+    if (step === 3) return answers.domains.length > 0;
+    if (step === 4) return answers.subjects.length > 0;
+    if (step === 5) return !!answers.budget;
+    if (step === 6) return !!answers.schoolType;
+    if (step === 7) return !!answers.city;
+    if (step === 8) return !!answers.goal;
+    if (step === 9) return !!answers.availability;
     return true;
   };
 
@@ -302,13 +324,13 @@ export default function Orientation() {
         {step > 0 && (
           <div className="mb-6">
             <div className="flex justify-between text-xs text-muted-foreground mb-2">
-              <span>{t("orient_question")} {step}/5</span>
-              <span>{Math.round((Math.min(step, 5) / 5) * 100)}%</span>
+              <span>{t("orient_question")} {step}/9</span>
+              <span>{Math.round((Math.min(step, 9) / 9) * 100)}%</span>
             </div>
             <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
               <motion.div
                 className="h-full bg-gradient-to-r from-primary to-orange-400 rounded-full"
-                animate={{ width: `${(Math.min(step, 5) / 5) * 100}%` }}
+                animate={{ width: `${(Math.min(step, 9) / 9) * 100}%` }}
                 transition={{ duration: 0.4 }}
               />
             </div>
@@ -337,72 +359,83 @@ export default function Orientation() {
           {step === 1 && (
             <QuizStep
               key="step1"
-              question={t("orient_q_bac")}
-              options={bacOptions}
-              selected={[answers.bac]}
-              onSelect={(v) => setAnswers({ ...answers, bac: v })}
-              multi={false}
-              onNext={handleNext}
-              canContinue={canContinue()}
-              continueLabel={t("orient_continue")}
-              multiHint={t("orient_multi_hint")}
+              question="Quel est ton niveau d'études actuel ?"
+              options={studyLevelOptions}
+              selected={[answers.studyLevel]}
+              onSelect={(v) => setAnswers({ ...answers, studyLevel: v })}
+              multi={false} onNext={handleNext} canContinue={canContinue()}
+              continueLabel={t("orient_continue")} multiHint={t("orient_multi_hint")}
             />
           )}
           {step === 2 && (
             <QuizStep
               key="step2"
-              question={t("orient_q_subjects")}
-              options={subjectOptions}
-              selected={answers.subjects}
-              onSelect={(v) => setAnswers({ ...answers, subjects: answers.subjects.includes(v) ? answers.subjects.filter(s => s !== v) : [...answers.subjects, v] })}
-              multi={true}
-              onNext={handleNext}
-              canContinue={canContinue()}
-              continueLabel={t("orient_continue")}
-              multiHint={t("orient_multi_hint")}
+              question={t("orient_q_bac")}
+              options={bacOptions}
+              selected={[answers.bac]}
+              onSelect={(v) => setAnswers({ ...answers, bac: v })}
+              multi={false} onNext={handleNext} canContinue={canContinue()}
+              continueLabel={t("orient_continue")} multiHint={t("orient_multi_hint")}
             />
           )}
           {step === 3 && (
             <QuizStep
-              key="step3"
-              question={t("orient_q_budget")}
-              options={budgetOptions}
-              selected={[answers.budget]}
-              onSelect={(v) => setAnswers({ ...answers, budget: v })}
-              multi={false}
-              onNext={handleNext}
-              canContinue={canContinue()}
-              continueLabel={t("orient_continue")}
-              multiHint={t("orient_multi_hint")}
+              key="step3" question="Quels domaines t'intéressent le plus ?"
+              options={domainOptions} selected={answers.domains}
+              onSelect={(v) => setAnswers({ ...answers, domains: answers.domains.includes(v) ? answers.domains.filter(s => s !== v) : [...answers.domains, v] })}
+              multi={true} onNext={handleNext} canContinue={canContinue()}
+              continueLabel={t("orient_continue")} multiHint={t("orient_multi_hint")}
             />
           )}
           {step === 4 && (
             <QuizStep
-              key="step4"
-              question={t("orient_q_city")}
-              options={cityOptions}
-              selected={[answers.city]}
-              onSelect={(v) => setAnswers({ ...answers, city: v })}
-              multi={false}
-              onNext={handleNext}
-              canContinue={canContinue()}
-              continueLabel={t("orient_continue")}
-              multiHint={t("orient_multi_hint")}
+              key="step4" question={t("orient_q_subjects")} options={subjectOptions}
+              selected={answers.subjects}
+              onSelect={(v) => setAnswers({ ...answers, subjects: answers.subjects.includes(v) ? answers.subjects.filter(s => s !== v) : [...answers.subjects, v] })}
+              multi={true} onNext={handleNext} canContinue={canContinue()}
+              continueLabel={t("orient_continue")} multiHint={t("orient_multi_hint")}
             />
           )}
           {step === 5 && (
             <QuizStep
-              key="step5"
-              question={t("orient_q_goal")}
-              options={goalOptions}
-              selected={[answers.goal]}
-              onSelect={(v) => setAnswers({ ...answers, goal: v })}
-              multi={false}
-              onNext={handleNext}
-              canContinue={canContinue()}
-              isLast
-              continueLabel={t("orient_continue")}
-              lastLabel={t("orient_see_results")}
+              key="step5" question={t("orient_q_budget")} options={budgetOptions}
+              selected={[answers.budget]} onSelect={(v) => setAnswers({ ...answers, budget: v })}
+              multi={false} onNext={handleNext} canContinue={canContinue()}
+              continueLabel={t("orient_continue")} multiHint={t("orient_multi_hint")}
+            />
+          )}
+          {step === 6 && (
+            <QuizStep
+              key="step6" question="Quel type d'établissement préfères-tu ?"
+              options={schoolTypeOptions} selected={[answers.schoolType]}
+              onSelect={(v) => setAnswers({ ...answers, schoolType: v })}
+              multi={false} onNext={handleNext} canContinue={canContinue()}
+              continueLabel={t("orient_continue")} multiHint={t("orient_multi_hint")}
+            />
+          )}
+          {step === 7 && (
+            <QuizStep
+              key="step7" question={t("orient_q_city")} options={cityOptions}
+              selected={[answers.city]} onSelect={(v) => setAnswers({ ...answers, city: v })}
+              multi={false} onNext={handleNext} canContinue={canContinue()}
+              continueLabel={t("orient_continue")} multiHint={t("orient_multi_hint")}
+            />
+          )}
+          {step === 8 && (
+            <QuizStep
+              key="step8" question={t("orient_q_goal")} options={goalOptions}
+              selected={[answers.goal]} onSelect={(v) => setAnswers({ ...answers, goal: v })}
+              multi={false} onNext={handleNext} canContinue={canContinue()}
+              continueLabel={t("orient_continue")} multiHint={t("orient_multi_hint")}
+            />
+          )}
+          {step === 9 && (
+            <QuizStep
+              key="step9" question="Quand veux-tu commencer tes études ?"
+              options={availabilityOptions} selected={[answers.availability]}
+              onSelect={(v) => setAnswers({ ...answers, availability: v })}
+              multi={false} onNext={handleNext} canContinue={canContinue()} isLast
+              continueLabel={t("orient_continue")} lastLabel={t("orient_see_results")}
               multiHint={t("orient_multi_hint")}
             />
           )}

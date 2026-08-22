@@ -5,6 +5,7 @@ import { ChevronLeft, ChevronRight, Clock, BookOpen } from "lucide-react";
 import { articles, Article, ArticleSection as ArticleSectionData } from "@/lib/articles";
 import { cn } from "@/lib/utils";
 import { useT } from "@/lib/useT";
+import { ShareButtons } from "@/components/ShareButtons";
 
 const CATEGORIES = ["Tous", "Orientation", "Études", "Concours", "Marché du travail"];
 const CAT_KEYS: Record<string, string> = {
@@ -263,12 +264,7 @@ function ArticleView({
 
           {/* Actions */}
           <div className="grid grid-cols-2 gap-3">
-            <button
-              onClick={() => window.open(`https://wa.me/?text=Article utile : ${article.title} — via Compétences CI`, "_blank")}
-              className="bg-green-600 text-white rounded-2xl py-3 font-black text-sm flex items-center justify-center gap-2 press"
-            >
-              💬 Partager
-            </button>
+            <div className="col-span-2"><ShareButtons title={`Article utile : ${article.title}`} /></div>
             <button
               onClick={toggleSaved}
               className="bg-muted border border-border text-foreground rounded-2xl py-3 font-black text-sm flex items-center justify-center gap-2 press"

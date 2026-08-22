@@ -21,6 +21,9 @@ export const competitionsTable = pgTable("competitions", {
   website: text("website"),
   imageUrl: text("image_url"),
   logoUrl: text("logo_url"),
+  isVerified: integer("is_verified").notNull().default(0),
+  verifiedAt: timestamp("verified_at"),
+  verificationSource: text("verification_source"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

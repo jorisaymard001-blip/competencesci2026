@@ -20,6 +20,9 @@ export const schoolsTable = pgTable("schools", {
   founded: integer("founded"),
   imageUrl: text("image_url"),
   logoUrl: text("logo_url"),
+  isVerified: integer("is_verified").notNull().default(0),
+  verifiedAt: timestamp("verified_at"),
+  verificationSource: text("verification_source"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
