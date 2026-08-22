@@ -249,6 +249,8 @@ function SidebarContent({
         <SidebarLink href="/candidatures" icon={ClipboardList} label={t("nav_candidatures")} />
         <SidebarLink href="/favorites" icon={Heart} label={t("nav_favorites")} />
         <SidebarLink href="/comparer" icon={Scale} label="Comparer des écoles" />
+        <SidebarLink href="/documents" icon={FileText} label="Mes documents" />
+        <SidebarLink href="/assistant" icon={MessageCircle} label="Assistant" />
         <SidebarLink href="/conseils" icon={BookOpen} label={t("nav_conseils")} />
         <SidebarLink href="/notifications" icon={Bell} label={t("nav_notifications")} badge={unreadCount} />
 

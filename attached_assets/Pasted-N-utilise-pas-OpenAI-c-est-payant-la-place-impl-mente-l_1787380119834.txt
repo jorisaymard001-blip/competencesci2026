@@ -1,0 +1,332 @@
+N'utilise pas OpenAI — c'est payant.
+À la place, implémente l'assistant IA 
+en utilisant l'API Anthropic Claude 
+qui est déjà disponible dans Replit 
+sans clé externe.
+
+Voici comment implémenter l'assistant :
+
+## Assistant IA avec API Anthropic
+
+### Crée src/services/assistantService.js :
+
+export async function askAssistant(question, context) {
+  const response = await fetch(
+    'https://api.anthropic.com/v1/messages',
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 1000,
+        system: `Tu es l'assistant de Compétences CI, 
+          une application d'orientation académique 
+          pour les étudiants ivoiriens.
+          
+          Tu connais ces données sur l'application :
+          ${JSON.stringify(context)}
+          
+          Règles :
+          - Réponds uniquement en français
+          - Sois concis et pratique
+          - Recommande des écoles et concours 
+            spécifiques de la base de données
+          - Ne dépasse pas 3 paragraphes
+          - Utilise des emojis pour rendre 
+            la réponse agréable
+          - Si tu ne sais pas, dis-le honnêtement`,
+        messages: [
+          { role: 'user', content: question }
+        ]
+      })
+    }
+  );
+  
+  const data = await response.json();
+  return data.content[0].text;
+}
+
+
+## Page AssistantPage.jsx :
+
+import { useState, useRef, useEffect } from 'react';
+import { askAssistant } from '../services/assistantService';
+
+export default function AssistantPage() {
+  const [messages, setMessages] = useState([
+    {
+      role: 'assistant',
+      content: `👋 Bonjour ! Je suis l'assistant 
+        de Compétences CI. Je peux t'aider à :
+        
+        🎓 Trouver la meilleure école pour ton profil
+        🏆 Identifier les concours accessibles
+        💰 Comparer les coûts des formations
+        🧭 Orienter ton choix de filière
+        
+        Pose-moi ta question !`
+    }
+  ]);
+  const [input, setInput] = useState('');
+  const [loading, setLoading] = useState(false);
+  const messagesEndRef = useRef(null);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ 
+      behavior: 'smooth' 
+    });
+  }, [messages]);
+
+  const sendMessage = async () => {
+    if (!input.trim() || loading) return;
+
+    const userMessage = input.trim();
+    setInput('');
+    setMessages(prev => [...prev, {
+      role: 'user',
+      content: userMessage
+    }]);
+    setLoading(true);
+
+    try {
+      /* Passe les données de l'app comme contexte */
+      const context = {
+        ecoles: ecoles.slice(0, 10).map(e => ({
+          nom: e.nom,
+          ville: e.ville,
+          type: e.type,
+          filieres: e.domainesFormation,
+          frais: e.fraisScolarite
+        })),
+        concours: concours.slice(0, 10).map(c => ({
+          nom: c.nom,
+          niveau: c.niveau,
+          statut: c.statut,
+          ministere: c.ministere
+        }))
+      };
+
+      const response = await askAssistant(
+        userMessage, 
+        context
+      );
+      
+      setMessages(prev => [...prev, {
+        role: 'assistant',
+        content: response
+      }]);
+    } catch (error) {
+      setMessages(prev => [...prev, {
+        role: 'assistant',
+        content: '❌ Désolé, une erreur est survenue. Réessaie.'
+      }]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  /* Suggestions de questions */
+  const suggestions = [
+    "J'ai un BAC C, quelles écoles me conseilles-tu ?",
+    "Quels concours sont ouverts pour un BTS ?",
+    "Compare INP-HB et UFHB pour le Génie Civil",
+    "Quel est le budget moyen pour étudier à Abidjan ?",
+    "Comment réussir le concours de la fonction publique ?",
+  ];
+
+  return (
+    <div className="flex flex-col h-screen bg-gray-950">
+      
+      {/* Header */}
+      <div className="flex items-center gap-3 
+        px-4 py-3 border-b border-gray-800 
+        bg-gray-950 flex-shrink-0">
+        <button onClick={() => navigate(-1)}
+          className="w-9 h-9 bg-gray-800 rounded-xl 
+            flex items-center justify-center 
+            text-white press">
+          ←
+        </button>
+        <div className="flex items-center gap-2 flex-1">
+          <div className="w-9 h-9 bg-orange-950 
+            border border-orange-800 rounded-xl 
+            flex items-center justify-center text-lg">
+            🤖
+          </div>
+          <div>
+            <p className="text-white font-bold text-sm">
+              Assistant Compétences CI
+            </p>
+            <p className="text-green-400 text-xs">
+              ● En ligne
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Messages */}
+      <div className="flex-1 overflow-y-auto 
+        px-4 py-4 space-y-4">
+        
+        {messages.map((msg, index) => (
+          <div key={index}
+            className={`flex 
+              ${msg.role === 'user' 
+                ? 'justify-end' 
+                : 'justify-start'
+              }`}>
+            
+            {msg.role === 'assistant' && (
+              <div className="w-8 h-8 bg-orange-950 
+                border border-orange-800 rounded-xl 
+                flex items-center justify-center 
+                text-sm mr-2 flex-shrink-0 mt-1">
+                🤖
+              </div>
+            )}
+
+            <div className={`max-w-xs lg:max-w-md 
+              rounded-2xl px-4 py-3 text-sm 
+              leading-relaxed
+              ${msg.role === 'user'
+                ? 'bg-orange-500 text-white ' +
+                  'rounded-br-sm'
+                : 'bg-gray-800 text-gray-200 ' +
+                  'rounded-bl-sm border border-gray-700'
+              }`}>
+              {msg.content}
+            </div>
+
+          </div>
+        ))}
+
+        {/* Indicateur de chargement */}
+        {loading && (
+          <div className="flex justify-start">
+            <div className="w-8 h-8 bg-orange-950 
+              border border-orange-800 rounded-xl 
+              flex items-center justify-center 
+              text-sm mr-2 flex-shrink-0">
+              🤖
+            </div>
+            <div className="bg-gray-800 border 
+              border-gray-700 rounded-2xl 
+              rounded-bl-sm px-4 py-3">
+              <div className="flex gap-1">
+                <div className="w-2 h-2 bg-gray-500 
+                  rounded-full animate-bounce 
+                  [animation-delay:0ms]"/>
+                <div className="w-2 h-2 bg-gray-500 
+                  rounded-full animate-bounce 
+                  [animation-delay:150ms]"/>
+                <div className="w-2 h-2 bg-gray-500 
+                  rounded-full animate-bounce 
+                  [animation-delay:300ms]"/>
+              </div>
+            </div>
+          </div>
+        )}
+
+        <div ref={messagesEndRef} />
+      </div>
+
+      {/* Suggestions (visible seulement 
+          au début) */}
+      {messages.length === 1 && (
+        <div className="px-4 pb-2">
+          <p className="text-gray-500 text-xs mb-2">
+            💡 Questions fréquentes :
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {suggestions.map((s, i) => (
+              <button key={i}
+                onClick={() => {
+                  setInput(s);
+                }}
+                className="bg-gray-800 border 
+                  border-gray-700 text-gray-300 
+                  rounded-xl px-3 py-2 text-xs 
+                  press hover:border-orange-500 
+                  transition-colors text-left">
+                {s}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Zone de saisie */}
+      <div className="flex items-end gap-3 
+        px-4 py-3 border-t border-gray-800 
+        bg-gray-950 flex-shrink-0">
+        <div className="flex-1 bg-gray-800 
+          border border-gray-700 rounded-2xl 
+          px-4 py-3">
+          <textarea
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+              }
+            }}
+            placeholder="Pose ta question..."
+            rows={1}
+            className="w-full bg-transparent 
+              text-white text-sm outline-none 
+              placeholder-gray-500 resize-none"
+            style={{ maxHeight: '120px' }}
+          />
+        </div>
+        <button
+          onClick={sendMessage}
+          disabled={!input.trim() || loading}
+          className={`w-11 h-11 rounded-xl 
+            flex items-center justify-center 
+            flex-shrink-0 press transition-all
+            ${input.trim() && !loading
+              ? 'bg-orange-500 text-white'
+              : 'bg-gray-800 text-gray-600'
+            }`}>
+          {loading ? '⏳' : '➤'}
+        </button>
+      </div>
+
+    </div>
+  );
+}
+
+
+## Ajoute la route dans App.jsx :
+
+import AssistantPage from './pages/AssistantPage';
+
+<Route path="/assistant" 
+  element={<AssistantPage />} />
+
+
+## Ajoute dans le menu latéral :
+
+{ 
+  icon: '🤖', 
+  label: 'Assistant IA', 
+  path: '/assistant' 
+}
+
+
+## Ajoute un bouton flottant sur l'accueil :
+
+<button
+  onClick={() => navigate('/assistant')}
+  className="fixed bottom-24 right-4 z-30 
+    w-14 h-14 bg-orange-500 rounded-full 
+    flex items-center justify-center 
+    shadow-lg shadow-orange-500/30 press"
+  style={{
+    animation: 'pulse-orange 2s infinite'
+  }}>
+  🤖
+</button>
