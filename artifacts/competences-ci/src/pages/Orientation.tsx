@@ -62,6 +62,7 @@ function scoreSchool(
   if (answers.budget === "high" && school.type === "private") score += 2;
   if (answers.schoolType === "public" && school.type === "public") score += 4;
   if (answers.schoolType === "private" && school.type === "private") score += 4;
+  if (answers.domains.some(domain => domain.split(/[ /]+/).some(word => word.length > 4 && domains.includes(word.toLowerCase())))) score += 4;
 
   if (answers.goal === "fast" && (diplomas.includes("bts") || diplomas.includes("dut") || diplomas.includes("licence"))) score += 3;
   if (answers.goal === "long" && (diplomas.includes("master") || diplomas.includes("doctorat") || diplomas.includes("ingénieur"))) score += 3;
@@ -90,8 +91,39 @@ function scoreSchool(
 
   if (["C", "D", "E", "F"].some(s => answers.bac.startsWith(s)) && school.type === "public" && (haystack.includes("polytechnique") || haystack.includes("sciences"))) score += 2;
   if (["A", "B"].some(s => answers.bac.startsWith(s)) && (haystack.includes("lettres") || haystack.includes("commerce") || haystack.includes("administration"))) score += 2;
+  if (answers.studyLevel.includes("BAC") && (diplomas.includes("bts") || diplomas.includes("licence"))) score += 1;
 
   return score;
+}
+
+function matchPercent(score: number) {
+  return Math.min(96, Math.max(45, Math.round(54 + score * 4)));
+}
+
+function schoolMatchReasons(school: { city: string; type: string; domains?: unknown; diplomas?: unknown }, answers: Answers) {
+  const reasons: string[] = [];
+  const domains = joinLower(school.domains);
+  const diplomas = joinLower(school.diplomas);
+  if (answers.city && answers.city !== "Autre" && school.city === answers.city) reasons.push(`Située à ${school.city}`);
+  if (answers.schoolType === "both" || answers.schoolType === school.type) reasons.push(`Type ${school.type === "public" ? "public" : "privé"} correspondant à ta préférence`);
+  const matchingDomain = answers.domains.find(domain => domain.split(/[ /]+/).some(word => word.length > 4 && domains.includes(word.toLowerCase())));
+  if (matchingDomain) reasons.push(`Domaine compatible : ${matchingDomain}`);
+  if (answers.budget === "low" && school.type === "public") reasons.push("Option publique, souvent plus accessible financièrement");
+  if (answers.goal === "fast" && /(bts|dut|licence)/.test(diplomas)) reasons.push("Propose des diplômes adaptés à un parcours court");
+  if (answers.goal === "long" && /(master|doctorat|ingénieur)/.test(diplomas)) reasons.push("Propose des diplômes pour un parcours long");
+  return reasons.slice(0, 3);
+}
+
+function competitionMatchReasons(comp: { status: string; diploma?: string | null; ministry?: string }, answers: Answers) {
+  const reasons: string[] = [];
+  if (comp.status === "open") reasons.push("Candidatures ouvertes");
+  else if (comp.status === "upcoming") reasons.push("Ouverture annoncée");
+  if (answers.goal === "fast" && /(bts|licence|bac)/i.test(comp.diploma ?? "")) reasons.push("Niveau de diplôme compatible avec un parcours court");
+  if (answers.goal === "long" && /(master|doctorat|ingénieur)/i.test(comp.diploma ?? "")) reasons.push("Niveau de diplôme compatible avec un parcours long");
+  const ministry = (comp.ministry ?? "").toLowerCase();
+  if (answers.domains.some(domain => domain.toLowerCase().split(/[ /]+/).some(word => word.length > 4 && ministry.includes(word)))) reasons.push("Ministère en lien avec tes domaines d’intérêt");
+  if (answers.availability === "now" && comp.status === "open") reasons.push("Accessible dès cette année selon le statut publié");
+  return reasons.slice(0, 3);
 }
 
 function scoreCompetition(
@@ -258,10 +290,14 @@ export default function Orientation() {
                           <span className="text-sm font-bold text-primary">#{i + 1}</span>
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="font-semibold text-sm text-foreground leading-tight">{s.name}</p>
+                           <div className="flex items-center justify-between gap-2">
+                             <p className="font-semibold text-sm text-foreground leading-tight">{s.name}</p>
+                             <span className="shrink-0 rounded-full bg-primary/10 px-2 py-1 text-[10px] font-black text-primary">{matchPercent(s.score)}% match</span>
+                           </div>
                           <p className="text-xs text-muted-foreground mt-0.5">
                             {s.city} · {s.type === "public" ? t("orient_results_school_public") : t("orient_results_school_private")}
                           </p>
+                           <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground">{schoolMatchReasons(s as any, answers).join(" · ")}</p>
                         </div>
                         <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
                       </div>
@@ -286,8 +322,12 @@ export default function Orientation() {
                           {c.status === "open" ? t("competitions_open") : t("competitions_upcoming")}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="font-semibold text-sm text-foreground leading-tight">{c.title}</p>
+                           <div className="flex items-center justify-between gap-2">
+                             <p className="font-semibold text-sm text-foreground leading-tight">{c.title}</p>
+                             <span className="shrink-0 rounded-full bg-secondary/10 px-2 py-1 text-[10px] font-black text-secondary">{matchPercent(c.score)}% match</span>
+                           </div>
                           <p className="text-xs text-muted-foreground mt-0.5">{c.ministry}</p>
+                           <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground">{competitionMatchReasons(c as any, answers).join(" · ")}</p>
                         </div>
                         <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
                       </div>

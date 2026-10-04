@@ -16,6 +16,14 @@ export const SchoolType = {
   private: "private",
 } as const;
 
+export type SchoolIsVerified =
+  (typeof SchoolIsVerified)[keyof typeof SchoolIsVerified];
+
+export const SchoolIsVerified = {
+  NUMBER_0: 0,
+  NUMBER_1: 1,
+} as const;
+
 export interface School {
   id: number;
   name: string;
@@ -29,14 +37,17 @@ export interface School {
   description: string;
   imageUrl?: string | null;
   logoUrl?: string | null;
+  isVerified: SchoolIsVerified;
+  /** @nullable */
+  verifiedAt: string | null;
+  /** @nullable */
+  verificationSource: string | null;
 }
 
 export type SchoolDetail = School & {
   email?: string | null;
   founded?: number | null;
   accreditation?: string | null;
-  imageUrl?: string | null;
-  logoUrl?: string | null;
 };
 
 export type CompetitionStatus =
@@ -46,6 +57,14 @@ export const CompetitionStatus = {
   open: "open",
   closed: "closed",
   upcoming: "upcoming",
+} as const;
+
+export type CompetitionIsVerified =
+  (typeof CompetitionIsVerified)[keyof typeof CompetitionIsVerified];
+
+export const CompetitionIsVerified = {
+  NUMBER_0: 0,
+  NUMBER_1: 1,
 } as const;
 
 export interface Competition {
@@ -61,6 +80,11 @@ export interface Competition {
   description: string;
   imageUrl?: string | null;
   logoUrl?: string | null;
+  isVerified: CompetitionIsVerified;
+  /** @nullable */
+  verifiedAt: string | null;
+  /** @nullable */
+  verificationSource: string | null;
 }
 
 export type CompetitionDetail = Competition & {
@@ -68,8 +92,6 @@ export type CompetitionDetail = Competition & {
   process?: string[];
   contact?: string | null;
   website?: string | null;
-  imageUrl?: string | null;
-  logoUrl?: string | null;
 };
 
 export interface RegisterRequest {
@@ -122,6 +144,67 @@ export interface CreateNotificationRequest {
   type: string;
   referenceId?: number | null;
   referenceType?: string | null;
+}
+
+export interface AssistantSchoolContext {
+  /** @maxLength 120 */
+  nom: string;
+  /** @maxLength 80 */
+  ville: string;
+  /** @maxLength 30 */
+  type: string;
+  /** @maxItems 12 */
+  filieres: string[];
+  /** @maxLength 80 */
+  frais?: string;
+}
+
+export interface AssistantCompetitionContext {
+  /** @maxLength 120 */
+  nom: string;
+  /** @maxLength 80 */
+  ville: string;
+  /** @maxLength 30 */
+  statut: string;
+  /** @maxLength 120 */
+  ministere: string;
+  /** @maxLength 80 */
+  diplome?: string;
+}
+
+export type AssistantQuestionInputContext = {
+  /** @maxItems 20 */
+  ecoles?: AssistantSchoolContext[];
+  /** @maxItems 20 */
+  concours?: AssistantCompetitionContext[];
+};
+
+export interface AssistantQuestionInput {
+  /**
+   * @minLength 1
+   * @maxLength 1200
+   */
+  question: string;
+  context?: AssistantQuestionInputContext;
+}
+
+export type AssistantReplyMode =
+  (typeof AssistantReplyMode)[keyof typeof AssistantReplyMode];
+
+export const AssistantReplyMode = {
+  anthropic: "anthropic",
+  local: "local",
+} as const;
+
+export interface AssistantReply {
+  response: string;
+  mode: AssistantReplyMode;
+  /** @nullable */
+  warning?: string | null;
+}
+
+export interface AssistantErrorResponse {
+  error: string;
 }
 
 export interface ErrorResponse {

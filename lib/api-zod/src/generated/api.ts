@@ -11,6 +11,90 @@ export const HealthCheckResponse = zod.object({
   status: zod.string(),
 });
 
+export const askAssistantBodyQuestionMax = 1200;
+
+export const askAssistantBodyContextEcolesItemNomMax = 120;
+
+export const askAssistantBodyContextEcolesItemVilleMax = 80;
+
+export const askAssistantBodyContextEcolesItemTypeMax = 30;
+
+export const askAssistantBodyContextEcolesItemFilieresItemMax = 80;
+
+export const askAssistantBodyContextEcolesItemFilieresMax = 12;
+
+export const askAssistantBodyContextEcolesItemFraisMax = 80;
+
+export const askAssistantBodyContextEcolesMax = 20;
+
+export const askAssistantBodyContextConcoursItemNomMax = 120;
+
+export const askAssistantBodyContextConcoursItemVilleMax = 80;
+
+export const askAssistantBodyContextConcoursItemStatutMax = 30;
+
+export const askAssistantBodyContextConcoursItemMinistereMax = 120;
+
+export const askAssistantBodyContextConcoursItemDiplomeMax = 80;
+
+export const askAssistantBodyContextConcoursMax = 20;
+
+export const AskAssistantBody = zod.object({
+  question: zod.string().min(1).max(askAssistantBodyQuestionMax),
+  context: zod
+    .object({
+      ecoles: zod
+        .array(
+          zod.object({
+            nom: zod.string().max(askAssistantBodyContextEcolesItemNomMax),
+            ville: zod.string().max(askAssistantBodyContextEcolesItemVilleMax),
+            type: zod.string().max(askAssistantBodyContextEcolesItemTypeMax),
+            filieres: zod
+              .array(
+                zod
+                  .string()
+                  .max(askAssistantBodyContextEcolesItemFilieresItemMax),
+              )
+              .max(askAssistantBodyContextEcolesItemFilieresMax),
+            frais: zod
+              .string()
+              .max(askAssistantBodyContextEcolesItemFraisMax)
+              .optional(),
+          }),
+        )
+        .max(askAssistantBodyContextEcolesMax)
+        .optional(),
+      concours: zod
+        .array(
+          zod.object({
+            nom: zod.string().max(askAssistantBodyContextConcoursItemNomMax),
+            ville: zod
+              .string()
+              .max(askAssistantBodyContextConcoursItemVilleMax),
+            statut: zod
+              .string()
+              .max(askAssistantBodyContextConcoursItemStatutMax),
+            ministere: zod
+              .string()
+              .max(askAssistantBodyContextConcoursItemMinistereMax),
+            diplome: zod
+              .string()
+              .max(askAssistantBodyContextConcoursItemDiplomeMax)
+              .optional(),
+          }),
+        )
+        .max(askAssistantBodyContextConcoursMax)
+        .optional(),
+    })
+    .optional(),
+});
+
+export const AskAssistantResponse = zod.object({
+  response: zod.string(),
+  mode: zod.enum(["anthropic", "local"]),
+  warning: zod.string().nullish(),
+});
+
 export const ListSchoolsQueryParams = zod.object({
   city: zod.coerce.string().optional(),
   type: zod.enum(["public", "private"]).optional(),
@@ -30,6 +114,9 @@ export const ListSchoolsResponseItem = zod.object({
   description: zod.string(),
   imageUrl: zod.string().nullish(),
   logoUrl: zod.string().nullish(),
+  isVerified: zod.union([zod.literal(0), zod.literal(1)]),
+  verifiedAt: zod.date().nullable(),
+  verificationSource: zod.string().nullable(),
 });
 export const ListSchoolsResponse = zod.array(ListSchoolsResponseItem);
 
@@ -49,14 +136,17 @@ export const GetSchoolResponse = zod
     phone: zod.string().nullish(),
     website: zod.string().nullish(),
     description: zod.string(),
+    imageUrl: zod.string().nullish(),
+    logoUrl: zod.string().nullish(),
+    isVerified: zod.union([zod.literal(0), zod.literal(1)]),
+    verifiedAt: zod.date().nullable(),
+    verificationSource: zod.string().nullable(),
   })
   .and(
     zod.object({
       email: zod.string().nullish(),
       founded: zod.number().nullish(),
       accreditation: zod.string().nullish(),
-      imageUrl: zod.string().nullish(),
-      logoUrl: zod.string().nullish(),
     }),
   );
 
@@ -79,6 +169,9 @@ export const ListCompetitionsResponseItem = zod.object({
   description: zod.string(),
   imageUrl: zod.string().nullish(),
   logoUrl: zod.string().nullish(),
+  isVerified: zod.union([zod.literal(0), zod.literal(1)]),
+  verifiedAt: zod.date().nullable(),
+  verificationSource: zod.string().nullable(),
 });
 export const ListCompetitionsResponse = zod.array(ListCompetitionsResponseItem);
 
@@ -98,6 +191,11 @@ export const GetCompetitionResponse = zod
     closeDate: zod.date().nullish(),
     positions: zod.number(),
     description: zod.string(),
+    imageUrl: zod.string().nullish(),
+    logoUrl: zod.string().nullish(),
+    isVerified: zod.union([zod.literal(0), zod.literal(1)]),
+    verifiedAt: zod.date().nullable(),
+    verificationSource: zod.string().nullable(),
   })
   .and(
     zod.object({
@@ -105,8 +203,6 @@ export const GetCompetitionResponse = zod
       process: zod.array(zod.string()).optional(),
       contact: zod.string().nullish(),
       website: zod.string().nullish(),
-      imageUrl: zod.string().nullish(),
-      logoUrl: zod.string().nullish(),
     }),
   );
 

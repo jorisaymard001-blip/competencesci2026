@@ -13,6 +13,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
 import { useT } from "@/lib/useT";
 import { AuthRequiredModal } from "@/components/AuthRequiredModal";
+import { ShareButtons } from "@/components/ShareButtons";
 
 interface Review { userId: number; userName: string; rating: number; comment: string; date: string; }
 function getReviews(schoolId: number): Review[] {
@@ -342,7 +343,7 @@ export default function SchoolDetail() {
             )}
 
             <button
-              onClick={() => setShowReviewForm(v => !v)}
+              onClick={() => user ? setShowReviewForm(v => !v) : setShowAuthModal(true)}
               className="w-full py-3 rounded-2xl border-2 border-primary/30 text-primary font-semibold text-sm active:scale-[0.98] transition-all"
             >
               {showReviewForm ? t("cancel") : t("school_leave_review")}
@@ -374,6 +375,11 @@ export default function SchoolDetail() {
                 </motion.div>
               )}
             </AnimatePresence>
+          </section>
+
+          <section className="rounded-2xl border border-border/50 bg-card p-4">
+            <p className="mb-3 text-sm font-bold">Partager cette école</p>
+            <ShareButtons title={`École : ${school.name}`} />
           </section>
 
           {/* Favorite Toggle CTA */}

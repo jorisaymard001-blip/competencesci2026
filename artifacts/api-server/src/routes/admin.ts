@@ -169,7 +169,8 @@ router.post("/admin/competitions", adminAuth, async (req: Request, res: Response
 
 router.put("/admin/competitions/:id", adminAuth, async (req: Request, res: Response) => {
   const id = parseInt(req.params.id);
-  const { title, ministry, city, diploma, status, openDate, closeDate, positions, description, requirements, process, contact, website, imageUrl, logoUrl } = req.body as Record<string, any>;
+  const { title, ministry, city, diploma, status, openDate, closeDate, positions, description, requirements, process, contact, website, imageUrl, logoUrl, isVerified, verifiedAt, verificationSource } = req.body as Record<string, any>;
+  const verified = isVerified === true || Number(isVerified) === 1;
   const [comp] = await db.update(competitionsTable).set({
     title, ministry, city, diploma,
     status: status ?? "upcoming",
@@ -183,6 +184,9 @@ router.put("/admin/competitions/:id", adminAuth, async (req: Request, res: Respo
     website: website || null,
     imageUrl: imageUrl || null,
     logoUrl: logoUrl || null,
+    isVerified: verified ? 1 : 0,
+    verifiedAt: verified ? (verifiedAt ? new Date(verifiedAt) : new Date()) : null,
+    verificationSource: verified ? String(verificationSource || "Vérification manuelle").slice(0, 120) : null,
   }).where(eq(competitionsTable.id, id)).returning();
   if (!comp) return res.status(404).json({ message: "Introuvable" });
   res.json(comp);
@@ -222,7 +226,8 @@ router.post("/admin/schools", adminAuth, async (req: Request, res: Response) => 
 
 router.put("/admin/schools/:id", adminAuth, async (req: Request, res: Response) => {
   const id = parseInt(req.params.id);
-  const { name, type, city, address, phone, website, email, description, diplomas, domains, accreditation, founded, imageUrl, logoUrl } = req.body as Record<string, any>;
+  const { name, type, city, address, phone, website, email, description, diplomas, domains, accreditation, founded, imageUrl, logoUrl, isVerified, verifiedAt, verificationSource } = req.body as Record<string, any>;
+  const verified = isVerified === true || Number(isVerified) === 1;
   const [school] = await db.update(schoolsTable).set({
     name, city,
     type: type ?? "private",
@@ -237,6 +242,9 @@ router.put("/admin/schools/:id", adminAuth, async (req: Request, res: Response) 
     founded: founded ? parseInt(founded) : null,
     imageUrl: imageUrl || null,
     logoUrl: logoUrl || null,
+    isVerified: verified ? 1 : 0,
+    verifiedAt: verified ? (verifiedAt ? new Date(verifiedAt) : new Date()) : null,
+    verificationSource: verified ? String(verificationSource || "Vérification manuelle").slice(0, 120) : null,
   }).where(eq(schoolsTable.id, id)).returning();
   if (!school) return res.status(404).json({ message: "Introuvable" });
   res.json(school);

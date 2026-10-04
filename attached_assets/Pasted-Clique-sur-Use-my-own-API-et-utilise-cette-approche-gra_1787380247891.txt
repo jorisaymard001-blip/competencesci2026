@@ -1,0 +1,209 @@
+Clique sur "Use my own API..." et utilise 
+cette approche gratuite pour l'assistant IA.
+
+N'utilise PAS l'intégration gérée Replit 
+(payante). À la place, appelle directement 
+l'API Anthropic depuis le backend Express 
+déjà existant dans le projet.
+
+## Implémentation via le backend Express
+
+### Ajoute cette route dans server.js 
+### ou index.js (le backend Express existant) :
+
+const Anthropic = require('@anthropic-ai/sdk');
+
+// Installe si pas déjà présent :
+// npm install @anthropic-ai/sdk
+
+const anthropic = new Anthropic({
+  apiKey: process.env.ANTHROPIC_API_KEY,
+});
+
+app.post('/api/assistant', async (req, res) => {
+  try {
+    const { question, context } = req.body;
+
+    if (!question) {
+      return res.status(400).json({ 
+        error: 'Question manquante' 
+      });
+    }
+
+    const message = await anthropic.messages.create({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 1024,
+      system: `Tu es l'assistant officiel de 
+        Compétences CI, une application 
+        d'orientation académique et 
+        professionnelle pour les étudiants 
+        de Côte d'Ivoire.
+
+        Données disponibles dans l'application :
+        ${context ? JSON.stringify(context) : ''}
+
+        Règles strictes :
+        - Réponds UNIQUEMENT en français
+        - Sois concis, pratique et bienveillant
+        - Recommande des écoles et concours 
+          spécifiques de la base de données 
+          quand c'est pertinent
+        - Maximum 3 paragraphes courts
+        - Utilise des emojis pour rendre 
+          la réponse agréable
+        - Si tu ne connais pas la réponse, 
+          dis-le honnêtement
+        - Ne parle que d'orientation en 
+          Côte d'Ivoire`,
+      messages: [
+        { role: 'user', content: question }
+      ],
+    });
+
+    res.json({ 
+      response: message.content[0].text 
+    });
+
+  } catch (error) {
+    console.error('Assistant error:', error);
+    res.status(500).json({ 
+      error: 'Erreur assistant. Réessaie.',
+      details: error.message
+    });
+  }
+});
+
+
+## Ajoute la clé dans Replit Secrets
+
+Dans Replit, va dans l'onglet "Secrets" 
+(icône 🔒 dans le panneau gauche) et 
+ajoute ce secret :
+
+Nom : ANTHROPIC_API_KEY
+Valeur : (je vais te la fournir)
+
+Pour obtenir une clé GRATUITE :
+1. Va sur https://console.anthropic.com
+2. Crée un compte gratuit
+3. Va dans "API Keys" → "Create Key"
+4. Copie la clé et mets-la dans 
+   Replit Secrets
+
+Le plan gratuit d'Anthropic offre 
+suffisamment de crédits pour démarrer.
+
+
+## Côté frontend — appelle le backend :
+
+### Dans src/services/assistantService.js :
+
+const API_URL = import.meta.env.VITE_API_URL 
+  || 'http://localhost:3000';
+
+export async function askAssistant(
+  question, context
+) {
+  const response = await fetch(
+    `${API_URL}/api/assistant`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${
+          localStorage.getItem('token') || ''
+        }`
+      },
+      body: JSON.stringify({ question, context })
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error('Erreur de connexion');
+  }
+
+  const data = await response.json();
+  return data.response;
+}
+
+
+## Si la clé n'est pas encore disponible
+
+Crée l'assistant en mode local d'abord 
+avec des réponses prédéfinies, et je 
+brancherai la vraie clé ensuite :
+
+export async function askAssistant(
+  question, context
+) {
+  // Mode local temporaire
+  // À remplacer par l'appel API quand 
+  // la clé sera disponible
+  
+  const q = question.toLowerCase();
+  
+  if (q.includes('génie civil') || 
+      q.includes('btp')) {
+    return `🏗 Pour le Génie Civil en CI, 
+      je te recommande :
+      
+      🥇 INP-HB à Yamoussoukro — La référence 
+      nationale en Génie Civil
+      🥈 UFHB à Abidjan — Option Sciences 
+      de l'Ingénieur
+      
+      Tu peux aussi viser le concours de 
+      "Techniciens Supérieurs des Travaux 
+      Publics" (100 postes disponibles).`;
+  }
+  
+  if (q.includes('concours') || 
+      q.includes('fonction publique')) {
+    return `🏆 Les concours actuellement 
+      disponibles en CI :
+      
+      ✅ Techniciens Travaux Publics 
+         (clôture 31 août 2026)
+      🔵 ENA — École Nationale d'Administration
+      🔵 Agents de Police Nationale
+      
+      Rends-toi dans la section Concours 
+      pour voir tous les détails !`;
+  }
+  
+  if (q.includes('budget') || 
+      q.includes('frais') || 
+      q.includes('coût')) {
+    return `💰 Voici les fourchettes de coûts :
+      
+      🟢 Universités publiques : 
+         50 000 – 200 000 FCFA/an
+      🟡 Écoles privées moyennes : 
+         200 000 – 600 000 FCFA/an
+      🔴 Grandes écoles privées : 
+         600 000 – 2 000 000 FCFA/an
+      
+      Les universités publiques restent 
+      la meilleure option budget !`;
+  }
+  
+  return `🤖 Je suis l'assistant Compétences CI !
+    
+    Je peux t'aider à trouver :
+    🎓 L'école parfaite pour ton profil
+    🏆 Les concours accessibles
+    💰 Les formations dans ton budget
+    🧭 Ta voie idéale en Côte d'Ivoire
+    
+    Pose-moi une question plus précise !`;
+}
+
+
+## Résumé
+
+1. Installe : npm install @anthropic-ai/sdk
+2. Ajoute la route /api/assistant au backend
+3. Ajoute ANTHROPIC_API_KEY dans Secrets
+4. Crée AssistantPage.jsx avec le chat UI
+5. Ajoute la route /assistant dans App.jsx
+6. Ajoute le bouton flottant 🤖 sur l'accueil

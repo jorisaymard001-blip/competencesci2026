@@ -111,6 +111,14 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   // Persist settings
   useEffect(() => {
     localStorage.setItem(SETTINGS_KEY, JSON.stringify({ theme, language, notificationsEnabled, notificationPreferences }));
+    if ("serviceWorker" in navigator) {
+      void navigator.serviceWorker.ready
+        .then(registration => registration.active?.postMessage({
+          type: "NOTIFICATION_PREFERENCES",
+          preferences: notificationPreferences,
+        }))
+        .catch(() => {});
+    }
   }, [theme, language, notificationsEnabled, notificationPreferences]);
 
   // Track usage time

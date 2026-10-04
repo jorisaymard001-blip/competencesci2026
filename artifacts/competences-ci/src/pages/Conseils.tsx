@@ -6,6 +6,10 @@ import { articles, Article, ArticleSection as ArticleSectionData } from "@/lib/a
 import { cn } from "@/lib/utils";
 import { useT } from "@/lib/useT";
 import { ShareButtons } from "@/components/ShareButtons";
+import { useListSchools, useListCompetitions } from "@workspace/api-client-react";
+import { Link } from "wouter";
+import { useAuth } from "@/contexts/AuthContext";
+import { AuthRequiredModal } from "@/components/AuthRequiredModal";
 
 const CATEGORIES = ["Tous", "Orientation", "Études", "Concours", "Marché du travail"];
 const CAT_KEYS: Record<string, string> = {
@@ -119,8 +123,12 @@ function ArticleView({
   onNavigate: (a: Article) => void;
 }) {
   const { t } = useT();
+  const { user } = useAuth();
+  const { data: schools = [] } = useListSchools();
+  const { data: competitions = [] } = useListCompetitions();
   const [readingProgress, setReadingProgress] = useState(0);
   const [isSaved, setIsSaved] = useState(() => getSavedArticles().includes(article.id));
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -137,6 +145,10 @@ function ArticleView({
   };
 
   const toggleSaved = () => {
+    if (!user) {
+      setShowAuthModal(true);
+      return;
+    }
     setIsSaved(prev => {
       const newVal = !prev;
       const saved = getSavedArticles();
@@ -158,6 +170,16 @@ function ArticleView({
   }));
 
   const isDone = readingProgress >= 98;
+  const articleText = `${article.title} ${article.intro} ${JSON.stringify(article.sections)}`.toLowerCase();
+  const keywords = ["informatique", "numérique", "santé", "médecine", "droit", "commerce", "gestion", "agriculture", "ingénieur", "génie", "bâtiment", "concours", "éducation", "communication", "finance", "environnement", "licence", "master", "bts"].filter(word => articleText.includes(word));
+  const relatedSchools = schools.filter(school => {
+    const text = `${school.name} ${school.domains.join(" ")} ${school.diplomas.join(" ")}`.toLowerCase();
+    return keywords.some(keyword => text.includes(keyword));
+  }).slice(0, 3);
+  const relatedCompetitions = competitions.filter(comp => {
+    const text = `${comp.title} ${comp.ministry} ${comp.diploma}`.toLowerCase();
+    return keywords.some(keyword => text.includes(keyword));
+  }).slice(0, 3);
 
   return (
     <motion.div
@@ -243,6 +265,27 @@ function ArticleView({
 
         {/* ── Footer */}
         <div className="border-t border-border/50 pt-6 mt-8 space-y-4">
+          {(relatedSchools.length > 0 || relatedCompetitions.length > 0) && (
+            <section className="rounded-2xl border border-primary/20 bg-primary/5 p-4">
+              <h3 className="mb-3 font-black text-sm text-foreground">🔎 Aller plus loin</h3>
+              <div className="space-y-2">
+                {relatedSchools.map(school => (
+                  <Link key={`school-${school.id}`} href={`/schools/${school.id}`} onClick={onBack} className="block rounded-xl border border-border/50 bg-card p-3">
+                    <span className="text-[10px] font-bold uppercase text-primary">Établissement · {school.city}</span>
+                    <p className="text-sm font-bold text-foreground">{school.name}</p>
+                    <p className="text-xs text-muted-foreground">{school.domains.slice(0, 3).join(" · ")}</p>
+                  </Link>
+                ))}
+                {relatedCompetitions.map(comp => (
+                  <Link key={`competition-${comp.id}`} href={`/competitions/${comp.id}`} onClick={onBack} className="block rounded-xl border border-border/50 bg-card p-3">
+                    <span className="text-[10px] font-bold uppercase text-secondary">Concours · {comp.status === "open" ? "Ouvert" : comp.status === "upcoming" ? "À venir" : "Fermé"}</span>
+                    <p className="text-sm font-bold text-foreground">{comp.title}</p>
+                    <p className="text-xs text-muted-foreground">{comp.ministry} · {comp.diploma}</p>
+                  </Link>
+                ))}
+              </div>
+            </section>
+          )}
 
           {/* Congrats card */}
           <div className={cn(
@@ -297,6 +340,7 @@ function ArticleView({
           )}
         </div>
       </div>
+      <AuthRequiredModal open={showAuthModal} onClose={() => setShowAuthModal(false)} action="sauvegarder cet article" />
     </motion.div>
   );
 }

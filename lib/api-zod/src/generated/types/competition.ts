@@ -5,6 +5,7 @@
  * Compétences CI API
  * OpenAPI spec version: 0.3.0
  */
+import type { CompetitionIsVerified } from "./competitionIsVerified";
 import type { CompetitionStatus } from "./competitionStatus";
 
 export interface Competition {
@@ -18,4 +19,11 @@ export interface Competition {
   closeDate?: Date | null;
   positions: number;
   description: string;
+  imageUrl?: string | null;
+  logoUrl?: string | null;
+  isVerified: CompetitionIsVerified;
+  /** @nullable */
+  verifiedAt: Date | null;
+  /** @nullable */
+  verificationSource: string | null;
 }

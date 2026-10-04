@@ -13,6 +13,7 @@ tags:
   - name: auth
   - name: messages
   - name: notifications
+  - name: assistant
 paths:
   /healthz:
     get:
@@ -25,6 +26,42 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /assistant:
+    post:
+      operationId: askAssistant
+      tags: [assistant]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AssistantQuestionInput"
+      responses:
+        "200":
+          description: Assistant reply
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AssistantReply"
+        "400":
+          description: Invalid question
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AssistantErrorResponse"
+        "413":
+          description: Question is too long
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AssistantErrorResponse"
+        "429":
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AssistantErrorResponse"
 
   /schools:
     get:
@@ -283,7 +320,12 @@ components:
         phone: { type: string, nullable: true }
         website: { type: string, nullable: true }
         description: { type: string }
-      required: [id, name, type, city, address, diplomas, domains, description]
+        imageUrl: { type: string, nullable: true }
+        logoUrl: { type: string, nullable: true }
+        isVerified: { type: integer, enum: [0, 1] }
+        verifiedAt: { type: ["string", "null"], format: date-time }
+        verificationSource: { type: ["string", "null"] }
+      required: [id, name, type, city, address, diplomas, domains, description, isVerified, verifiedAt, verificationSource]
 
     SchoolDetail:
       allOf:
@@ -309,7 +351,12 @@ components:
         closeDate: { type: string, format: date, nullable: true }
         positions: { type: integer }
         description: { type: string }
-      required: [id, title, ministry, city, diploma, status, positions, description]
+        imageUrl: { type: string, nullable: true }
+        logoUrl: { type: string, nullable: true }
+        isVerified: { type: integer, enum: [0, 1] }
+        verifiedAt: { type: ["string", "null"], format: date-time }
+        verificationSource: { type: ["string", "null"] }
+      required: [id, title, ministry, city, diploma, status, positions, description, isVerified, verifiedAt, verificationSource]
 
     CompetitionDetail:
       allOf:
@@ -392,6 +439,60 @@ components:
         referenceId: { type: integer, nullable: true }
         referenceType: { type: string, nullable: true }
       required: [title, body, type]
+
+    AssistantSchoolContext:
+      type: object
+      properties:
+        nom: { type: string, maxLength: 120 }
+        ville: { type: string, maxLength: 80 }
+        type: { type: string, maxLength: 30 }
+        filieres:
+          type: array
+          maxItems: 12
+          items: { type: string, maxLength: 80 }
+        frais: { type: string, maxLength: 80 }
+      required: [nom, ville, type, filieres]
+
+    AssistantCompetitionContext:
+      type: object
+      properties:
+        nom: { type: string, maxLength: 120 }
+        ville: { type: string, maxLength: 80 }
+        statut: { type: string, maxLength: 30 }
+        ministere: { type: string, maxLength: 120 }
+        diplome: { type: string, maxLength: 80 }
+      required: [nom, ville, statut, ministere]
+
+    AssistantQuestionInput:
+      type: object
+      properties:
+        question: { type: string, minLength: 1, maxLength: 1200 }
+        context:
+          type: object
+          properties:
+            ecoles:
+              type: array
+              maxItems: 20
+              items: { $ref: "#/components/schemas/AssistantSchoolContext" }
+            concours:
+              type: array
+              maxItems: 20
+              items: { $ref: "#/components/schemas/AssistantCompetitionContext" }
+      required: [question]
+
+    AssistantReply:
+      type: object
+      properties:
+        response: { type: string }
+        mode: { type: string, enum: [anthropic, local] }
+        warning: { type: ["string", "null"] }
+      required: [response, mode]
+
+    AssistantErrorResponse:
+      type: object
+      properties:
+        error: { type: string }
+      required: [error]
 
     ErrorResponse:
       type: object

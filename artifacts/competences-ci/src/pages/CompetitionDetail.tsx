@@ -10,6 +10,10 @@ import { getCompetitionInfo } from "@/lib/competition-info";
 import { cn } from "@/lib/utils";
 import { useT } from "@/lib/useT";
 import { CompetitionCover } from "@/components/CompetitionCover";
+import { useAuth } from "@/contexts/AuthContext";
+import { AuthRequiredModal } from "@/components/AuthRequiredModal";
+import { ShareButtons } from "@/components/ShareButtons";
+import { VerifiedBadge } from "@/components/VerifiedBadge";
 
 export default function CompetitionDetail() {
   const [, params] = useRoute("/competitions/:id");
@@ -21,6 +25,8 @@ export default function CompetitionDetail() {
   });
 
   const { isCompetitionFav, toggleCompetition } = useFavorites();
+  const { user } = useAuth();
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const isFav = comp ? isCompetitionFav(comp.id) : false;
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
   const toggleSection = (s: string) => setExpandedSection(v => v === s ? null : s);
@@ -95,7 +101,7 @@ export default function CompetitionDetail() {
                 {status.label}
               </div>
               <button
-                onClick={() => toggleCompetition(comp.id)}
+                onClick={() => user ? toggleCompetition(comp.id) : setShowAuthModal(true)}
                 className={cn(
                   "w-9 h-9 rounded-full flex items-center justify-center border transition-all active:scale-90",
                   isFav
@@ -109,7 +115,7 @@ export default function CompetitionDetail() {
             </div>
 
             <h1 className="font-black text-2xl sm:text-3xl leading-tight mb-4 text-balance">
-              {comp.title}
+              {comp.title} <VerifiedBadge item={comp as any} />
             </h1>
 
             <div className="text-white/80 text-sm font-medium mb-6">
@@ -281,7 +287,7 @@ export default function CompetitionDetail() {
 
           {/* Favorite toggle CTA */}
           <button
-            onClick={() => toggleCompetition(comp.id)}
+            onClick={() => user ? toggleCompetition(comp.id) : setShowAuthModal(true)}
             className={cn(
               "w-full py-4 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 border-2 transition-all active:scale-[0.98]",
               isFav
@@ -293,6 +299,9 @@ export default function CompetitionDetail() {
             {isFav ? t("remove_favorite") : t("add_favorite")}
           </button>
 
+        </div>
+        <div className="px-6 pb-5">
+          <ShareButtons title={`Concours : ${comp.title}`} />
         </div>
 
         {/* Apply Button */}
@@ -316,6 +325,7 @@ export default function CompetitionDetail() {
         )}
 
       </div>
+      <AuthRequiredModal open={showAuthModal} onClose={() => setShowAuthModal(false)} action="enregistrer ce concours" />
     </Layout>
   );
 }

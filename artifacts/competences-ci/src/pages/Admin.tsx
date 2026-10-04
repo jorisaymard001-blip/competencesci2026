@@ -166,6 +166,7 @@ function CompetitionsTab({ fetch: apiFetch, onToast }: { fetch: (p: string, o?: 
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1 flex-wrap">
                   <StatusBadge status={item.status} />
+                  {Number(item.isVerified) === 1 && <span className="rounded-full border border-cyan-500/30 bg-cyan-500/10 px-2.5 py-0.5 text-[10px] font-black uppercase text-cyan-300">Vérifié</span>}
                   <span className="text-slate-500 text-xs">{item.positions} postes</span>
                 </div>
                 <p className="font-bold text-white text-sm leading-snug line-clamp-1">{item.title}</p>
@@ -208,6 +209,17 @@ function CompetitionsTab({ fetch: apiFetch, onToast }: { fetch: (p: string, o?: 
               <Field label="Date clôture"><input type="date" className={inputCls} value={form.closeDate ?? ""} onChange={e => set("closeDate", e.target.value)} /></Field>
             </div>
             <Field label="Description"><textarea className={`${inputCls} resize-none`} rows={3} value={form.description ?? ""} onChange={e => set("description", e.target.value)} placeholder="Description du concours…" /></Field>
+            <Field label="Vérification">
+              <label className="flex items-center gap-3 rounded-xl border border-slate-700 bg-slate-800 px-3 py-3 text-sm text-slate-200">
+                <input type="checkbox" checked={Number(form.isVerified) === 1} onChange={e => {
+                  set("isVerified", e.target.checked ? 1 : 0);
+                  set("verifiedAt", e.target.checked ? (form.verifiedAt || new Date().toISOString()) : null);
+                  set("verificationSource", e.target.checked ? (form.verificationSource || "Vérification manuelle") : null);
+                }} />
+                Vérifié après contrôle manuel
+              </label>
+              {Number(form.isVerified) === 1 && <input className={inputCls} value={form.verificationSource ?? "Vérification manuelle"} onChange={e => set("verificationSource", e.target.value)} aria-label="Source de vérification" placeholder="Source de vérification" />}
+            </Field>
             <Field label="Site web"><input className={inputCls} value={form.website ?? ""} onChange={e => set("website", e.target.value)} placeholder="https://…" /></Field>
             <Field label="Contact"><input className={inputCls} value={form.contact ?? ""} onChange={e => set("contact", e.target.value)} placeholder="Email ou téléphone" /></Field>
             <Field label="Image concours (URL)"><input className={inputCls} value={form.imageUrl ?? ""} onChange={e => set("imageUrl", e.target.value)} placeholder="https://images.unsplash.com/…" /></Field>
@@ -293,6 +305,7 @@ function SchoolsTab({ fetch: apiFetch, onToast }: { fetch: (p: string, o?: Reque
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
                   <StatusBadge status={item.type} />
+                  {Number(item.isVerified) === 1 && <span className="rounded-full border border-cyan-500/30 bg-cyan-500/10 px-2.5 py-0.5 text-[10px] font-black uppercase text-cyan-300">Vérifié</span>}
                   <span className="text-slate-500 text-xs">{item.city}</span>
                 </div>
                 <p className="font-bold text-white text-sm leading-snug line-clamp-1">{item.name}</p>
@@ -332,6 +345,17 @@ function SchoolsTab({ fetch: apiFetch, onToast }: { fetch: (p: string, o?: Reque
             <Field label="Domaines (séparés par virgule)"><input className={inputCls} value={form.domains ?? ""} onChange={e => set("domains", e.target.value)} placeholder="Informatique, Gestion, Droit" /></Field>
             <Field label="Diplômes (séparés par virgule)"><input className={inputCls} value={form.diplomas ?? ""} onChange={e => set("diplomas", e.target.value)} placeholder="Licence, Master, BTS" /></Field>
             <Field label="Description"><textarea className={`${inputCls} resize-none`} rows={3} value={form.description ?? ""} onChange={e => set("description", e.target.value)} /></Field>
+            <Field label="Vérification">
+              <label className="flex items-center gap-3 rounded-xl border border-slate-700 bg-slate-800 px-3 py-3 text-sm text-slate-200">
+                <input type="checkbox" checked={Number(form.isVerified) === 1} onChange={e => {
+                  set("isVerified", e.target.checked ? 1 : 0);
+                  set("verifiedAt", e.target.checked ? (form.verifiedAt || new Date().toISOString()) : null);
+                  set("verificationSource", e.target.checked ? (form.verificationSource || "Vérification manuelle") : null);
+                }} />
+                Vérifié après contrôle manuel
+              </label>
+              {Number(form.isVerified) === 1 && <input className={inputCls} value={form.verificationSource ?? "Vérification manuelle"} onChange={e => set("verificationSource", e.target.value)} aria-label="Source de vérification" placeholder="Source de vérification" />}
+            </Field>
             <Field label="Site web"><input className={inputCls} value={form.website ?? ""} onChange={e => set("website", e.target.value)} placeholder="https://…" /></Field>
             <Field label="Email"><input className={inputCls} value={form.email ?? ""} onChange={e => set("email", e.target.value)} placeholder="contact@ecole.ci" /></Field>
             <Field label="Image école (URL)"><input className={inputCls} value={form.imageUrl ?? ""} onChange={e => set("imageUrl", e.target.value)} placeholder="https://images.unsplash.com/…" /></Field>

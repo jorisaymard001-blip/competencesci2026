@@ -17,6 +17,9 @@ import type {
 } from "@tanstack/react-query";
 
 import type {
+  AssistantErrorResponse,
+  AssistantQuestionInput,
+  AssistantReply,
   AuthResponse,
   Competition,
   CompetitionDetail,
@@ -110,6 +113,86 @@ export function useHealthCheck<
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+export const getAskAssistantUrl = () => {
+  return `/api/assistant`;
+};
+
+export const askAssistant = async (
+  assistantQuestionInput: AssistantQuestionInput,
+  options?: RequestInit,
+): Promise<AssistantReply> => {
+  return customFetch<AssistantReply>(getAskAssistantUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(assistantQuestionInput),
+  });
+};
+
+export const getAskAssistantMutationOptions = <
+  TError = ErrorType<AssistantErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof askAssistant>>,
+    TError,
+    { data: BodyType<AssistantQuestionInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof askAssistant>>,
+  TError,
+  { data: BodyType<AssistantQuestionInput> },
+  TContext
+> => {
+  const mutationKey = ["askAssistant"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof askAssistant>>,
+    { data: BodyType<AssistantQuestionInput> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return askAssistant(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type AskAssistantMutationResult = NonNullable<
+  Awaited<ReturnType<typeof askAssistant>>
+>;
+export type AskAssistantMutationBody = BodyType<AssistantQuestionInput>;
+export type AskAssistantMutationError = ErrorType<AssistantErrorResponse>;
+
+export const useAskAssistant = <
+  TError = ErrorType<AssistantErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof askAssistant>>,
+    TError,
+    { data: BodyType<AssistantQuestionInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof askAssistant>>,
+  TError,
+  { data: BodyType<AssistantQuestionInput> },
+  TContext
+> => {
+  return useMutation(getAskAssistantMutationOptions(options));
+};
 
 export const getListSchoolsUrl = (params?: ListSchoolsParams) => {
   const normalizedParams = new URLSearchParams();

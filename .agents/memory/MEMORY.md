@@ -1,0 +1,1 @@
+- [Assistant AI provider](assistant-ai-provider.md) — Compétences CI uses Anthropic directly from Express, with a local fallback if the secret is missing.

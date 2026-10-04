@@ -8,11 +8,31 @@ function load(): StoredDocument[] { try { return JSON.parse(localStorage.getItem
 
 export default function Documents() {
   const [documents, setDocuments] = useState<StoredDocument[]>(load);
+  const [error, setError] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
-  const save = (items: StoredDocument[]) => { setDocuments(items); localStorage.setItem(KEY, JSON.stringify(items)); };
+  const save = (items: StoredDocument[]) => {
+    try {
+      localStorage.setItem(KEY, JSON.stringify(items));
+      setDocuments(items);
+      setError("");
+    } catch {
+      setError("Stockage local plein. Supprime un fichier ou ajoute un document plus petit.");
+    }
+  };
   const addFiles = (files: FileList | null) => {
     if (!files) return;
-    Array.from(files).slice(0, 5).forEach(file => {
+    const existingBytes = documents.reduce((sum, doc) => sum + doc.size, 0);
+    let acceptedBytes = existingBytes;
+    Array.from(files).forEach(file => {
+      if (file.size > 1_200_000) {
+        setError(`${file.name} dépasse la limite de 1,2 Mo par fichier.`);
+        return;
+      }
+      if (acceptedBytes + file.size > 3_500_000) {
+        setError("La limite totale est de 3,5 Mo pour éviter de saturer le stockage du navigateur.");
+        return;
+      }
+      acceptedBytes += file.size;
       const reader = new FileReader();
       reader.onload = () => save([{ id: crypto.randomUUID(), name: file.name, size: file.size, type: file.type, data: String(reader.result), addedAt: new Date().toISOString() }, ...load()]);
       reader.readAsDataURL(file);
@@ -28,6 +48,7 @@ export default function Documents() {
           <button onClick={() => inputRef.current?.click()} className="rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-white">Ajouter un document</button>
           <input ref={inputRef} type="file" multiple accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" className="hidden" onChange={e => addFiles(e.target.files)} />
         </div>
+        {error && <p role="alert" className="mb-3 rounded-xl bg-destructive/10 p-3 text-sm text-destructive">{error}</p>}
         <div className="space-y-2">
           {documents.length === 0 && <p className="py-8 text-center text-sm text-muted-foreground">Aucun document enregistré.</p>}
           {documents.map(doc => (

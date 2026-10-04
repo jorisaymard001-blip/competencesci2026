@@ -5,6 +5,7 @@
  * Compétences CI API
  * OpenAPI spec version: 0.3.0
  */
+import type { SchoolIsVerified } from "./schoolIsVerified";
 import type { SchoolType } from "./schoolType";
 
 export interface School {
@@ -18,4 +19,11 @@ export interface School {
   phone?: string | null;
   website?: string | null;
   description: string;
+  imageUrl?: string | null;
+  logoUrl?: string | null;
+  isVerified: SchoolIsVerified;
+  /** @nullable */
+  verifiedAt: Date | null;
+  /** @nullable */
+  verificationSource: string | null;
 }

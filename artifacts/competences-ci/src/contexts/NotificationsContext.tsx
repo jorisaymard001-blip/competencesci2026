@@ -52,7 +52,7 @@ const FIFTEEN_DAYS_MS = 15 * 24 * 60 * 60 * 1000;
 
 export function NotificationsProvider({ children }: { children: ReactNode }) {
   const { user, isAuthenticated } = useAuth();
-  const { notificationsEnabled } = useSettings();
+  const { notificationsEnabled, notificationPreferences } = useSettings();
   const [allNotifications, setAllNotifications] = useState<AppNotification[]>([]);
   // deletedMap: id → timestamp when deleted
   const [deletedMap, setDeletedMap] = useState<Record<number, number>>({});
@@ -102,7 +102,12 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
         if (firstFetchDone.current && notificationsEnabled) {
           const newOnes = data.filter(
             (n) => !prevIds.has(n.id) &&
-            new Date(n.createdAt).getTime() > lastReadAt
+            new Date(n.createdAt).getTime() > lastReadAt &&
+            notificationPreferences[
+              n.type === "new_competition" ? "competitions" :
+              n.type === "deadline_soon" || n.type === "competition_closed" ? "deadlines" :
+              n.type === "result" ? "results" : "recommendations"
+            ]
           );
           // Real push via service worker (survives tab close on Android/desktop)
           newOnes.forEach((n) => {
@@ -132,7 +137,7 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
     fetchNotifications();
     const interval = setInterval(fetchNotifications, 60_000);
     return () => clearInterval(interval);
-  }, [isAuthenticated]);
+  }, [isAuthenticated, notificationPreferences]);
 
   // Permission + scheduler bootstrap
   useEffect(() => {

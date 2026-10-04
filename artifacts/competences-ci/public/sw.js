@@ -1,7 +1,9 @@
 // ── Compétences CI — Service Worker ──────────────────────────────────────────
-const STATIC_CACHE = "competences-ci-static-v4";
-const API_CACHE    = "competences-ci-api-v2";
+const STATIC_CACHE = "competences-ci-static-v6";
+const API_CACHE    = "competences-ci-api-v4";
 const IMG_CACHE    = "competences-ci-img-v1";
+const NOTIFICATION_PREFS_CACHE = "competences-ci-notification-prefs-v1";
+const NOTIFICATION_PREFS_URL = new URL("/__cci_notification_preferences__", self.location.origin).toString();
 
 // Assets to precache on install (shell)
 const PRECACHE_URLS = [
@@ -26,7 +28,7 @@ self.addEventListener("install", (event) => {
 
 // ── ACTIVATE ──────────────────────────────────────────────────────────────────
 self.addEventListener("activate", (event) => {
-  const CURRENT = [STATIC_CACHE, API_CACHE, IMG_CACHE];
+  const CURRENT = [STATIC_CACHE, API_CACHE, IMG_CACHE, NOTIFICATION_PREFS_CACHE];
   event.waitUntil(
     Promise.all([
       self.clients.claim(),
@@ -45,8 +47,12 @@ self.addEventListener("fetch", (event) => {
   // Skip non-GET and chrome-extension requests
   if (request.method !== "GET" || url.protocol === "chrome-extension:") return;
 
-  // ── API calls: network-first, fallback to cache ───────────────────────────
+  // Cache only public catalog APIs; never persist user-scoped responses offline.
   if (url.pathname.includes("/api/")) {
+    const isPublicCatalog = /^\/api\/(schools|competitions|cities|diplomas)(\/|$)/.test(url.pathname);
+    if (!isPublicCatalog) return;
+
+    // ── Public catalog APIs: network-first, fallback to cache ───────────────
     event.respondWith(
       caches.open(API_CACHE).then(async (cache) => {
         try {
@@ -119,12 +125,32 @@ self.addEventListener("fetch", (event) => {
   }
 });
 
+self.addEventListener("message", (event) => {
+  if (event.data?.type !== "NOTIFICATION_PREFERENCES") return;
+  const preferences = event.data.preferences || {};
+  event.waitUntil(
+    caches.open(NOTIFICATION_PREFS_CACHE).then(cache =>
+      cache.put(NOTIFICATION_PREFS_URL, new Response(JSON.stringify(preferences), {
+        headers: { "Content-Type": "application/json" },
+      }))
+    )
+  );
+});
+
 // ── PUSH NOTIFICATIONS ────────────────────────────────────────────────────────
 self.addEventListener("push", (event) => {
   let data = { title: "Compétences CI", body: "Nouveau message reçu", icon: "/icon-192x192.png" };
   try { data = { ...data, ...event.data?.json() }; } catch {}
-  event.waitUntil(
-    self.registration.showNotification(data.title, {
+  event.waitUntil((async () => {
+    const prefCache = await caches.open(NOTIFICATION_PREFS_CACHE);
+    const response = await prefCache.match(NOTIFICATION_PREFS_URL);
+    let preferences = {};
+    try { preferences = response ? await response.json() : {}; } catch {}
+    const category = data.type === "new_competition" ? "competitions"
+      : data.type === "deadline_soon" || data.type === "competition_closed" ? "deadlines"
+      : data.type === "result" ? "results" : "recommendations";
+    if (preferences[category] === false) return;
+    await self.registration.showNotification(data.title, {
       body: data.body,
       icon: data.icon ?? "/icon-192x192.png",
       badge: "/icon-192x192.png",
@@ -134,8 +160,8 @@ self.addEventListener("push", (event) => {
         { action: "open", title: "Ouvrir" },
         { action: "dismiss", title: "Ignorer" },
       ],
-    })
-  );
+    });
+  })());
 });
 
 self.addEventListener("notificationclick", (event) => {

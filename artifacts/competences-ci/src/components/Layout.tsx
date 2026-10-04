@@ -2,7 +2,7 @@ import { ReactNode, useState, useEffect } from "react";
 import { Link, useRoute, useLocation } from "wouter";
 import {
   Home, GraduationCap, Briefcase, ChevronLeft, Bell, User,
-  Compass, ClipboardList, BookOpen, MessageCircle, Info, Scale,
+  Compass, ClipboardList, BookOpen, MessageCircle, Info, Scale, FileText,
   Moon, Sun, Globe, Menu, X, Heart, LogOut,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -13,6 +13,7 @@ import { useSettings } from "@/contexts/SettingsContext";
 import { useT } from "@/lib/useT";
 import { InAppNotificationToast } from "./InAppNotificationToast";
 import { ComparisonBar } from "./ComparisonBar";
+import { PwaStatus } from "./PwaStatus";
 
 function getStoredAvatar(): { type: "emoji" | "photo"; value: string } {
   try {
@@ -107,6 +108,7 @@ export function Layout({
 
       {/* ── MAIN CONTENT WRAPPER ──────────────────────────────────── */}
       <div className="flex-1 flex flex-col min-h-[100dvh] min-w-0 overflow-x-hidden w-full">
+        <PwaStatus />
 
         {/* ── HEADER ─────────────────────────────────────────────── */}
         {showHeader && (
