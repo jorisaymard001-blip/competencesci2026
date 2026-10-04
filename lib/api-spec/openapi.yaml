@@ -440,53 +440,17 @@ components:
         referenceType: { type: string, nullable: true }
       required: [title, body, type]
 
-    AssistantSchoolContext:
-      type: object
-      properties:
-        nom: { type: string, maxLength: 120 }
-        ville: { type: string, maxLength: 80 }
-        type: { type: string, maxLength: 30 }
-        filieres:
-          type: array
-          maxItems: 12
-          items: { type: string, maxLength: 80 }
-        frais: { type: string, maxLength: 80 }
-      required: [nom, ville, type, filieres]
-
-    AssistantCompetitionContext:
-      type: object
-      properties:
-        nom: { type: string, maxLength: 120 }
-        ville: { type: string, maxLength: 80 }
-        statut: { type: string, maxLength: 30 }
-        ministere: { type: string, maxLength: 120 }
-        diplome: { type: string, maxLength: 80 }
-      required: [nom, ville, statut, ministere]
-
     AssistantQuestionInput:
       type: object
       properties:
         question: { type: string, minLength: 1, maxLength: 1200 }
-        context:
-          type: object
-          properties:
-            ecoles:
-              type: array
-              maxItems: 20
-              items: { $ref: "#/components/schemas/AssistantSchoolContext" }
-            concours:
-              type: array
-              maxItems: 20
-              items: { $ref: "#/components/schemas/AssistantCompetitionContext" }
       required: [question]
 
     AssistantReply:
       type: object
       properties:
         response: { type: string }
-        mode: { type: string, enum: [anthropic, local] }
-        warning: { type: ["string", "null"] }
-      required: [response, mode]
+      required: [response]
 
     AssistantErrorResponse:
       type: object

@@ -13,10 +13,11 @@ router.get("/", async (_req, res) => {
   res.json(rows);
 });
 
-router.post("/", async (req, res) => {
+router.post("/", async (req, res): Promise<void> => {
   const parsed = insertNotificationSchema.safeParse(req.body);
   if (!parsed.success) {
-    return res.status(400).json({ message: "Données invalides." });
+    res.status(400).json({ message: "Données invalides." });
+    return;
   }
   const [notification] = await db
     .insert(notificationsTable)

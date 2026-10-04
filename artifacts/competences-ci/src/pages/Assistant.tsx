@@ -1,28 +1,15 @@
 import { useEffect, useRef, useState } from "react";
 import { Layout } from "@/components/Layout";
 import { Bot, Send, User } from "lucide-react";
-import { useListSchools, useListCompetitions } from "@workspace/api-client-react";
-import { askAssistant, type AssistantReply } from "@/services/assistantService";
+import { askAssistant } from "@/services/assistantService";
 
 type Message = { role: "assistant" | "user"; text: string };
 
-function answer(question: string) {
-  const q = question.toLowerCase();
-  if (q.includes("concours") || q.includes("inscription")) return "Tu peux consulter les concours ouverts dans la rubrique Concours. Ouvre une fiche pour voir les conditions, les dates limites et le site officiel.";
-  if (q.includes("budget") || q.includes("prix") || q.includes("frais")) return "Le comparateur d’écoles affiche les frais annuels et d’inscription estimés. Pense à confirmer les montants auprès de l’établissement avant ton inscription.";
-  if (q.includes("informatique") || q.includes("numérique")) return "Pour l’informatique, utilise l’orientation et sélectionne Informatique / Numérique ainsi que les matières qui te correspondent.";
-  if (q.includes("document") || q.includes("dossier")) return "Tu peux conserver tes pièces dans Mes documents. Elles restent stockées localement sur ton appareil et ne sont pas envoyées.";
-  return "Je peux t’aider à trouver une école, comprendre un concours, estimer un budget ou préparer ton dossier. Pose-moi une question plus précise.";
-}
-
 export default function Assistant() {
-  const [messages, setMessages] = useState<Message[]>([{ role: "assistant", text: "👋 Bonjour ! Je peux t’aider à trouver une école, repérer un concours, comparer les coûts ou choisir une filière. Pose-moi ta question !" }]);
+  const [messages, setMessages] = useState<Message[]>([{ role: "assistant", text: "Bonjour ! Je peux rechercher des écoles et des concours référencés dans Compétences CI. Indique une filière, un diplôme ou une ville." }]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
-  const [mode, setMode] = useState<AssistantReply["mode"]>("local");
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { data: schools = [] } = useListSchools();
-  const { data: competitions = [] } = useListCompetitions();
   useEffect(() => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }), [messages, loading]);
 
   const submit = async () => {
@@ -32,15 +19,10 @@ export default function Assistant() {
     setInput("");
     setLoading(true);
     try {
-      const reply = await askAssistant(text, {
-        ecoles: schools.slice(0, 20).map(s => ({ nom: s.name, ville: s.city, type: s.type, filieres: s.domains })),
-        concours: competitions.slice(0, 20).map(c => ({ nom: c.title, ville: c.city, statut: c.status, ministere: c.ministry, diplome: c.diploma })),
-      });
-      setMode(reply.mode);
-      setMessages(current => [...current, { role: "assistant", text: reply.warning ? `${reply.response}\n\n${reply.warning}` : reply.response }]);
+      const reply = await askAssistant(text);
+      setMessages(current => [...current, { role: "assistant", text: reply.response }]);
     } catch {
-      setMode("local");
-      setMessages(current => [...current, { role: "assistant", text: `${answer(text)}\n\nConnexion indisponible, réponse en mode local.` }]);
+      setMessages(current => [...current, { role: "assistant", text: "Je ne peux pas consulter les données pour le moment. Réessaie dans quelques instants." }]);
     } finally {
       setLoading(false);
     }
@@ -50,7 +32,7 @@ export default function Assistant() {
       <div className="mx-auto flex min-h-[calc(100vh-80px)] max-w-2xl flex-col px-4 py-5">
         <div className="mb-4 rounded-2xl border border-primary/20 bg-primary/5 p-4 text-sm text-muted-foreground">
           <Bot className="mb-2 h-6 w-6 text-primary" />
-          Assistant Compétences CI · {mode === "anthropic" ? "Claude" : "mode local"}
+          Réponses fondées sur les écoles et concours référencés dans Compétences CI.
         </div>
         <div className="flex-1 space-y-3">
           {messages.map((message, index) => (

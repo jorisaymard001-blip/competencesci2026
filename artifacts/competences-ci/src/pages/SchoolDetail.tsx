@@ -2,7 +2,7 @@ import { useRoute, useLocation } from "wouter";
 import { useState, useEffect } from "react";
 import { Layout } from "@/components/Layout";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
-import { useGetSchool } from "@workspace/api-client-react";
+import { getGetSchoolQueryKey, useGetSchool } from "@workspace/api-client-react";
 import { Loader2, MapPin, Globe, Phone, Mail, Award, BookOpen, GraduationCap, Building2, ChevronRight, Heart, Info, Banknote, Star, Send } from "lucide-react";
 import { getSchoolImage } from "@/lib/school-images";
 import { getDiplomaInfo } from "@/lib/diploma-data";
@@ -42,7 +42,7 @@ export default function SchoolDetail() {
   const { t, language } = useT();
 
   const { data: school, isLoading, error } = useGetSchool(id, {
-    query: { enabled: !!id }
+    query: { queryKey: getGetSchoolQueryKey(id), enabled: !!id }
   });
 
   const [, navigate] = useLocation();

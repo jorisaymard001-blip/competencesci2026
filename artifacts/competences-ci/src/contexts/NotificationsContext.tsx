@@ -13,6 +13,7 @@ import {
   getPermission,
 } from "@/lib/push-scheduler";
 import { subscribeToPush, unsubscribeFromPush } from "@/lib/web-push-client";
+import { apiUrl } from "@/lib/api-url";
 
 const LAST_ACTIVE_KEY = "cci_last_active_at";
 const INACTIVITY_NOTIF_KEY = "cci_inactivity_notif_at";
@@ -91,8 +92,7 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
   const fetchNotifications = async () => {
     if (!isAuthenticated) return;
     try {
-      const base = import.meta.env.BASE_URL?.replace(/\/$/, "") ?? "";
-      const res = await fetch(`${base}/api/notifications`);
+      const res = await fetch(apiUrl("/notifications"));
       if (!res.ok) return;
       const data: AppNotification[] = await res.json();
 

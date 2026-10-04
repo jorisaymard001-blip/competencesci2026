@@ -42,7 +42,7 @@ export function GlobalSearch({ open, onClose }: Props) {
   const matchedCompetitions = q.length < 2 ? [] : competitions.filter(c =>
     c.title.toLowerCase().includes(q) ||
     (c.ministry || "").toLowerCase().includes(q) ||
-    (c.requiredDiploma || "").toLowerCase().includes(q)
+    (c.diploma || "").toLowerCase().includes(q)
   ).slice(0, 5);
 
   const matchedDiplomas = q.length < 2 ? [] : diplomas.filter(d =>

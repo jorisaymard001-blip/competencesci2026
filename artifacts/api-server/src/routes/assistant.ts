@@ -1,28 +1,158 @@
 import { Router } from "express";
-import Anthropic from "@anthropic-ai/sdk";
+import { db } from "@workspace/db";
+import { competitionsTable, schoolsTable, type Competition, type School } from "@workspace/db/schema";
 import { AskAssistantBody, AskAssistantResponse } from "@workspace/api-zod";
-import type { AssistantQuestionInput } from "@workspace/api-zod";
 
 const router = Router();
 const recentRequests = new Map<string, number[]>();
 
-type AssistantContext = NonNullable<AssistantQuestionInput["context"]>;
+const SCHOOL_CATEGORIES = [
+  { label: "génie civil et BTP", terms: ["genie civil", "btp", "construction", "batiment", "travaux publics"] },
+  { label: "informatique et numérique", terms: ["informatique", "numerique", "developpement", "programmation", "reseaux", "cybersecurite"] },
+  { label: "santé", terms: ["sante", "medecine", "infirmier", "pharmacie", "sage femme", "biologie medicale"] },
+  { label: "droit", terms: ["droit", "juridique", "justice", "avocat"] },
+  { label: "commerce et gestion", terms: ["commerce", "gestion", "finance", "comptabilite", "marketing", "economie"] },
+  { label: "sciences", terms: ["science", "mathematique", "physique", "chimie", "agronomie"] },
+] as const;
 
-function localAnswer(question: string, context: AssistantContext = {}) {
-  const q = question.toLowerCase();
-  if (q.includes("concours") || q.includes("fonction publique")) {
-    const open = (context.concours ?? []).filter(item => item.statut === "open").slice(0, 3);
-    if (open.length) return `🏆 Concours ouverts trouvés : ${open.map(item => item.nom).filter(Boolean).join(", ")}. Consulte chaque fiche pour vérifier les conditions et la date limite officielle.`;
-    return "🏆 Consulte la rubrique Concours pour voir les concours ouverts, leurs niveaux requis et leurs dates limites. Vérifie toujours l’avis officiel avant de déposer ton dossier.";
+const STOP_WORDS = new Set([
+  "avec", "dans", "des", "deux", "elle", "est", "etre", "faire", "quelle", "quelles",
+  "quel", "quels", "pour", "sont", "sur", "une", "vers", "ville", "ecole", "ecoles",
+  "concours", "ouvert", "ouverts", "disponible", "disponibles", "trouver", "cherche",
+  "chercher", "comment", "inscription", "inscrire", "apres", "niveau", "bac",
+]);
+
+function normalize(value: string | null | undefined): string {
+  return (value ?? "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+}
+
+function findRequestedCity(question: string, schools: School[], competitions: Competition[]): string | undefined {
+  const normalizedQuestion = normalize(question);
+  const cities = new Set([
+    ...schools.map(school => school.city),
+    ...competitions.map(competition => competition.city),
+  ]);
+  return [...cities].find(city => normalizedQuestion.includes(normalize(city)));
+}
+
+function findSchoolCategory(question: string) {
+  const normalizedQuestion = normalize(question);
+  return SCHOOL_CATEGORIES.find(category =>
+    category.terms.some(term => normalizedQuestion.includes(term)),
+  );
+}
+
+function schoolScore(school: School, questionTerms: string[], categoryTerms: readonly string[] = []): number {
+  const fields = [
+    school.name,
+    school.city,
+    school.description,
+    ...school.domains,
+    ...school.diplomas,
+  ];
+  const searchable = normalize(fields.join(" "));
+  const domainText = normalize([...school.domains, school.description].join(" "));
+  let score = 0;
+
+  if (categoryTerms.some(term => domainText.includes(term))) score += 8;
+  for (const term of questionTerms) {
+    if (searchable.includes(term)) score += 1;
   }
-  if (q.includes("budget") || q.includes("frais") || q.includes("coût")) return "💰 Les frais disponibles sont indiqués dans les fiches écoles et le comparateur. Les montants peuvent évoluer : confirme-les toujours auprès de l’établissement.";
-  const terms = q.split(/[^a-zà-ÿ0-9]+/i).filter(term => term.length > 3);
-  const relevant = (context.ecoles ?? []).filter(school => {
-    const haystack = `${school.nom ?? ""} ${(school.filieres ?? []).join(" ")}`.toLowerCase();
-    return terms.some(term => haystack.includes(term));
-  }).slice(0, 3);
-  if (relevant.length) return `🎓 Établissements à regarder : ${relevant.map(s => `${s.nom}${s.ville ? ` (${s.ville})` : ""}`).join(", ")}. Consulte leurs fiches pour vérifier les filières et conditions d’admission.`;
-  return "🤖 Je peux t’aider à trouver une école, un concours, une formation adaptée ou à estimer ton budget en Côte d’Ivoire. Pose une question plus précise !";
+  return score;
+}
+
+function schoolLines(schools: School[], question: string, categoryTerms: readonly string[], city?: string): string[] {
+  const questionTerms = normalize(question)
+    .split(/[^a-z0-9]+/)
+    .filter(term => term.length > 2 && !STOP_WORDS.has(term));
+
+  return schools
+    .filter(school => !city || normalize(school.city) === normalize(city))
+    .map(school => ({ school, score: schoolScore(school, questionTerms, categoryTerms) }))
+    .filter(item => item.score > 0)
+    .sort((a, b) => b.score - a.score || a.school.name.localeCompare(b.school.name))
+    .slice(0, 4)
+    .map(({ school }) => {
+      const schoolType = school.type === "public" ? "publique" : "privée";
+      const domains = school.domains.length ? ` — domaines : ${school.domains.slice(0, 4).join(", ")}` : "";
+      const diplomas = school.diplomas.length ? ` — diplômes : ${school.diplomas.slice(0, 3).join(", ")}` : "";
+      const verified = school.isVerified === 1 ? " (établissement vérifié)" : "";
+      return `• ${school.name} — ${school.city}, école ${schoolType}${verified}${domains}${diplomas}`;
+    });
+}
+
+function competitionLines(
+  competitions: Competition[],
+  question: string,
+  city?: string,
+): { lines: string[]; openCount: number } {
+  const normalizedQuestion = normalize(question);
+  const wantsClosed = /\b(ferme|fermes|clos|termine|passes|anciens)\b/.test(normalizedQuestion);
+  const diplomaTerms = ["bts", "licence", "master", "doctorat", "bac", "bepc", "cap"];
+  const requestedDiploma = diplomaTerms.find(term => normalizedQuestion.includes(term));
+  const available = competitions.filter(competition => {
+    const statusMatches = wantsClosed
+      ? competition.status === "closed"
+      : competition.status === "open" || competition.status === "upcoming";
+    const cityMatches = !city || normalize(competition.city) === normalize(city);
+    const diplomaMatches = !requestedDiploma || normalize(competition.diploma).includes(requestedDiploma);
+    return statusMatches && cityMatches && diplomaMatches;
+  });
+
+  const sorted = [...available].sort((a, b) => {
+    if (a.status !== b.status) return a.status === "open" ? -1 : 1;
+    return (a.closeDate ?? "9999").localeCompare(b.closeDate ?? "9999");
+  });
+
+  return {
+    openCount: competitions.filter(competition => competition.status === "open").length,
+    lines: sorted.slice(0, 4).map(competition => {
+      const status = competition.status === "open" ? "ouvert" : competition.status === "upcoming" ? "à venir" : "clôturé";
+      const closeDate = competition.closeDate ? ` — clôture : ${competition.closeDate}` : "";
+      const positions = competition.positions > 0 ? ` — ${competition.positions} poste(s)` : "";
+      const website = competition.website ? ` — avis officiel : ${competition.website}` : "";
+      return `• ${competition.title} — ${competition.ministry}, ${competition.city} (${status}), diplôme : ${competition.diploma}${closeDate}${positions}${website}`;
+    }),
+  };
+}
+
+function answerFromDatabase(question: string, schools: School[], competitions: Competition[]): string {
+  const normalizedQuestion = normalize(question);
+  const city = findRequestedCity(question, schools, competitions);
+  const category = findSchoolCategory(question);
+  const asksForCompetitions = /\b(concours|fonction publique|recrutement|candidature)\b/.test(normalizedQuestion);
+  const asksAboutFees = /\b(budget|frais|cout|prix|combien)\b/.test(normalizedQuestion);
+  const asksAboutBac = /\bbac\s*[cd]\b/.test(normalizedQuestion);
+
+  if (asksForCompetitions) {
+    const { lines } = competitionLines(competitions, question, city);
+    if (lines.length) {
+      return `Voici les concours correspondants présents dans la base${city ? ` pour ${city}` : ""} :\n${lines.join("\n")}\n\nVérifie les conditions et les dates sur l’avis officiel avant de déposer ton dossier.`;
+    }
+    return `Je ne trouve pas de concours correspondant dans la base${city ? ` pour ${city}` : ""}. Consulte la rubrique Concours et vérifie les avis publiés par les organismes concernés.`;
+  }
+
+  if (asksAboutFees) {
+    const lines = schoolLines(schools, question, category?.terms ?? [], city);
+    const matches = lines.length ? `\n\nÉtablissements du secteur présents dans la base :\n${lines.join("\n")}` : "";
+    return `La base ne contient pas de montants de frais de scolarité fiables. Pour obtenir un budget à jour, contacte directement les établissements et demande les frais d’inscription et de formation.${matches}`;
+  }
+
+  const lines = schoolLines(schools, question, category?.terms ?? [], city);
+  if (lines.length) {
+    const area = category?.label ?? "la formation demandée";
+    return `Établissements correspondant à ${area}${city ? ` à ${city}` : ""} dans la base :\n${lines.join("\n")}\n\nConsulte les fiches pour les conditions d’admission et les coordonnées à jour.`;
+  }
+
+  if (asksAboutBac) {
+    return `Les conditions d’admission par série de bac ne sont pas documentées dans la base. Indique le domaine et la ville qui t’intéressent pour que je recherche les établissements correspondants.`;
+  }
+
+  const openCount = competitions.filter(competition => competition.status === "open").length;
+  return `Je peux rechercher parmi ${schools.length} école(s) et ${competitions.length} concours référencés, dont ${openCount} ouvert(s). Précise une filière, un diplôme, un concours ou une ville pour obtenir des résultats ciblés.`;
 }
 
 router.post("/", async (req, res): Promise<void> => {
@@ -40,7 +170,7 @@ router.post("/", async (req, res): Promise<void> => {
     res.status(400).json({ error: "Requête invalide." });
     return;
   }
-  const { question, context } = input.data;
+  const { question } = input.data;
   if (!question.trim()) {
     res.status(400).json({ error: "Question manquante" });
     return;
@@ -63,70 +193,15 @@ router.post("/", async (req, res): Promise<void> => {
     }
   }
 
-  const safeContext: AssistantContext = {
-    ecoles: (context?.ecoles ?? []).slice(0, 20).map(s => ({
-      nom: s.nom.slice(0, 120),
-      ville: s.ville.slice(0, 80),
-      type: s.type.slice(0, 30),
-      filieres: s.filieres.slice(0, 12).map(d => d.slice(0, 80)),
-      frais: s.frais?.slice(0, 80),
-    })),
-    concours: (context?.concours ?? []).slice(0, 20).map(c => ({
-      nom: c.nom.slice(0, 120),
-      ville: c.ville.slice(0, 80),
-      statut: c.statut.slice(0, 30),
-      ministere: c.ministere.slice(0, 120),
-      diplome: c.diplome?.slice(0, 80),
-    })),
-  };
-
-  if (!process.env.ANTHROPIC_API_KEY) {
-    res.json(AskAssistantResponse.parse({ response: localAnswer(question, safeContext), mode: "local" }));
-    return;
-  }
-
   try {
-    const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-    const message = await anthropic.messages.create({
-      model: "claude-sonnet-4-6",
-      max_tokens: 1024,
-      system: `Tu es l’assistant officiel de Compétences CI, application d’orientation pour les étudiants ivoiriens.
-Données disponibles : ${JSON.stringify(safeContext)}
-Réponds uniquement en français, de façon concise et pratique, en maximum trois courts paragraphes. Recommande uniquement les écoles et concours présents dans les données. Utilise quelques emojis. Si tu ne sais pas, dis-le honnêtement. Ne parle que d’orientation en Côte d’Ivoire.`,
-      messages: [{ role: "user", content: question.trim() }],
-    });
-    const text = message.content.find(block => block.type === "text");
-    res.json(AskAssistantResponse.parse({ response: text?.type === "text" ? text.text : localAnswer(question, safeContext), mode: "anthropic" }));
-  } catch (error) {
-    const apiError = error as {
-      name?: unknown;
-      status?: unknown;
-      error?: {
-        type?: unknown;
-        message?: unknown;
-        error?: { type?: unknown; message?: unknown };
-      };
-    };
-    const providerDetail = apiError?.error?.error ?? apiError?.error;
-    const providerMessage = typeof providerDetail?.message === "string"
-      ? providerDetail.message.toLowerCase()
-      : "";
-    const reason = providerMessage.includes("credit") || providerMessage.includes("billing")
-      ? "billing_or_credits"
-      : providerMessage.includes("model")
-        ? "model"
-        : providerMessage.includes("token") || providerMessage.includes("prompt")
-          ? "token_or_prompt"
-          : providerMessage.includes("api key") || providerMessage.includes("authentication")
-            ? "authentication"
-            : "other";
-    console.error("[assistant] Anthropic request failed", {
-      name: typeof apiError?.name === "string" ? apiError.name : "UnknownError",
-      status: typeof apiError?.status === "number" ? apiError.status : undefined,
-      type: typeof providerDetail?.type === "string" ? providerDetail.type : undefined,
-      reason,
-    });
-    res.json(AskAssistantResponse.parse({ response: localAnswer(question, safeContext), mode: "local", warning: "Le service IA est momentanément indisponible." }));
+    const [schools, competitions] = await Promise.all([
+      db.select().from(schoolsTable),
+      db.select().from(competitionsTable),
+    ]);
+    const response = answerFromDatabase(question.trim(), schools, competitions);
+    res.json(AskAssistantResponse.parse({ response }));
+  } catch {
+    res.status(503).json({ error: "Les données d’orientation sont momentanément indisponibles." });
   }
 });
 

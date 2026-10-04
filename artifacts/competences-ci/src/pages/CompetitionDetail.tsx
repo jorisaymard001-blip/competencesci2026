@@ -1,7 +1,7 @@
 import { useRoute } from "wouter";
 import { useState } from "react";
 import { Layout } from "@/components/Layout";
-import { useGetCompetition } from "@workspace/api-client-react";
+import { getGetCompetitionQueryKey, useGetCompetition } from "@workspace/api-client-react";
 import { Loader2, Calendar, MapPin, Briefcase, GraduationCap, FileText, CheckCircle2, Globe, Phone, Heart, ClipboardList, ListChecks, UserCheck, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { formatDate } from "@/lib/utils";
@@ -21,7 +21,7 @@ export default function CompetitionDetail() {
   const { t, language } = useT();
 
   const { data: comp, isLoading, error } = useGetCompetition(id, {
-    query: { enabled: !!id }
+    query: { queryKey: getGetCompetitionQueryKey(id), enabled: !!id }
   });
 
   const { isCompetitionFav, toggleCompetition } = useFavorites();

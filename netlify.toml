@@ -1,0 +1,6 @@
+[build]
+command = "pnpm --filter @workspace/competences-ci run build"
+publish = "artifacts/competences-ci/dist/public"
+
+[build.environment]
+VITE_API_URL = "https://competences-ci-api.onrender.com"

@@ -147,10 +147,9 @@ export default function Notifications() {
 
   // Auto-mark as read when the page is viewed
   useEffect(() => {
-    if (unreadCount > 0) {
-      const timer = setTimeout(() => markAllRead(), 1500);
-      return () => clearTimeout(timer);
-    }
+    if (unreadCount <= 0) return;
+    const timer = setTimeout(() => markAllRead(), 1500);
+    return () => clearTimeout(timer);
   }, []);
 
   // We need deletedMap from context to show deletedAt for each trashed notif.

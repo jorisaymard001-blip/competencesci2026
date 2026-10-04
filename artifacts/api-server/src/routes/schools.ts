@@ -34,15 +34,17 @@ router.get("/schools", async (req, res) => {
   res.json(result);
 });
 
-router.get("/schools/:id", async (req, res) => {
+router.get("/schools/:id", async (req, res): Promise<void> => {
   const id = parseInt(req.params.id);
   if (isNaN(id)) {
-    return res.status(400).json({ message: "Invalid ID" });
+    res.status(400).json({ message: "Invalid ID" });
+    return;
   }
 
   const [school] = await db.select().from(schoolsTable).where(eq(schoolsTable.id, id));
   if (!school) {
-    return res.status(404).json({ message: "École introuvable" });
+    res.status(404).json({ message: "École introuvable" });
+    return;
   }
 
   res.json(school);

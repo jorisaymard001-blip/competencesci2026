@@ -1,6 +1,11 @@
 import { createRoot } from "react-dom/client";
 import App from "./App";
+import { apiOrigin } from "./lib/api-url";
 import "./index.css";
+
+if (apiOrigin) {
+  (window as Window & { __COMPETENCES_CI_API_ORIGIN__?: string }).__COMPETENCES_CI_API_ORIGIN__ = apiOrigin;
+}
 
 // ── Service Worker registration ───────────────────────────────────────────────
 if ("serviceWorker" in navigator) {

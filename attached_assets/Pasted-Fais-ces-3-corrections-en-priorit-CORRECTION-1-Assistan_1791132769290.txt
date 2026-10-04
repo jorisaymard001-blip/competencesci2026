@@ -1,0 +1,497 @@
+Fais ces 3 corrections en priorité :
+
+## CORRECTION 1 — Assistant IA sans API payante
+
+Puisque je n'ai pas de crédits Anthropic 
+pour le moment, transforme l'assistant en 
+mode 100% local intelligent sans aucun 
+appel API externe.
+
+L'assistant doit utiliser les vraies données 
+de la base de données pour répondre de façon 
+utile et pertinente.
+
+### Logique de l'assistant local :
+
+export function getLocalResponse(
+  question, ecoles, concours
+) {
+  const q = question.toLowerCase();
+
+  /* === ÉCOLES === */
+  if (q.includes('génie civil') || 
+      q.includes('btp') || 
+      q.includes('construction')) {
+    const ecolesGC = ecoles.filter(e =>
+      e.domainesFormation?.some(f =>
+        f.toLowerCase().includes('génie civil') ||
+        f.toLowerCase().includes('btp')
+      )
+    );
+    return `🏗️ Pour le Génie Civil en CI :
+
+${ecolesGC.slice(0,3).map((e, i) => 
+  `${i===0?'🥇':i===1?'🥈':'🥉'} **${e.nom}** 
+  📍 ${e.ville} · ${e.type}
+  💰 ${e.fraisScolarite || 'Voir la fiche'}`
+).join('\n\n')}
+
+👉 Va dans Écoles → filtre "Génie Civil"`;
+  }
+
+  if (q.includes('informatique') || 
+      q.includes('numérique') ||
+      q.includes('développeur') ||
+      q.includes('programmation')) {
+    const ecolesInfo = ecoles.filter(e =>
+      e.domainesFormation?.some(f =>
+        f.toLowerCase().includes('informatique')
+      )
+    );
+    return `💻 Pour l'Informatique en CI :
+
+${ecolesInfo.slice(0,3).map((e, i) =>
+  `${i===0?'🥇':i===1?'🥈':'🥉'} **${e.nom}**
+  📍 ${e.ville} · ${e.type}
+  💰 ${e.fraisScolarite || 'Voir la fiche'}`
+).join('\n\n')}
+
+👉 Va dans Écoles → filtre "Informatique"`;
+  }
+
+  if (q.includes('médecine') || 
+      q.includes('santé') ||
+      q.includes('infirmier') ||
+      q.includes('pharmacie')) {
+    const eolesSante = ecoles.filter(e =>
+      e.domainesFormation?.some(f =>
+        f.toLowerCase().includes('médecine') ||
+        f.toLowerCase().includes('santé')
+      )
+    );
+    return `⚕️ Pour la Santé en CI :
+
+${eolesSante.slice(0,3).map((e, i) =>
+  `${i===0?'🥇':i===1?'🥈':'🥉'} **${e.nom}**
+  📍 ${e.ville} · ${e.type}
+  💰 ${e.fraisScolarite || 'Voir la fiche'}`
+).join('\n\n')}
+
+👉 Va dans Écoles → filtre "Médecine"`;
+  }
+
+  if (q.includes('droit') || 
+      q.includes('avocat') ||
+      q.includes('justice') ||
+      q.includes('administration')) {
+    const ecolesDroit = ecoles.filter(e =>
+      e.domainesFormation?.some(f =>
+        f.toLowerCase().includes('droit')
+      )
+    );
+    return `⚖️ Pour le Droit en CI :
+
+${ecolesDroit.slice(0,3).map((e, i) =>
+  `${i===0?'🥇':i===1?'🥈':'🥉'} **${e.nom}**
+  📍 ${e.ville} · ${e.type}
+  💰 ${e.fraisScolarite || 'Voir la fiche'}`
+).join('\n\n')}
+
+👉 Va dans Concours → ENA pour la 
+   fonction publique`;
+  }
+
+  if (q.includes('commerce') || 
+      q.includes('finance') ||
+      q.includes('gestion') ||
+      q.includes('comptabilité')) {
+    const ecolesComm = ecoles.filter(e =>
+      e.domainesFormation?.some(f =>
+        f.toLowerCase().includes('commerce') ||
+        f.toLowerCase().includes('finance') ||
+        f.toLowerCase().includes('gestion')
+      )
+    );
+    return `💰 Pour le Commerce/Finance en CI :
+
+${ecolesComm.slice(0,3).map((e, i) =>
+  `${i===0?'🥇':i===1?'🥈':'🥉'} **${e.nom}**
+  📍 ${e.ville} · ${e.type}
+  💰 ${e.fraisScolarite || 'Voir la fiche'}`
+).join('\n\n')}`;
+  }
+
+  /* === CONCOURS === */
+  if (q.includes('concours') || 
+      q.includes('fonction publique') ||
+      q.includes('recrutement')) {
+    const concoursOuverts = concours.filter(c =>
+      c.statut === 'ouvert' || 
+      c.statut === 'a_venir'
+    );
+    return `🏆 Concours disponibles :
+
+${concoursOuverts.slice(0,4).map(c =>
+  `${c.statut === 'ouvert' ? '🟢' : '🔵'} **${c.nom}**
+  📋 ${c.ministere}
+  🎓 Niveau : ${c.niveau || '—'}
+  📅 ${c.statut === 'ouvert' 
+    ? 'Ouvert maintenant' 
+    : 'Bientôt disponible'}`
+).join('\n\n')}
+
+👉 Va dans Concours pour voir tous 
+   les détails et conditions`;
+  }
+
+  /* === BUDGET === */
+  if (q.includes('budget') || 
+      q.includes('coût') ||
+      q.includes('frais') ||
+      q.includes('prix') ||
+      q.includes('combien')) {
+    return `💰 Coûts des études en CI :
+
+🟢 **Universités publiques**
+   50 000 – 200 000 FCFA/an
+   (UFHB, UAO, UPGC, UJLoG...)
+
+🟡 **Écoles privées abordables**
+   200 000 – 600 000 FCFA/an
+   (Pigier, ISTC, IAM...)
+
+🔴 **Grandes écoles privées**
+   600 000 – 2 000 000 FCFA/an
+
+💡 Les universités publiques restent 
+   la meilleure option budget !
+   N'oublie pas les bourses MESRS.`;
+  }
+
+  /* === VILLES === */
+  if (q.includes('abidjan')) {
+    const ecolesAbidjan = ecoles.filter(e =>
+      e.ville?.toLowerCase() === 'abidjan'
+    );
+    return `📍 ${ecolesAbidjan.length} établissements 
+à Abidjan :
+
+${ecolesAbidjan.slice(0,4).map(e =>
+  `• **${e.nom}** (${e.type})`
+).join('\n')}
+
+👉 Va dans Écoles → filtre "Abidjan"`;
+  }
+
+  if (q.includes('yamoussoukro')) {
+    const ecolesYam = ecoles.filter(e =>
+      e.ville?.toLowerCase() === 'yamoussoukro'
+    );
+    return `📍 ${ecolesYam.length} établissements 
+à Yamoussoukro :
+
+${ecolesYam.slice(0,4).map(e =>
+  `• **${e.nom}** (${e.type})`
+).join('\n')}
+
+L'INP-HB est la référence nationale 
+en ingénierie à Yamoussoukro !`;
+  }
+
+  /* === BAC === */
+  if (q.includes('bac c') || 
+      q.includes('serie c') ||
+      q.includes('maths')) {
+    return `🎓 Avec un BAC C (Maths), 
+tu as accès aux meilleures filières :
+
+✅ Génie Civil / BTP
+✅ Informatique / Numérique  
+✅ Médecine / Pharmacie
+✅ Sciences de l'Ingénieur
+✅ Finance / Économie
+
+🥇 **INP-HB Yamoussoukro** — 
+   La référence nationale
+🥇 **UFHB Abidjan** — 
+   Plus grande université CI
+🥇 **ENSEA Abidjan** — 
+   Statistique & Économie
+
+Pose-moi une question sur une filière 
+précise !`;
+  }
+
+  if (q.includes('bac d') || 
+      q.includes('serie d') ||
+      q.includes('sciences')) {
+    return `🎓 Avec un BAC D (Sciences), 
+tu as accès à :
+
+✅ Médecine / Biologie / Pharmacie
+✅ Agriculture / Agronomie
+✅ Chimie / Environnement
+✅ Sciences de la Vie
+✅ Certaines filières Génie Civil
+
+🥇 **UFHB** — UFR Sciences
+🥇 **ESMG** (via INP-HB) — 
+   Mines & Géologie
+🥇 **UVCI** — Formations en ligne`;
+  }
+
+  if (q.includes('bts')) {
+    const concoursBTS = concours.filter(c =>
+      c.niveau?.toLowerCase().includes('bts')
+    );
+    return `📋 Avec un BTS, tu peux :
+
+🎓 **Poursuivre en Licence Pro**
+   → Cherche "Licence" dans Écoles
+
+🏆 **Passer des concours :**
+${concoursBTS.slice(0,3).map(c =>
+  `• ${c.nom}`
+).join('\n')}
+
+💡 Un BTS + concours de la fonction 
+   publique = carrière stable garantie !`;
+  }
+
+  /* === ORIENTATION === */
+  if (q.includes('choisir') || 
+      q.includes('orientation') ||
+      q.includes('conseil') ||
+      q.includes('que faire') ||
+      q.includes('quoi faire')) {
+    return `🧭 Pour bien choisir ta voie :
+
+1️⃣ **Fais le quiz d'orientation**
+   → Menu → "Trouver ma voie"
+   5 questions → recommandations 
+   personnalisées
+
+2️⃣ **Explore les filières**
+   → Menu → "Écoles"
+   Filtre par ville, domaine, budget
+
+3️⃣ **Regarde les concours**
+   → Menu → "Concours"
+   Vérifie les niveaux requis
+
+4️⃣ **Compare les écoles**
+   → Bouton ⚖️ sur chaque école
+
+Pose-moi une question précise sur 
+un domaine ou une ville !`;
+  }
+
+  /* === RÉPONSE PAR DÉFAUT === */
+  const totalEcoles = ecoles.length;
+  const totalConcours = concours.length;
+  const concoursOuverts = concours.filter(
+    c => c.statut === 'ouvert'
+  ).length;
+
+  return `👋 Je suis l'assistant Compétences CI !
+
+Je connais :
+🏫 **${totalEcoles} écoles** référencées en CI
+🏆 **${totalConcours} concours** dont 
+   ${concoursOuverts} ouverts actuellement
+
+Pose-moi une question comme :
+• "Quelles écoles pour le Génie Civil ?"
+• "Concours ouverts pour un BTS ?"
+• "Budget pour étudier à Abidjan ?"
+• "J'ai un BAC C, que faire ?"
+• "Compare les écoles à Yamoussoukro"`;
+}
+
+### Supprime complètement tout appel 
+### à l'API Anthropic externe.
+### L'assistant utilise uniquement 
+### les données locales de la DB.
+### Supprime aussi le message d'avertissement 
+### "mode local" — l'assistant doit paraître 
+### normal et professionnel.
+
+
+## CORRECTION 2 — Application disponible 
+## 24h/24 sans ouvrir Replit
+
+Le problème : l'app s'arrête quand 
+Replit est fermé.
+
+### Solution — Déploiement permanent gratuit
+
+Prépare le projet pour un déploiement 
+sur Render (gratuit) pour le backend 
+Express et Netlify pour le frontend.
+
+#### Backend — Prépare pour Render :
+
+Vérifie que package.json a :
+{
+  "scripts": {
+    "start": "node server.js",
+    "build": "npm install"
+  },
+  "engines": {
+    "node": "18.x"
+  }
+}
+
+Vérifie que server.js écoute sur 
+le bon port :
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server running on port ${PORT}`);
+});
+
+Crée render.yaml à la racine :
+services:
+  - type: web
+    name: competences-ci-api
+    env: node
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: competences-ci-db
+          property: connectionString
+
+#### Frontend — Prépare pour Netlify :
+
+Vérifie vite.config.js :
+export default defineConfig({
+  plugins: [react()],
+  build: {
+    outDir: 'dist',
+  }
+})
+
+Crée public/_redirects :
+/*    /index.html    200
+
+Lance le build :
+npm run build
+
+Vérifie que le dossier dist/ 
+est généré sans erreur.
+
+#### Variable d'environnement critique :
+
+Dans le frontend, l'URL du backend 
+doit pointer vers Render en production :
+
+Crée .env.production :
+VITE_API_URL=https://competences-ci-api.onrender.com
+
+Et en développement .env.development :
+VITE_API_URL=http://localhost:3000
+
+Dans tout le code frontend, remplace 
+les appels hardcodés :
+
+/* AVANT */
+fetch('http://localhost:3000/api/...')
+
+/* APRÈS */
+fetch(`${import.meta.env.VITE_API_URL}/api/...`)
+
+Vérifie que TOUS les appels API dans 
+le frontend utilisent cette variable 
+et non localhost hardcodé.
+
+
+## CORRECTION 3 — Corrige les bugs 
+## TypeScript préexistants
+
+Le typecheck signale des erreurs dans 
+plusieurs pages et routes. Corrige-les 
+toutes.
+
+Lance :
+npx tsc --noEmit
+
+Et corrige chaque erreur une par une.
+
+Les erreurs TypeScript courantes à corriger :
+
+/* Propriétés potentiellement undefined */
+// AVANT :
+ecole.nom.toLowerCase()
+// APRÈS :
+ecole.nom?.toLowerCase() ?? ''
+
+/* Types manquants sur les props */
+// AVANT :
+function EcoleCard({ ecole }) {
+// APRÈS :
+interface EcoleCardProps {
+  ecole: {
+    id: string;
+    nom: string;
+    ville?: string;
+    type?: string;
+    domainesFormation?: string[];
+    fraisScolarite?: string;
+    fraisInscription?: string;
+    imageUrl?: string;
+  }
+}
+function EcoleCard({ ecole }: EcoleCardProps) {
+
+/* Routes manquantes */
+Vérifie que ces routes existent dans 
+App.tsx ou Router.tsx :
+- /ecoles
+- /ecoles/:id
+- /concours
+- /concours/:id
+- /trouver-ma-voie
+- /mes-candidatures
+- /favoris
+- /conseils
+- /conseils/:id
+- /profil
+- /contact
+- /a-propos
+- /assistant
+- /comparer
+- /connexion
+- /inscription
+
+/* Imports manquants */
+Vérifie que chaque composant importé 
+existe bien dans le projet.
+
+
+## VÉRIFICATION FINALE
+
+Après toutes les corrections :
+
+1. Lance npx tsc --noEmit → 0 erreur
+2. Lance npm run build → succès
+3. Teste l'assistant avec ces questions :
+   - "Quelles écoles pour le Génie Civil ?"
+   - "Concours ouverts ?"
+   - "Budget pour étudier ?"
+   L'assistant doit répondre avec les 
+   vraies données de la DB
+
+4. Confirme que VITE_API_URL est utilisé 
+   partout dans le frontend
+
+5. Donne-moi :
+   - Le contenu de render.yaml
+   - Le contenu de public/_redirects
+   - Le contenu de .env.production
+   - Confirmation que dist/ est généré
+
+Je vais ensuite déployer manuellement 
+sur Render et Netlify.

@@ -6,8 +6,9 @@ import {
   RefreshCw, Building2, AlertCircle, ShieldAlert, Link as LinkIcon, Copy, ImageOff,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { apiUrl } from "@/lib/api-url";
 
-const API = (import.meta.env.BASE_URL ?? "/").replace(/\/$/, "") + "/api";
+const API = apiUrl();
 const TOKEN_KEY = "cci_admin_token";
 
 type Tab = "competitions" | "schools" | "articles" | "scraping" | "quality";

@@ -10,6 +10,8 @@ import {
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useT } from "@/lib/useT";
+import type { TranslationKey } from "@/lib/i18n";
+import { apiUrl } from "@/lib/api-url";
 
 type Status = "en_cours" | "inscrit" | "admis" | "refuse";
 
@@ -57,7 +59,7 @@ function getTimelineStep(candidature: Candidature) {
 }
 
 const STATUS_CONFIG: Record<Status, {
-  labelKey: string;
+  labelKey: TranslationKey;
   color: string;
   bg: string;
   border: string;
@@ -70,7 +72,7 @@ const STATUS_CONFIG: Record<Status, {
 };
 
 const STORAGE_KEY = (uid: number) => `competences_ci_candidatures_v2_${uid}`;
-const API_BASE = import.meta.env.BASE_URL?.replace(/\/$/, "") + "/api";
+const API_BASE = apiUrl();
 
 export default function Candidatures() {
   const { user } = useAuth();

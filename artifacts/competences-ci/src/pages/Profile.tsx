@@ -13,6 +13,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useT } from "@/lib/useT";
+import { apiUrl } from "@/lib/api-url";
 import {
   notificationsSupported,
   getPermission,
@@ -483,8 +484,7 @@ function PushPermissionRow({ userId }: { userId: number | null }) {
     setBusy(true);
     setHint(null);
     try {
-      const base = import.meta.env.BASE_URL ?? "/";
-      const res = await fetch(`${base}api/push/test`, { method: "POST" });
+      const res = await fetch(apiUrl("/push/test"), { method: "POST" });
       const data = (await res.json()) as { sent?: number };
       setHint(
         (data.sent ?? 0) > 0

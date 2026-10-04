@@ -21,11 +21,12 @@ function createTransporter() {
   });
 }
 
-router.post("/messages", async (req, res) => {
+router.post("/messages", async (req, res): Promise<void> => {
   const { name, email, subject, message } = req.body;
 
   if (!name || !email || !subject || !message) {
-    return res.status(400).json({ message: "Tous les champs sont requis" });
+    res.status(400).json({ message: "Tous les champs sont requis" });
+    return;
   }
 
   // Save to DB

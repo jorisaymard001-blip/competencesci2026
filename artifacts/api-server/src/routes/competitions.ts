@@ -19,15 +19,17 @@ router.get("/competitions", async (req, res) => {
   res.json(result);
 });
 
-router.get("/competitions/:id", async (req, res) => {
+router.get("/competitions/:id", async (req, res): Promise<void> => {
   const id = parseInt(req.params.id);
   if (isNaN(id)) {
-    return res.status(400).json({ message: "Invalid ID" });
+    res.status(400).json({ message: "Invalid ID" });
+    return;
   }
 
   const [comp] = await db.select().from(competitionsTable).where(eq(competitionsTable.id, id));
   if (!comp) {
-    return res.status(404).json({ message: "Concours introuvable" });
+    res.status(404).json({ message: "Concours introuvable" });
+    return;
   }
 
   res.json(comp);

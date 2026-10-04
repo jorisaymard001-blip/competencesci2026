@@ -31,6 +31,22 @@ function resolveUrl(input: RequestInfo | URL): string {
   return input.url;
 }
 
+function resolveApiInput(input: RequestInfo | URL): RequestInfo | URL {
+  const apiOrigin = (
+    globalThis as typeof globalThis & { __COMPETENCES_CI_API_ORIGIN__?: string }
+  ).__COMPETENCES_CI_API_ORIGIN__;
+  const url = resolveUrl(input);
+
+  if (!apiOrigin || (url !== "/api" && !url.startsWith("/api/"))) {
+    return input;
+  }
+
+  const externalUrl = `${apiOrigin}${url}`;
+  if (isRequest(input)) return new Request(externalUrl, input);
+  if (isUrl(input)) return new URL(externalUrl);
+  return externalUrl;
+}
+
 function mergeHeaders(...sources: Array<HeadersInit | undefined>): Headers {
   const headers = new Headers();
 
@@ -297,9 +313,10 @@ export async function customFetch<T = unknown>(
     headers.set("accept", DEFAULT_JSON_ACCEPT);
   }
 
-  const requestInfo = { method, url: resolveUrl(input) };
+  const requestInput = resolveApiInput(input);
+  const requestInfo = { method, url: resolveUrl(requestInput) };
 
-  const response = await fetch(input, { ...init, method, headers });
+  const response = await fetch(requestInput, { ...init, method, headers });
 
   if (!response.ok) {
     const errorData = await parseErrorBody(response, method);

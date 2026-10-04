@@ -5,6 +5,7 @@ import { ChevronLeft, ChevronRight, Clock, BookOpen } from "lucide-react";
 import { articles, Article, ArticleSection as ArticleSectionData } from "@/lib/articles";
 import { cn } from "@/lib/utils";
 import { useT } from "@/lib/useT";
+import type { TranslationKey } from "@/lib/i18n";
 import { ShareButtons } from "@/components/ShareButtons";
 import { useListSchools, useListCompetitions } from "@workspace/api-client-react";
 import { Link } from "wouter";
@@ -12,7 +13,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { AuthRequiredModal } from "@/components/AuthRequiredModal";
 
 const CATEGORIES = ["Tous", "Orientation", "Études", "Concours", "Marché du travail"];
-const CAT_KEYS: Record<string, string> = {
+const CAT_KEYS: Record<string, TranslationKey> = {
   "Tous": "conseils_cat_all",
   "Orientation": "conseils_cat_orientation",
   "Études": "conseils_cat_studies",

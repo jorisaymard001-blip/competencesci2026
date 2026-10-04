@@ -1,4 +1,5 @@
 // ── Web Push (VAPID) — client-side subscription helper ──────────────────────
+import { apiUrl } from "@/lib/api-url";
 
 const SUB_ENDPOINT_KEY = "cci_push_endpoint";
 
@@ -11,13 +12,9 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array {
   return arr;
 }
 
-function apiBase(): string {
-  return import.meta.env.BASE_URL ?? "/";
-}
-
 export async function getVapidPublicKey(): Promise<string | null> {
   try {
-    const res = await fetch(`${apiBase()}api/push/vapid-public-key`);
+    const res = await fetch(apiUrl("/push/vapid-public-key"));
     if (!res.ok) return null;
     const data = (await res.json()) as { publicKey?: string };
     return data.publicKey ?? null;
@@ -46,9 +43,12 @@ export async function subscribeToPush(userId: number | null): Promise<boolean> {
         console.warn("[push] VAPID public key unavailable");
         return false;
       }
+      const keyBytes = urlBase64ToUint8Array(publicKey);
+      const applicationServerKey = new ArrayBuffer(keyBytes.byteLength);
+      new Uint8Array(applicationServerKey).set(keyBytes);
       sub = await reg.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(publicKey),
+        applicationServerKey,
       });
     }
 
@@ -63,7 +63,7 @@ export async function subscribeToPush(userId: number | null): Promise<boolean> {
       userAgent: navigator.userAgent,
     };
 
-    const res = await fetch(`${apiBase()}api/push/subscribe`, {
+    const res = await fetch(apiUrl("/push/subscribe"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
@@ -89,7 +89,7 @@ export async function unsubscribeFromPush(): Promise<void> {
       const endpoint = sub.endpoint;
       await sub.unsubscribe().catch(() => {});
       try {
-        await fetch(`${apiBase()}api/push/unsubscribe`, {
+        await fetch(apiUrl("/push/unsubscribe"), {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ endpoint }),

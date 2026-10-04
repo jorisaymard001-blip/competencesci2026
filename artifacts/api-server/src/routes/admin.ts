@@ -31,16 +31,24 @@ function verifyToken(token: string): Record<string, unknown> | null {
   }
 }
 
+function parseRouteId(rawId: string | string[]): number {
+  const value = Array.isArray(rawId) ? rawId[0] ?? "" : rawId;
+  const id = Number.parseInt(value, 10);
+  return Number.isSafeInteger(id) && id > 0 ? id : Number.NaN;
+}
+
 // ── Admin middleware ──────────────────────────────────────────────────────────
 
-function adminAuth(req: Request, res: Response, next: NextFunction) {
+function adminAuth(req: Request, res: Response, next: NextFunction): void {
   const auth = req.headers.authorization;
   if (!auth?.startsWith("Bearer ")) {
-    return res.status(401).json({ message: "Non autorisé" });
+    res.status(401).json({ message: "Non autorisé" });
+    return;
   }
   const payload = verifyToken(auth.slice(7));
   if (!payload || payload.role !== "admin") {
-    return res.status(401).json({ message: "Token invalide ou expiré" });
+    res.status(401).json({ message: "Token invalide ou expiré" });
+    return;
   }
   next();
 }
@@ -117,11 +125,15 @@ ensureCompetitionImageColumns().catch(err => console.error("[admin] ensureCompet
 
 // ── Login ─────────────────────────────────────────────────────────────────────
 
-router.post("/admin/login", (req: Request, res: Response) => {
+router.post("/admin/login", (req: Request, res: Response): void => {
   const { password } = req.body as { password?: string };
-  if (!ADMIN_PASSWORD) return res.status(500).json({ message: "Admin non configuré sur le serveur" });
+  if (!ADMIN_PASSWORD) {
+    res.status(500).json({ message: "Admin non configuré sur le serveur" });
+    return;
+  }
   if (!password || password !== ADMIN_PASSWORD) {
-    return res.status(401).json({ message: "Mot de passe incorrect" });
+    res.status(401).json({ message: "Mot de passe incorrect" });
+    return;
   }
   res.json({ token: signToken({ role: "admin" }) });
 });
@@ -167,8 +179,12 @@ router.post("/admin/competitions", adminAuth, async (req: Request, res: Response
   res.status(201).json(comp);
 });
 
-router.put("/admin/competitions/:id", adminAuth, async (req: Request, res: Response) => {
-  const id = parseInt(req.params.id);
+router.put("/admin/competitions/:id", adminAuth, async (req: Request, res: Response): Promise<void> => {
+  const id = parseRouteId(req.params.id);
+  if (Number.isNaN(id)) {
+    res.status(400).json({ message: "ID invalide" });
+    return;
+  }
   const { title, ministry, city, diploma, status, openDate, closeDate, positions, description, requirements, process, contact, website, imageUrl, logoUrl, isVerified, verifiedAt, verificationSource } = req.body as Record<string, any>;
   const verified = isVerified === true || Number(isVerified) === 1;
   const [comp] = await db.update(competitionsTable).set({
@@ -188,12 +204,20 @@ router.put("/admin/competitions/:id", adminAuth, async (req: Request, res: Respo
     verifiedAt: verified ? (verifiedAt ? new Date(verifiedAt) : new Date()) : null,
     verificationSource: verified ? String(verificationSource || "Vérification manuelle").slice(0, 120) : null,
   }).where(eq(competitionsTable.id, id)).returning();
-  if (!comp) return res.status(404).json({ message: "Introuvable" });
+  if (!comp) {
+    res.status(404).json({ message: "Introuvable" });
+    return;
+  }
   res.json(comp);
 });
 
 router.delete("/admin/competitions/:id", adminAuth, async (req: Request, res: Response) => {
-  await db.delete(competitionsTable).where(eq(competitionsTable.id, parseInt(req.params.id)));
+  const id = parseRouteId(req.params.id);
+  if (Number.isNaN(id)) {
+    res.status(400).json({ message: "ID invalide" });
+    return;
+  }
+  await db.delete(competitionsTable).where(eq(competitionsTable.id, id));
   res.json({ success: true });
 });
 
@@ -224,8 +248,12 @@ router.post("/admin/schools", adminAuth, async (req: Request, res: Response) => 
   res.status(201).json(school);
 });
 
-router.put("/admin/schools/:id", adminAuth, async (req: Request, res: Response) => {
-  const id = parseInt(req.params.id);
+router.put("/admin/schools/:id", adminAuth, async (req: Request, res: Response): Promise<void> => {
+  const id = parseRouteId(req.params.id);
+  if (Number.isNaN(id)) {
+    res.status(400).json({ message: "ID invalide" });
+    return;
+  }
   const { name, type, city, address, phone, website, email, description, diplomas, domains, accreditation, founded, imageUrl, logoUrl, isVerified, verifiedAt, verificationSource } = req.body as Record<string, any>;
   const verified = isVerified === true || Number(isVerified) === 1;
   const [school] = await db.update(schoolsTable).set({
@@ -246,12 +274,20 @@ router.put("/admin/schools/:id", adminAuth, async (req: Request, res: Response) 
     verifiedAt: verified ? (verifiedAt ? new Date(verifiedAt) : new Date()) : null,
     verificationSource: verified ? String(verificationSource || "Vérification manuelle").slice(0, 120) : null,
   }).where(eq(schoolsTable.id, id)).returning();
-  if (!school) return res.status(404).json({ message: "Introuvable" });
+  if (!school) {
+    res.status(404).json({ message: "Introuvable" });
+    return;
+  }
   res.json(school);
 });
 
 router.delete("/admin/schools/:id", adminAuth, async (req: Request, res: Response) => {
-  await db.delete(schoolsTable).where(eq(schoolsTable.id, parseInt(req.params.id)));
+  const id = parseRouteId(req.params.id);
+  if (Number.isNaN(id)) {
+    res.status(400).json({ message: "ID invalide" });
+    return;
+  }
+  await db.delete(schoolsTable).where(eq(schoolsTable.id, id));
   res.json({ success: true });
 });
 
@@ -271,18 +307,31 @@ router.post("/admin/articles", adminAuth, async (req: Request, res: Response) =>
   res.status(201).json(result.rows[0]);
 });
 
-router.put("/admin/articles/:id", adminAuth, async (req: Request, res: Response) => {
+router.put("/admin/articles/:id", adminAuth, async (req: Request, res: Response): Promise<void> => {
+  const id = parseRouteId(req.params.id);
+  if (Number.isNaN(id)) {
+    res.status(400).json({ message: "ID invalide" });
+    return;
+  }
   const { title, content, category, read_time } = req.body as Record<string, string>;
   const result = await pool.query(
     "UPDATE admin_articles SET title=$1, content=$2, category=$3, read_time=$4 WHERE id=$5 RETURNING *",
-    [title, content, category, read_time, req.params.id]
+    [title, content, category, read_time, id]
   );
-  if (!result.rows[0]) return res.status(404).json({ message: "Introuvable" });
+  if (!result.rows[0]) {
+    res.status(404).json({ message: "Introuvable" });
+    return;
+  }
   res.json(result.rows[0]);
 });
 
 router.delete("/admin/articles/:id", adminAuth, async (req: Request, res: Response) => {
-  await pool.query("DELETE FROM admin_articles WHERE id=$1", [req.params.id]);
+  const id = parseRouteId(req.params.id);
+  if (Number.isNaN(id)) {
+    res.status(400).json({ message: "ID invalide" });
+    return;
+  }
+  await pool.query("DELETE FROM admin_articles WHERE id=$1", [id]);
   res.json({ success: true });
 });
 
@@ -309,9 +358,9 @@ router.post("/admin/scrape", adminAuth, async (_req: Request, res: Response) => 
       const bodyText = $("body").text().toLowerCase();
       const found = KEYWORDS.filter(k => bodyText.includes(k));
 
-      $("a").each((_: number, el: Element) => {
-        const linkText = $(el as any).text().trim();
-        const href = $(el as any).attr("href");
+      $("a").each((_: number, el): boolean | void => {
+        const linkText = $(el).text().trim();
+        const href = $(el).attr("href");
         if (found.length > 0 && KEYWORDS.some(k => linkText.toLowerCase().includes(k)) && linkText.length > 12 && linkText.length < 200) {
           detected.push({
             id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,

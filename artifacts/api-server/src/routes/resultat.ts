@@ -64,7 +64,7 @@ router.post("/verifier-resultat", async (req, res) => {
     if (estAdmis) {
       // Extrait la ligne contenant le candidat pour plus de détails
       let details = "";
-      $("tr, li, p, div").each((_, el) => {
+      $("tr, li, p, div").each((_, el): boolean | void => {
         const text = normalize($(el).text());
         if (
           (numNorm.length > 3 && text.includes(numNorm)) ||
