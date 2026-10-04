@@ -37,10 +37,10 @@ export default function Assistant() {
         concours: competitions.slice(0, 20).map(c => ({ nom: c.title, ville: c.city, statut: c.status, ministere: c.ministry, diplome: c.diploma })),
       });
       setMode(reply.mode);
-      setMessages(current => [...current, { role: "assistant", text: reply.response }]);
+      setMessages(current => [...current, { role: "assistant", text: reply.warning ? `${reply.response}\n\n${reply.warning}` : reply.response }]);
     } catch {
       setMode("local");
-      setMessages(current => [...current, { role: "assistant", text: answer(text) }]);
+      setMessages(current => [...current, { role: "assistant", text: `${answer(text)}\n\nConnexion indisponible, réponse en mode local.` }]);
     } finally {
       setLoading(false);
     }

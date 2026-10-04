@@ -97,7 +97,35 @@ Réponds uniquement en français, de façon concise et pratique, en maximum troi
     });
     const text = message.content.find(block => block.type === "text");
     res.json(AskAssistantResponse.parse({ response: text?.type === "text" ? text.text : localAnswer(question, safeContext), mode: "anthropic" }));
-  } catch {
+  } catch (error) {
+    const apiError = error as {
+      name?: unknown;
+      status?: unknown;
+      error?: {
+        type?: unknown;
+        message?: unknown;
+        error?: { type?: unknown; message?: unknown };
+      };
+    };
+    const providerDetail = apiError?.error?.error ?? apiError?.error;
+    const providerMessage = typeof providerDetail?.message === "string"
+      ? providerDetail.message.toLowerCase()
+      : "";
+    const reason = providerMessage.includes("credit") || providerMessage.includes("billing")
+      ? "billing_or_credits"
+      : providerMessage.includes("model")
+        ? "model"
+        : providerMessage.includes("token") || providerMessage.includes("prompt")
+          ? "token_or_prompt"
+          : providerMessage.includes("api key") || providerMessage.includes("authentication")
+            ? "authentication"
+            : "other";
+    console.error("[assistant] Anthropic request failed", {
+      name: typeof apiError?.name === "string" ? apiError.name : "UnknownError",
+      status: typeof apiError?.status === "number" ? apiError.status : undefined,
+      type: typeof providerDetail?.type === "string" ? providerDetail.type : undefined,
+      reason,
+    });
     res.json(AskAssistantResponse.parse({ response: localAnswer(question, safeContext), mode: "local", warning: "Le service IA est momentanément indisponible." }));
   }
 });
