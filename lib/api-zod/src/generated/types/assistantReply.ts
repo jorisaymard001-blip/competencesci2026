@@ -5,11 +5,7 @@
  * Compétences CI API
  * OpenAPI spec version: 0.3.0
  */
-import type { AssistantReplyMode } from "./assistantReplyMode";
 
 export interface AssistantReply {
   response: string;
-  mode: AssistantReplyMode;
-  /** @nullable */
-  warning?: string | null;
 }

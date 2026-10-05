@@ -13,86 +13,12 @@ export const HealthCheckResponse = zod.object({
 
 export const askAssistantBodyQuestionMax = 1200;
 
-export const askAssistantBodyContextEcolesItemNomMax = 120;
-
-export const askAssistantBodyContextEcolesItemVilleMax = 80;
-
-export const askAssistantBodyContextEcolesItemTypeMax = 30;
-
-export const askAssistantBodyContextEcolesItemFilieresItemMax = 80;
-
-export const askAssistantBodyContextEcolesItemFilieresMax = 12;
-
-export const askAssistantBodyContextEcolesItemFraisMax = 80;
-
-export const askAssistantBodyContextEcolesMax = 20;
-
-export const askAssistantBodyContextConcoursItemNomMax = 120;
-
-export const askAssistantBodyContextConcoursItemVilleMax = 80;
-
-export const askAssistantBodyContextConcoursItemStatutMax = 30;
-
-export const askAssistantBodyContextConcoursItemMinistereMax = 120;
-
-export const askAssistantBodyContextConcoursItemDiplomeMax = 80;
-
-export const askAssistantBodyContextConcoursMax = 20;
-
 export const AskAssistantBody = zod.object({
   question: zod.string().min(1).max(askAssistantBodyQuestionMax),
-  context: zod
-    .object({
-      ecoles: zod
-        .array(
-          zod.object({
-            nom: zod.string().max(askAssistantBodyContextEcolesItemNomMax),
-            ville: zod.string().max(askAssistantBodyContextEcolesItemVilleMax),
-            type: zod.string().max(askAssistantBodyContextEcolesItemTypeMax),
-            filieres: zod
-              .array(
-                zod
-                  .string()
-                  .max(askAssistantBodyContextEcolesItemFilieresItemMax),
-              )
-              .max(askAssistantBodyContextEcolesItemFilieresMax),
-            frais: zod
-              .string()
-              .max(askAssistantBodyContextEcolesItemFraisMax)
-              .optional(),
-          }),
-        )
-        .max(askAssistantBodyContextEcolesMax)
-        .optional(),
-      concours: zod
-        .array(
-          zod.object({
-            nom: zod.string().max(askAssistantBodyContextConcoursItemNomMax),
-            ville: zod
-              .string()
-              .max(askAssistantBodyContextConcoursItemVilleMax),
-            statut: zod
-              .string()
-              .max(askAssistantBodyContextConcoursItemStatutMax),
-            ministere: zod
-              .string()
-              .max(askAssistantBodyContextConcoursItemMinistereMax),
-            diplome: zod
-              .string()
-              .max(askAssistantBodyContextConcoursItemDiplomeMax)
-              .optional(),
-          }),
-        )
-        .max(askAssistantBodyContextConcoursMax)
-        .optional(),
-    })
-    .optional(),
 });
 
 export const AskAssistantResponse = zod.object({
   response: zod.string(),
-  mode: zod.enum(["anthropic", "local"]),
-  warning: zod.string().nullish(),
 });
 
 export const ListSchoolsQueryParams = zod.object({

@@ -5,7 +5,6 @@
  * Compétences CI API
  * OpenAPI spec version: 0.3.0
  */
-import type { AssistantQuestionInputContext } from "./assistantQuestionInputContext";
 
 export interface AssistantQuestionInput {
   /**
@@ -13,5 +12,4 @@ export interface AssistantQuestionInput {
    * @maxLength 1200
    */
   question: string;
-  context?: AssistantQuestionInputContext;
 }

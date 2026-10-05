@@ -146,61 +146,16 @@ export interface CreateNotificationRequest {
   referenceType?: string | null;
 }
 
-export interface AssistantSchoolContext {
-  /** @maxLength 120 */
-  nom: string;
-  /** @maxLength 80 */
-  ville: string;
-  /** @maxLength 30 */
-  type: string;
-  /** @maxItems 12 */
-  filieres: string[];
-  /** @maxLength 80 */
-  frais?: string;
-}
-
-export interface AssistantCompetitionContext {
-  /** @maxLength 120 */
-  nom: string;
-  /** @maxLength 80 */
-  ville: string;
-  /** @maxLength 30 */
-  statut: string;
-  /** @maxLength 120 */
-  ministere: string;
-  /** @maxLength 80 */
-  diplome?: string;
-}
-
-export type AssistantQuestionInputContext = {
-  /** @maxItems 20 */
-  ecoles?: AssistantSchoolContext[];
-  /** @maxItems 20 */
-  concours?: AssistantCompetitionContext[];
-};
-
 export interface AssistantQuestionInput {
   /**
    * @minLength 1
    * @maxLength 1200
    */
   question: string;
-  context?: AssistantQuestionInputContext;
 }
-
-export type AssistantReplyMode =
-  (typeof AssistantReplyMode)[keyof typeof AssistantReplyMode];
-
-export const AssistantReplyMode = {
-  anthropic: "anthropic",
-  local: "local",
-} as const;
 
 export interface AssistantReply {
   response: string;
-  mode: AssistantReplyMode;
-  /** @nullable */
-  warning?: string | null;
 }
 
 export interface AssistantErrorResponse {

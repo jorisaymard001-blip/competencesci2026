@@ -6,13 +6,9 @@
  * OpenAPI spec version: 0.3.0
  */
 
-export * from "./assistantCompetitionContext";
 export * from "./assistantErrorResponse";
 export * from "./assistantQuestionInput";
-export * from "./assistantQuestionInputContext";
 export * from "./assistantReply";
-export * from "./assistantReplyMode";
-export * from "./assistantSchoolContext";
 export * from "./authResponse";
 export * from "./competition";
 export * from "./competitionDetail";

@@ -84,6 +84,16 @@ function schoolLines(schools: School[], question: string, categoryTerms: readonl
     });
 }
 
+function getCurrentCompetitionStatus(competition: Competition, today = new Date().toISOString().slice(0, 10)): Competition["status"] {
+  if (competition.status === "closed") return "closed";
+  if (competition.closeDate && competition.closeDate < today) return "closed";
+  if (competition.openDate && competition.openDate > today) return "upcoming";
+  if (competition.status === "upcoming" && competition.openDate && competition.openDate <= today) {
+    return "open";
+  }
+  return competition.status;
+}
+
 function competitionLines(
   competitions: Competition[],
   question: string,
@@ -91,26 +101,37 @@ function competitionLines(
 ): { lines: string[]; openCount: number } {
   const normalizedQuestion = normalize(question);
   const wantsClosed = /\b(ferme|fermes|clos|termine|passes|anciens)\b/.test(normalizedQuestion);
+  const wantsUpcoming = /\b(a venir|prochain|prochains|prochaine|prochaines)\b/.test(normalizedQuestion);
+  const wantsOpen = /\b(ouvert|ouverts|ouverte|ouvertes|inscription|inscrire|postuler)\b/.test(normalizedQuestion);
   const diplomaTerms = ["bts", "licence", "master", "doctorat", "bac", "bepc", "cap"];
   const requestedDiploma = diplomaTerms.find(term => normalizedQuestion.includes(term));
+  const today = new Date().toISOString().slice(0, 10);
   const available = competitions.filter(competition => {
+    const status = getCurrentCompetitionStatus(competition, today);
     const statusMatches = wantsClosed
-      ? competition.status === "closed"
-      : competition.status === "open" || competition.status === "upcoming";
+      ? status === "closed"
+      : wantsUpcoming
+        ? status === "upcoming"
+        : wantsOpen
+          ? status === "open"
+          : status === "open" || status === "upcoming";
     const cityMatches = !city || normalize(competition.city) === normalize(city);
     const diplomaMatches = !requestedDiploma || normalize(competition.diploma).includes(requestedDiploma);
     return statusMatches && cityMatches && diplomaMatches;
   });
 
   const sorted = [...available].sort((a, b) => {
-    if (a.status !== b.status) return a.status === "open" ? -1 : 1;
+    const statusA = getCurrentCompetitionStatus(a, today);
+    const statusB = getCurrentCompetitionStatus(b, today);
+    if (statusA !== statusB) return statusA === "open" ? -1 : 1;
     return (a.closeDate ?? "9999").localeCompare(b.closeDate ?? "9999");
   });
 
   return {
-    openCount: competitions.filter(competition => competition.status === "open").length,
+    openCount: competitions.filter(competition => getCurrentCompetitionStatus(competition, today) === "open").length,
     lines: sorted.slice(0, 4).map(competition => {
-      const status = competition.status === "open" ? "ouvert" : competition.status === "upcoming" ? "à venir" : "clôturé";
+      const currentStatus = getCurrentCompetitionStatus(competition, today);
+      const status = currentStatus === "open" ? "ouvert" : currentStatus === "upcoming" ? "à venir" : "clôturé";
       const closeDate = competition.closeDate ? ` — clôture : ${competition.closeDate}` : "";
       const positions = competition.positions > 0 ? ` — ${competition.positions} poste(s)` : "";
       const website = competition.website ? ` — avis officiel : ${competition.website}` : "";
@@ -151,7 +172,7 @@ function answerFromDatabase(question: string, schools: School[], competitions: C
     return `Les conditions d’admission par série de bac ne sont pas documentées dans la base. Indique le domaine et la ville qui t’intéressent pour que je recherche les établissements correspondants.`;
   }
 
-  const openCount = competitions.filter(competition => competition.status === "open").length;
+  const openCount = competitionLines(competitions, "concours ouverts").openCount;
   return `Je peux rechercher parmi ${schools.length} école(s) et ${competitions.length} concours référencés, dont ${openCount} ouvert(s). Précise une filière, un diplôme, un concours ou une ville pour obtenir des résultats ciblés.`;
 }
 
