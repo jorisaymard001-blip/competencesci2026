@@ -71,7 +71,7 @@ export function Layout({
   const showHeader = title || showBack || (!showBack && user);
 
   return (
-    <div className="min-h-[100dvh] flex bg-background">
+    <div className="app-atmosphere min-h-[100dvh] flex bg-background">
 
       {/* ── DRAWER (tous écrans) ──────────────────────────────────── */}
       <AnimatePresence>

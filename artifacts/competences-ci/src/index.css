@@ -177,9 +177,65 @@
   ::-webkit-scrollbar-thumb:hover {
     @apply bg-muted-foreground/50;
   }
+
+  button:focus-visible,
+  a:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible {
+    outline: 2px solid hsl(var(--primary) / 0.65);
+    outline-offset: 2px;
+  }
 }
 
 @layer utilities {
+  .app-atmosphere,
+  .auth-page {
+    background-color: hsl(var(--background));
+    background-image:
+      radial-gradient(ellipse 42rem 30rem at 0% 0%, hsl(var(--primary) / 0.07), transparent 72%),
+      radial-gradient(ellipse 36rem 28rem at 100% 8%, hsl(var(--secondary) / 0.055), transparent 74%);
+  }
+
+  .auth-card {
+    box-shadow: 0 24px 72px -28px rgb(34 28 20 / 0.24), 0 4px 16px rgb(34 28 20 / 0.06);
+  }
+
+  .auth-hero {
+    background:
+      radial-gradient(circle at 86% 10%, hsl(var(--primary) / 0.2), transparent 13rem),
+      radial-gradient(circle at 8% 100%, hsl(var(--secondary) / 0.18), transparent 15rem),
+      linear-gradient(135deg, hsl(220 31% 13%), hsl(159 34% 16%) 58%, hsl(24 34% 17%));
+  }
+
+  .auth-hero::before {
+    content: "";
+    position: absolute;
+    top: -8.5rem;
+    right: -7rem;
+    width: 17rem;
+    height: 17rem;
+    border: 1px solid rgb(255 255 255 / 0.12);
+    border-radius: 9999px;
+    box-shadow: 0 0 0 22px rgb(255 255 255 / 0.025);
+    pointer-events: none;
+  }
+
+  .auth-hero::after {
+    content: "";
+    position: absolute;
+    inset: auto 1.5rem 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, hsl(var(--primary) / 0.55), hsl(var(--secondary) / 0.55), transparent);
+    pointer-events: none;
+  }
+
+  .school-card-art {
+    background:
+      radial-gradient(circle at 8% 8%, hsl(var(--primary) / 0.1), transparent 48%),
+      linear-gradient(135deg, hsl(var(--muted)), hsl(var(--card)));
+  }
+
   .text-balance {
     text-wrap: balance;
   }

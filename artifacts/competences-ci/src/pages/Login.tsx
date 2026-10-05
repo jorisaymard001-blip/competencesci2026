@@ -41,13 +41,13 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-[100dvh] flex items-start sm:items-center justify-center bg-background sm:bg-muted/30 px-0 sm:px-4 py-0 sm:py-8">
-      <div className="w-full max-w-md sm:rounded-3xl sm:shadow-2xl sm:border sm:border-border/50 bg-background sm:bg-card overflow-hidden">
+    <div className="auth-page min-h-[100dvh] flex items-start sm:items-center justify-center bg-background sm:bg-muted/30 px-0 sm:px-4 py-0 sm:py-8">
+      <div className="auth-card w-full max-w-md sm:rounded-3xl sm:shadow-2xl sm:border sm:border-border/50 bg-background sm:bg-card overflow-hidden">
 
         {/* Header */}
-        <div className="relative px-6 pt-16 pb-12 sm:rounded-t-3xl overflow-hidden bg-gradient-to-br from-gray-900 via-gray-950 to-black">
+        <div className="auth-hero relative px-6 pt-16 pb-12 sm:rounded-t-3xl overflow-hidden">
           <div className="absolute -top-20 -right-20 w-64 h-64 bg-orange-500/10 rounded-full blur-3xl" />
-          <div className="absolute bottom-0 left-0 w-48 h-48 bg-orange-500/5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/4" />
+          <div className="absolute bottom-0 left-0 w-48 h-48 bg-emerald-400/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/4" />
           <div className="relative z-10">
             <div className="w-16 h-16 rounded-2xl overflow-hidden shadow-lg shadow-orange-500/20 mb-5 border border-white/10">
               <img src="/icon-192x192.png" alt="Compétences CI" className="w-full h-full object-cover" />
@@ -111,7 +111,7 @@ export default function Login() {
             <button
               type="submit"
               disabled={isPending}
-              className="w-full py-4 rounded-2xl bg-orange-500 hover:bg-orange-600 text-white font-bold shadow-lg shadow-orange-500/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-70 mt-2 press"
+              className="w-full py-4 rounded-2xl bg-orange-500 hover:bg-orange-600 hover:-translate-y-0.5 hover:shadow-xl text-white font-bold shadow-lg shadow-orange-500/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-70 mt-2 press"
             >
               {isPending ? (
                 <Loader2 className="w-5 h-5 animate-spin" />

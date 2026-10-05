@@ -1,5 +1,5 @@
 // ── Compétences CI — Service Worker ──────────────────────────────────────────
-const STATIC_CACHE = "competences-ci-static-v6";
+const STATIC_CACHE = "competences-ci-static-v7";
 const API_CACHE    = "competences-ci-api-v4";
 const IMG_CACHE    = "competences-ci-img-v1";
 const NOTIFICATION_PREFS_CACHE = "competences-ci-notification-prefs-v1";

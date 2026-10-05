@@ -1,1 +1,2 @@
 - [Assistant response strategy](assistant-ai-provider.md) — Compétences CI answers from real database records; do not call an external AI provider.
+- [PWA cache refresh](pwa-cache-refresh.md) — bump the static shell cache version after CSS/JS changes; clients may otherwise show a stale UI after restart.

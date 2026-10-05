@@ -24,9 +24,9 @@ export function SchoolCard({ school, index = 0 }: { school: School; index?: numb
     >
       <Link
         href={`/schools/${school.id}`}
-        className="group block bg-card rounded-2xl border border-border/50 shadow-sm hover:shadow-lg transition-all duration-200 active:scale-[0.97] overflow-hidden"
+        className="group block bg-card rounded-2xl border border-border/50 shadow-sm hover:-translate-y-1 hover:border-primary/30 hover:shadow-lg transition-all duration-200 active:scale-[0.97] overflow-hidden"
       >
-        <div className="relative h-40 overflow-hidden bg-gray-100 dark:bg-slate-800 flex items-center justify-center">
+        <div className="school-card-art relative h-40 overflow-hidden flex items-center justify-center">
           <img
             src={imageUrl}
             alt={school.name}
@@ -138,7 +138,7 @@ export function CompetitionCard({ competition, index = 0 }: { competition: Compe
         href={`/competitions/${competition.id}`}
         className={cn(
           "group block bg-card rounded-2xl border border-border/50 shadow-sm hover:shadow-lg",
-          "transition-all duration-200 active:scale-[0.97] overflow-hidden",
+          "transition-all duration-200 active:scale-[0.97] hover:-translate-y-1 overflow-hidden",
           "ring-1 ring-transparent hover:ring-1",
           status.accentCls
         )}
