@@ -389,7 +389,7 @@ Dans le frontend, l'URL du backend
 doit pointer vers Render en production :
 
 Crée .env.production :
-VITE_API_URL=https://competences-ci-api.onrender.com
+VITE_API_URL=[URL API publique à configurer dans Netlify]
 
 Et en développement .env.development :
 VITE_API_URL=http://localhost:3000
